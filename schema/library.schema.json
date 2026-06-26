@@ -1,0 +1,168 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/travisccook/droidnet-command-library/main/schema/library.schema.json",
+  "title": "Command Builder Library",
+  "description": "A library of board command 'books' for droidnet-command-library. Each component is a board (or a WCB verb book); each command declares how a structured step encodes to a wire string.",
+  "type": "object",
+  "required": ["libraryVersion", "components"],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Schema identifier. Use 'droidnet-command-library/library/v1' or a URL to this file."
+    },
+    "libraryVersion": {
+      "type": "string",
+      "description": "Semantic version of THIS library's contents. The 'Update Library' flow compares this to decide whether a newer library is available.",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+([.-].*)?$"
+    },
+    "generatedFrom": {
+      "type": "string",
+      "description": "Free-text provenance note (firmware versions, docs, date)."
+    },
+    "enums": {
+      "type": "object",
+      "description": "Reusable, named value sets referenced by params via param.enum.",
+      "additionalProperties": { "$ref": "#/$defs/enum" }
+    },
+    "components": {
+      "type": "array",
+      "description": "The boards / verb books in this library.",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/component" }
+    }
+  },
+  "additionalProperties": true,
+
+  "$defs": {
+    "enum": {
+      "type": "object",
+      "required": ["values"],
+      "properties": {
+        "label": { "type": "string" },
+        "values": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["code", "label"],
+            "properties": {
+              "code": { "type": "string", "description": "The literal wire fragment for this choice (may be empty for an 'all/none' broadcast)." },
+              "label": { "type": "string", "description": "Human-readable name shown in the UI dropdown." }
+            },
+            "additionalProperties": true
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+
+    "component": {
+      "type": "object",
+      "required": ["id", "name", "kind", "commands"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$", "description": "Unique, stable, lowercase-kebab board id." },
+        "name": { "type": "string", "description": "Display name. The first whitespace-delimited word is used as the board chip label." },
+        "kind": {
+          "type": "string",
+          "enum": ["device-native", "wcb-verb"],
+          "description": "'device-native' = the board's own grammar; 'wcb-verb' = a command interpreted by an intermediary (e.g. a WCB) rather than the end device."
+        },
+        "confidence": {
+          "type": "string",
+          "enum": ["high", "community", "low"],
+          "description": "Provenance/trust badge. 'high' = verified against firmware/docs; 'community' = contributed, unverified; 'low' = best-effort/experimental."
+        },
+        "firmware": { "type": "string", "description": "Firmware version/identifier these commands were derived from." },
+        "vendor": { "type": "string" },
+        "routing": { "$ref": "#/$defs/routing" },
+        "commands": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/command" }
+        }
+      },
+      "additionalProperties": true
+    },
+
+    "routing": {
+      "type": "object",
+      "properties": {
+        "class": { "type": "string", "description": "Transport/addressing class, e.g. 'broadcast' or 'wcb-verb'." },
+        "nativeWrapper": { "type": "string", "description": "How the board wraps commands, e.g. 'none' or 'angle' (<...>)." },
+        "notes": { "type": "string" },
+        "durationSuffix": {
+          "type": "object",
+          "description": "If the board accepts a trailing duration (e.g. 'A006|60'), describe it here so the engine can append/strip it.",
+          "required": ["supported"],
+          "properties": {
+            "supported": { "type": "boolean" },
+            "sep": { "type": "string", "description": "Separator before the duration (default '|')." },
+            "unit": { "type": "string" },
+            "max": { "type": "integer" }
+          },
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": true
+    },
+
+    "command": {
+      "type": "object",
+      "required": ["id", "name"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$", "description": "Unique, stable command id (unique across the whole library)." },
+        "name": { "type": "string" },
+        "group": { "type": "string", "description": "Optional grouping label for the UI." },
+        "safety": {
+          "type": "string",
+          "enum": ["cosmetic", "movement", "power", "config"],
+          "description": "Risk class. Anything other than 'cosmetic' raises a confirm-before-firing warning in the UI."
+        },
+        "encoder": {
+          "type": "string",
+          "description": "Encoder name. Defaults to 'template'. Custom encoders must be registered via DroidNetCommandLibrary.registerEncoder().",
+          "default": "template"
+        },
+        "template": {
+          "type": "string",
+          "description": "For the 'template' encoder: a literal string with {param} placeholders. REQUIRED when encoder is 'template' (or omitted)."
+        },
+        "params": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/param" }
+        },
+        "supportsDuration": { "type": "boolean", "description": "Whether this command honors the component's routing.durationSuffix." },
+        "examples": { "type": "array", "items": { "type": "string" }, "description": "Canonical encoded examples, used by tests and docs." },
+        "commentLabel": { "type": "string", "description": "Default *** comment label applied when a fresh step is inserted." }
+      },
+      "additionalProperties": true,
+      "allOf": [
+        {
+          "if": {
+            "anyOf": [
+              { "not": { "required": ["encoder"] } },
+              { "properties": { "encoder": { "const": "template" } } }
+            ]
+          },
+          "then": { "required": ["template"] }
+        }
+      ]
+    },
+
+    "param": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": { "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9]*$", "description": "Placeholder name; must match a {name} in the template (for the template encoder)." },
+        "enum": { "type": "string", "description": "Name of an entry under top-level 'enums'. Renders as a dropdown." },
+        "type": { "type": "string", "enum": ["int"], "description": "Non-enum value type. 'int' renders a number input." },
+        "min": { "type": "integer" },
+        "max": { "type": "integer" },
+        "default": { "type": ["string", "number"], "description": "Default code/value used when the param is left blank. Strings for enum codes; numbers are accepted for int params." },
+        "required": { "type": "boolean" },
+        "pad": { "type": "integer", "minimum": 1, "description": "Zero-pad a numeric value to this fixed width (e.g. 4 → '0025')." }
+      },
+      "additionalProperties": true
+    }
+  }
+}

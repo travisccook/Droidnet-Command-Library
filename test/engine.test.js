@@ -1,0 +1,266 @@
+const fs = require('fs');
+const path = require('path');
+
+// Fresh engine instance per call (the engine holds a module-level loaded library).
+function loadEngine() {
+  jest.resetModules();
+  return require('../src/droidnet-command-library.js');
+}
+const LIB = JSON.parse(
+  fs.readFileSync(path.join(__dirname, '..', 'libraries', 'droidnet-astromech.json'), 'utf8')
+);
+
+describe('engine lookups', () => {
+  let cb;
+  beforeEach(() => { cb = loadEngine(); cb.loadLibrary(JSON.parse(JSON.stringify(LIB))); });
+
+  test('getComponents returns the seed books', () => {
+    expect(cb.getComponents().map(c => c.id)).toEqual(expect.arrayContaining(['flthy-hps', 'magic-panel']));
+  });
+  test('getLibraryVersion reports the loaded version', () => {
+    expect(cb.getLibraryVersion()).toBe('1.0.0');
+  });
+  test('getCommand resolves and back-links its component', () => {
+    const cmd = cb.getCommand('flthy.led.solid');
+    expect(cmd.name).toBe('Solid Color');
+    expect(cmd._component.id).toBe('flthy-hps');
+  });
+  test('getEnum resolves enum values', () => {
+    expect(cb.getEnum('flthy.color').values.find(v => v.code === '5').label).toBe('Blue');
+  });
+  test('loadLibrary is idempotent — reloading does not leak stale commands', () => {
+    cb.loadLibrary({ libraryVersion: '0', enums: {}, components: [] });
+    expect(cb.getComponents()).toEqual([]);
+    expect(cb.getCommand('flthy.led.solid')).toBeNull();
+  });
+});
+
+describe('encode (template)', () => {
+  let cb;
+  beforeEach(() => { cb = loadEngine(); cb.loadLibrary(LIB); });
+
+  test('substitutes enum params', () => {
+    expect(cb.encode(cb.getCommand('flthy.led.solid'), { designator: 'A', color: '5' }, {})).toBe('A0055');
+  });
+  test('uses param default when value missing', () => {
+    expect(cb.encode(cb.getCommand('flthy.led.solid'), { designator: 'A' }, {})).toBe('A0055');
+  });
+  test('appends duration with the component sep', () => {
+    expect(cb.encode(cb.getCommand('flthy.led.rainbow'), { designator: 'A' }, { duration: 240 })).toBe('A006|240');
+  });
+  test('ignores duration when command does not support it', () => {
+    expect(cb.encode(cb.getCommand('mp.mode'), { mode: '52' }, { duration: 9 })).toBe('T52');
+  });
+  test('prepends a manual target prefix', () => {
+    expect(cb.encode(cb.getCommand('mp.mode'), { mode: '52' }, { targetPrefix: ';S3' })).toBe(';S3T52');
+  });
+});
+
+describe('match (template)', () => {
+  let cb;
+  beforeEach(() => { cb = loadEngine(); cb.loadLibrary(LIB); });
+
+  test('recognizes a FlthyHPs solid token', () => {
+    expect(cb.match('A0055')).toEqual({ commandId: 'flthy.led.solid', params: { designator: 'A', color: '5' }, duration: undefined });
+  });
+  test('recovers a duration suffix', () => {
+    expect(cb.match('A006|240')).toEqual({ commandId: 'flthy.led.rainbow', params: { designator: 'A' }, duration: 240 });
+  });
+  test('recognizes a MagicPanel mode token', () => {
+    expect(cb.match('T52')).toEqual({ commandId: 'mp.mode', params: { mode: '52' }, duration: undefined });
+  });
+  test('returns null for an unknown token', () => {
+    expect(cb.match('%ZZ')).toBeNull();
+  });
+});
+
+describe('build/parse + round-trip', () => {
+  let cb;
+  beforeEach(() => { cb = loadEngine(); cb.loadLibrary(LIB); });
+
+  test('buildWCBValue joins steps and emits labels', () => {
+    const v = cb.buildWCBValue([
+      { type: 'command', commandId: 'flthy.led.rainbow', params: { designator: 'A' }, label: ' Flthy rainbow' },
+      { type: 'delay', ms: 500 },
+      { type: 'command', commandId: 'mp.mode', params: { mode: '52' } },
+    ]);
+    expect(v).toBe('A006^*** Flthy rainbow^;t500^T52');
+  });
+
+  test('parseWCBValue recognizes commands, raw, and labels', () => {
+    const steps = cb.parseWCBValue('A006^*** Flthy rainbow^<XYZ>^*** raw note');
+    expect(steps[0]).toMatchObject({ type: 'command', commandId: 'flthy.led.rainbow', label: ' Flthy rainbow' });
+    expect(steps[1]).toMatchObject({ type: 'raw', text: '<XYZ>', label: ' raw note' });
+  });
+
+  test('round-trips every fixture macro byte-identically', () => {
+    const macros = require('./fixtures/commands.sample.json');
+    for (const m of macros) {
+      expect(cb.buildWCBValue(cb.parseWCBValue(m.value))).toBe(m.value);
+    }
+  });
+
+  test('round-trips a bare *** comment fragment (empty label) losslessly', () => {
+    const v = 'A006^***';
+    expect(cb.buildWCBValue(cb.parseWCBValue(v))).toBe(v);
+  });
+});
+
+describe('rseries-le encoder', () => {
+  let cb;
+  beforeEach(() => { cb = loadEngine(); cb.loadLibrary(LIB); });
+
+  test('encodes a broadcast effect', () => {
+    expect(cb.encode(cb.getCommand('rseries.effect'),
+      { effect: '1', color: '0', speed: '5', seconds: '90', target: '' }, {})).toBe('~RTLE10590');
+  });
+  test('encodes a targeted effect with 6-digit padding', () => {
+    expect(cb.encode(cb.getCommand('rseries.effect'),
+      { effect: '5', color: '1', speed: '0', seconds: '0', target: '1' }, {})).toBe('~RTLE1051000');
+  });
+  test('decodes a broadcast token', () => {
+    expect(cb.match('~RTLE213000')).toMatchObject({ commandId: 'rseries.effect',
+      params: { effect: '21', color: '3', speed: '0', seconds: '0', target: '' } });
+  });
+  test('decodes a targeted token (body >= 9 -> first digit is id)', () => {
+    expect(cb.match('~RTLE1051000')).toMatchObject({ commandId: 'rseries.effect',
+      params: { effect: '5', color: '1', speed: '0', seconds: '0', target: '1' } });
+  });
+  test('rseries broadcast canonicalizes leading zeros (firmware-equivalent)', () => {
+    expect(cb.buildWCBValue(cb.parseWCBValue('~RTLE051000'))).toBe('~RTLE51000');
+  });
+  test('rseries refuses to broadcast a custom effect (must target a display)', () => {
+    expect(() => cb.encode(cb.getCommand('rseries.effect'),
+      { effect: '100', color: '0', speed: '0', seconds: '0', target: '' }, {})).toThrow();
+  });
+});
+
+describe('wcb-verb books', () => {
+  let cb;
+  beforeEach(() => { cb = loadEngine(); cb.loadLibrary(LIB); });
+
+  test('HCR stimulus encodes', () => {
+    expect(cb.encode(cb.getCommand('hcr.stim'), { emotion: 'H', strength: 'STRONG' }, {})).toBe(';H,STIM,H,STRONG');
+  });
+  test('Maestro trigger encodes', () => {
+    expect(cb.encode(cb.getCommand('maestro.trigger'), { id: '1', seq: '1' }, {})).toBe(';M11');
+  });
+  test('Maestro trigger decodes adjacent single-char params', () => {
+    expect(cb.match(';M11')).toMatchObject({ commandId: 'maestro.trigger', params: { id: '1', seq: '1' } });
+  });
+  test('Maestro trigger round-trips', () => {
+    expect(cb.buildWCBValue(cb.parseWCBValue(';M11'))).toBe(';M11');
+  });
+  test('HCR play round-trips', () => {
+    expect(cb.buildWCBValue(cb.parseWCBValue(';H,PLAY,B,9'))).toBe(';H,PLAY,B,9');
+  });
+});
+
+describe('PSIPro book', () => {
+  let cb;
+  beforeEach(() => { cb = loadEngine(); cb.loadLibrary(LIB); });
+  test('PSI front mode encodes with address prefix', () => {
+    expect(cb.encode(cb.getCommand('psi.mode'), { address: '4', mode: '92' }, {})).toBe('4T92');
+  });
+  test('PSI mode round-trips with duration', () => {
+    expect(cb.buildWCBValue(cb.parseWCBValue('4T17|3'))).toBe('4T17|3');
+  });
+  test('PSI mode decodes (disambiguated from MagicPanel)', () => {
+    expect(cb.match('4T92')).toMatchObject({ commandId: 'psi.mode', params: { address: '4', mode: '92' } });
+    expect(cb.match('4T17|3')).toMatchObject({ commandId: 'psi.mode', params: { address: '4', mode: '17' }, duration: 3 });
+  });
+  test('MagicPanel T{mode} is NOT mis-recognized as PSI', () => {
+    expect(cb.match('T52')).toMatchObject({ commandId: 'mp.mode', params: { mode: '52' } });
+  });
+});
+
+describe('hcr-native book', () => {
+  let cb;
+  beforeEach(() => { cb = loadEngine(); cb.loadLibrary(LIB); });
+
+  test('stimulus encodes wrapped', () => {
+    expect(cb.encode(cb.getCommand('hcr.native.stimulus'), { emotion: 'H', intensity: '1' }, {})).toBe('<SH1>');
+  });
+  test('overload (no params) encodes', () => {
+    expect(cb.encode(cb.getCommand('hcr.native.overload'), {}, {})).toBe('<SE>');
+  });
+  test('WAV file number zero-pads to 4 digits', () => {
+    expect(cb.encode(cb.getCommand('hcr.native.playWav'), { channel: 'A', file: '25' }, {})).toBe('<CA0025>');
+  });
+  test('random WAV pads both file numbers', () => {
+    expect(cb.encode(cb.getCommand('hcr.native.playWavRandom'), { channel: 'B', fileFrom: '3', fileTo: '185' }, {})).toBe('<CB0003C0185>');
+  });
+  test('volume + setEmotion encode', () => {
+    expect(cb.encode(cb.getCommand('hcr.native.volume'), { target: 'V', level: '100' }, {})).toBe('<PVV100>');
+    expect(cb.encode(cb.getCommand('hcr.native.setEmotion'), { emotion: 'H', value: '50' }, {})).toBe('<OH50>');
+  });
+  test('decodes a stimulus (S is both prefix and Sad emotion)', () => {
+    expect(cb.match('<SS0>')).toMatchObject({ commandId: 'hcr.native.stimulus', params: { emotion: 'S', intensity: '0' } });
+  });
+  test('overload is not mis-read as a stimulus', () => {
+    expect(cb.match('<SE>')).toMatchObject({ commandId: 'hcr.native.overload' });
+  });
+  test('WAV vs random-WAV disambiguation', () => {
+    expect(cb.match('<CA0025>')).toMatchObject({ commandId: 'hcr.native.playWav', params: { channel: 'A', file: '0025' } });
+    expect(cb.match('<CB0003C0185>')).toMatchObject({ commandId: 'hcr.native.playWavRandom', params: { channel: 'B', fileFrom: '0003', fileTo: '0185' } });
+  });
+  test('O-family disambiguation (mode / override / reset / setEmotion)', () => {
+    expect(cb.match('<OA1>')).toMatchObject({ commandId: 'hcr.native.canonMode', params: { mode: '1' } });
+    expect(cb.match('<O1>')).toMatchObject({ commandId: 'hcr.native.personalityOverride', params: { state: '1' } });
+    expect(cb.match('<OR>')).toMatchObject({ commandId: 'hcr.native.resetEmotions' });
+    expect(cb.match('<OM100>')).toMatchObject({ commandId: 'hcr.native.setEmotion', params: { emotion: 'M', value: '100' } });
+  });
+  test('muse-family disambiguation (state / single / gaps)', () => {
+    expect(cb.match('<M1>')).toMatchObject({ commandId: 'hcr.native.muse', params: { state: '1' } });
+    expect(cb.match('<MT>')).toMatchObject({ commandId: 'hcr.native.muse', params: { state: 'T' } });
+    expect(cb.match('<MM>')).toMatchObject({ commandId: 'hcr.native.museSingle' });
+    expect(cb.match('<MN5>')).toMatchObject({ commandId: 'hcr.native.museMinGap', params: { seconds: '5' } });
+  });
+  test('record + stop/volume disambiguation', () => {
+    expect(cb.match('<R0>')).toMatchObject({ commandId: 'hcr.native.memoryMode', params: { mode: '0' } });
+    expect(cb.match('<RRP3>')).toMatchObject({ commandId: 'hcr.native.memoryPlay', params: { slot: '3' } });
+    expect(cb.match('<PSV>')).toMatchObject({ commandId: 'hcr.native.stop', params: { target: 'V' } });
+    expect(cb.match('<PVV100>')).toMatchObject({ commandId: 'hcr.native.volume', params: { target: 'V', level: '100' } });
+  });
+  test('query decodes (longest-first enum: EH before E)', () => {
+    expect(cb.match('<QEH>')).toMatchObject({ commandId: 'hcr.native.query', params: { query: 'EH' } });
+    expect(cb.match('<QE>')).toMatchObject({ commandId: 'hcr.native.query', params: { query: 'E' } });
+  });
+  test('round-trips real single-container HCR macros', () => {
+    for (const v of ['<SH0>', '<SE>', '<M1>', '<CA0001>', '<CB0009>', '<PVV100>', '<OH50>', '<QEH>']) {
+      expect(cb.buildWCBValue(cb.parseWCBValue(v))).toBe(v);
+    }
+  });
+  test('comma-batched container survives losslessly as a raw step', () => {
+    const v = '<M0,PSG,PSA,PSB>';
+    expect(cb.buildWCBValue(cb.parseWCBValue(v))).toBe(v);
+    expect(cb.parseWCBValue(v)[0].type).toBe('raw');
+  });
+});
+
+describe('registerEncoder (custom board grammar)', () => {
+  let cb;
+  beforeEach(() => {
+    cb = loadEngine();
+    cb.registerEncoder('shout', {
+      encode(cmd, params) { return '!' + String(params.text || '').toUpperCase(); },
+      match(token) {
+        const m = /^!([A-Z]+)$/.exec(token);
+        return m ? { commandId: 'demo.shout', params: { text: m[1] } } : null;
+      },
+    });
+    cb.loadLibrary({
+      libraryVersion: '0.0.1', enums: {},
+      components: [{
+        id: 'demo', name: 'Demo Board', kind: 'device-native',
+        commands: [{ id: 'demo.shout', name: 'Shout', encoder: 'shout', params: [{ name: 'text' }] }],
+      }],
+    });
+  });
+  test('encodes via the custom encoder', () => {
+    expect(cb.encode(cb.getCommand('demo.shout'), { text: 'hi' }, {})).toBe('!HI');
+  });
+  test('parse uses the custom encoder match', () => {
+    expect(cb.parseWCBValue('!HELLO')[0]).toMatchObject({ type: 'command', commandId: 'demo.shout', params: { text: 'HELLO' } });
+  });
+});

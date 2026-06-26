@@ -1,0 +1,231 @@
+{
+  "$schema": "droidnet-command-library/library/v1",
+  "libraryVersion": "1.0.0",
+  "generatedFrom": "C2B5 firmware + WIPDocs (2026-06)",
+  "enums": {
+    "flthy.designator": { "label": "Holoprojector", "values": [
+      {"code":"F","label":"Front"},{"code":"R","label":"Rear"},{"code":"T","label":"Top"},
+      {"code":"A","label":"All"},{"code":"X","label":"Front+Rear"},{"code":"Y","label":"Front+Top"},{"code":"Z","label":"Rear+Top"}
+    ]},
+    "flthy.color": { "label":"Color", "values":[
+      {"code":"1","label":"Red"},{"code":"2","label":"Yellow"},{"code":"3","label":"Green"},{"code":"4","label":"Cyan"},
+      {"code":"5","label":"Blue"},{"code":"6","label":"Magenta"},{"code":"7","label":"Orange"},{"code":"8","label":"Purple"},
+      {"code":"9","label":"White"},{"code":"0","label":"Random"}
+    ]},
+    "mp.mode": { "label":"Mode", "values":[
+      {"code":"0","label":"Off"},{"code":"6","label":"Scream"},{"code":"18","label":"Compress"},
+      {"code":"23","label":"Eye Scan"},{"code":"25","label":"Fade Out"},{"code":"35","label":"Quadrant"},
+      {"code":"44","label":"Happy Face"},{"code":"45","label":"Sad Face"},{"code":"46","label":"Heart"},{"code":"52","label":"VU Meter"}
+    ]},
+    "rseries.effect": { "label":"Effect", "values":[
+      {"code":"0","label":"Normal"},{"code":"1","label":"Alarm"},{"code":"2","label":"Failure"},
+      {"code":"3","label":"Leia"},{"code":"4","label":"March"},{"code":"5","label":"Solid Color"},
+      {"code":"6","label":"Flash Color"},{"code":"7","label":"Flip Flop Color"},{"code":"8","label":"Flip Flop Alt Color"},
+      {"code":"9","label":"Color Swap"},{"code":"10","label":"Rainbow"},{"code":"11","label":"Red Alert"},
+      {"code":"12","label":"Mic Bright"},{"code":"13","label":"Mic Rainbow"},{"code":"14","label":"Lights Out"},
+      {"code":"15","label":"Text"},{"code":"16","label":"Text Scroll Left"},{"code":"17","label":"Text Scroll Right"},
+      {"code":"18","label":"Text Scroll Up"},{"code":"19","label":"Roaming Pixel"},{"code":"20","label":"Horizontal Scan"},
+      {"code":"21","label":"Vertical Scan"},{"code":"22","label":"Fire"},{"code":"23","label":"PSI Color Wipe"},
+      {"code":"24","label":"Pulse"},{"code":"99","label":"Random"},
+      {"code":"100","label":"SD Bitmap (custom)"},{"code":"101","label":"Plasma (custom)"},
+      {"code":"102","label":"MetaBalls (custom)"},{"code":"103","label":"Fractal (custom)"},
+      {"code":"104","label":"Fade and Scroll (custom)"},{"code":"105","label":"Color Wheel (custom)"}
+    ]},
+    "rseries.color": { "label":"Color", "values":[
+      {"code":"0","label":"Default"},{"code":"1","label":"Red"},{"code":"2","label":"Orange"},
+      {"code":"3","label":"Yellow"},{"code":"4","label":"Green"},{"code":"5","label":"Cyan"},
+      {"code":"6","label":"Blue"},{"code":"7","label":"Purple"},{"code":"8","label":"Magenta"},{"code":"9","label":"Pink"}
+    ]},
+    "rseries.target": { "label":"Display", "values":[
+      {"code":"","label":"All"},{"code":"1","label":"Front"},{"code":"2","label":"Rear"}
+    ]},
+    "hcr.emotion": { "label":"Emotion", "values":[ {"code":"H","label":"Happy"},{"code":"S","label":"Sad"},{"code":"M","label":"Mad"},{"code":"C","label":"Scared"} ] },
+    "hcr.strength": { "label":"Strength", "values":[ {"code":"MOD","label":"Moderate"},{"code":"STRONG","label":"Strong"} ] },
+    "hcr.channel": { "label":"Channel", "values":[ {"code":"A","label":"A"},{"code":"B","label":"B"} ] },
+    "maestro.id": { "label":"Maestro", "values":[ {"code":"0","label":"All"},{"code":"1","label":"#1"},{"code":"2","label":"#2"} ] },
+    "psi.address": { "label":"PSI", "values":[ {"code":"0","label":"All"},{"code":"4","label":"Front"},{"code":"5","label":"Rear"} ] },
+    "psi.mode": { "label":"Effect", "values":[ {"code":"1","label":"Reset"},{"code":"3","label":"Slow Flash"},{"code":"5","label":"Scream"},
+      {"code":"9","label":"Heart"},{"code":"11","label":"Imperial March"},{"code":"13","label":"Disco"},{"code":"15","label":"Knight Rider"},
+      {"code":"17","label":"Solid Red"},{"code":"18","label":"Solid Green"},{"code":"92","label":"VU Meter"} ] },
+    "hcr.intensity": { "label":"Intensity", "values":[ {"code":"0","label":"Mild"},{"code":"1","label":"Extreme"} ] },
+    "hcr.museState": { "label":"Muse", "values":[ {"code":"1","label":"Enable"},{"code":"0","label":"Disable"},{"code":"T","label":"Toggle"} ] },
+    "hcr.stopTarget": { "label":"Stop", "values":[ {"code":"V","label":"Vocalizer (now)"},{"code":"G","label":"Vocalizer (graceful)"},{"code":"A","label":"WAV A"},{"code":"B","label":"WAV B"} ] },
+    "hcr.volTarget": { "label":"Channel", "values":[ {"code":"V","label":"Vocalizer"},{"code":"A","label":"WAV A"},{"code":"B","label":"WAV B"} ] },
+    "hcr.canonMode": { "label":"Mode", "values":[ {"code":"0","label":"Improvisational"},{"code":"1","label":"Canonical"} ] },
+    "hcr.onoff": { "label":"State", "values":[ {"code":"1","label":"Enable"},{"code":"0","label":"Disable"} ] },
+    "hcr.memMode": { "label":"Playback", "values":[ {"code":"0","label":"Strict"},{"code":"1","label":"Organic"} ] },
+    "hcr.query": { "label":"Query", "values":[
+      {"code":"EH","label":"Happy emotion"},{"code":"ES","label":"Sad emotion"},{"code":"EM","label":"Angry emotion"},{"code":"EC","label":"Scared emotion"},
+      {"code":"E","label":"All emotions"},{"code":"O","label":"Override state"},{"code":"M","label":"Muse state"},{"code":"F","label":"WAV file count"},
+      {"code":"T","label":"Vocalization duration"},{"code":"PV","label":"Vocalizing?"},{"code":"PA","label":"WAV A file #"},{"code":"PB","label":"WAV B file #"},
+      {"code":"VV","label":"Vocalizer volume"},{"code":"VA","label":"WAV A volume"},{"code":"VB","label":"WAV B volume"},{"code":"D","label":"Key metrics"} ] }
+  },
+  "components": [
+    {
+      "id":"flthy-hps", "name":"FlthyHPs Holoprojectors", "kind":"device-native",
+      "confidence":"high", "firmware":"v1.8",
+      "routing": { "class":"broadcast", "nativeWrapper":"none",
+                   "durationSuffix": {"supported":true,"sep":"|","unit":"seconds","max":32767} },
+      "commands": [
+        { "id":"flthy.led.solid", "name":"Solid Color", "group":"LED Effects", "safety":"cosmetic",
+          "encoder":"template", "template":"{designator}005{color}",
+          "params":[ {"name":"designator","enum":"flthy.designator","required":true},
+                     {"name":"color","enum":"flthy.color","default":"5"} ],
+          "supportsDuration":true, "examples":["A0055","A0055|60"], "commentLabel":"Flthy solid" },
+        { "id":"flthy.led.rainbow", "name":"Rainbow", "group":"LED Effects", "safety":"cosmetic",
+          "encoder":"template", "template":"{designator}006",
+          "params":[ {"name":"designator","enum":"flthy.designator","required":true} ],
+          "supportsDuration":true, "examples":["A006","A006|240"], "commentLabel":"Flthy rainbow" }
+      ]
+    },
+    {
+      "id":"magic-panel", "name":"MagicPanel", "kind":"device-native",
+      "confidence":"high", "firmware":"C2B5",
+      "routing": { "class":"broadcast", "nativeWrapper":"none", "durationSuffix": {"supported":false} },
+      "commands": [
+        { "id":"mp.mode", "name":"Run Mode", "group":"Patterns", "safety":"cosmetic",
+          "encoder":"template", "template":"T{mode}",
+          "params":[ {"name":"mode","enum":"mp.mode","required":true} ],
+          "examples":["T52","T0"], "commentLabel":"MP mode" }
+      ]
+    },
+    {
+      "id":"rseries-logic", "name":"RSeriesLogic (Logic Displays)", "kind":"device-native",
+      "confidence":"high", "firmware":"Reeltwo WLogicEngine32 (C2B5)",
+      "routing": { "class":"broadcast", "nativeWrapper":"none", "durationSuffix": {"supported":false} },
+      "commands": [
+        { "id":"rseries.effect", "name":"Logic Effect", "group":"Effects", "safety":"cosmetic",
+          "encoder":"rseries-le",
+          "params":[
+            {"name":"effect","enum":"rseries.effect","required":true},
+            {"name":"color","enum":"rseries.color","default":"0"},
+            {"name":"speed","type":"int","min":0,"max":9,"default":0},
+            {"name":"seconds","type":"int","min":0,"max":99,"default":0},
+            {"name":"target","enum":"rseries.target","default":""}
+          ],
+          "examples":["~RTLE10590","~RTLE213000","~RTLE1051000"], "commentLabel":"Logics effect" }
+      ]
+    },
+    {
+      "id":"wcb-hcr", "name":"WCB · HCR Vocalizer", "kind":"wcb-verb", "confidence":"high",
+      "firmware":"WCB 6.1.0 HCR_Integration", "routing": { "class":"wcb-verb" },
+      "commands": [
+        { "id":"hcr.stim", "name":"Emotional Stimulus", "group":"Emotion", "safety":"cosmetic",
+          "encoder":"template", "template":";H,STIM,{emotion},{strength}",
+          "params":[ {"name":"emotion","enum":"hcr.emotion","required":true},{"name":"strength","enum":"hcr.strength","required":true} ],
+          "examples":[";H,STIM,H,STRONG"], "commentLabel":"HCR stimulus" },
+        { "id":"hcr.play", "name":"Play WAV", "group":"Audio", "safety":"cosmetic",
+          "encoder":"template", "template":";H,PLAY,{channel},{file}",
+          "params":[ {"name":"channel","enum":"hcr.channel","required":true},{"name":"file","type":"int","min":0,"max":9999,"required":true} ],
+          "examples":[";H,PLAY,B,9"], "commentLabel":"HCR play" }
+      ]
+    },
+    {
+      "id":"maestro", "name":"Maestro (sequence trigger)", "kind":"wcb-verb", "confidence":"high",
+      "routing": { "class":"wcb-verb" },
+      "commands": [
+        { "id":"maestro.trigger", "name":"Run Sequence", "group":"Sequences", "safety":"movement",
+          "encoder":"template", "template":";M{id}{seq}",
+          "params":[ {"name":"id","enum":"maestro.id","required":true},{"name":"seq","type":"int","min":0,"max":9,"required":true} ],
+          "examples":[";M11"], "commentLabel":"Maestro seq" }
+      ]
+    },
+    {
+      "id":"psi-pro", "name":"PSIPro (Process State Indicators)", "kind":"device-native", "confidence":"high",
+      "routing": { "class":"broadcast", "nativeWrapper":"none",
+                   "durationSuffix": {"supported":true,"sep":"|","unit":"seconds","max":99} },
+      "commands": [
+        { "id":"psi.mode", "name":"Run Effect", "group":"Effects", "safety":"cosmetic",
+          "encoder":"template", "template":"{address}T{mode}",
+          "params":[ {"name":"address","enum":"psi.address","required":true},{"name":"mode","enum":"psi.mode","required":true} ],
+          "supportsDuration":true, "examples":["4T92","5T03","0T6"], "commentLabel":"PSI effect" }
+      ]
+    },
+    {
+      "id":"hcr-native", "name":"HCR Vocalizer (native <…>)", "kind":"device-native", "confidence":"high",
+      "vendor":"Human-Cyborg Relations", "firmware":"HCR official command API",
+      "routing": { "class":"broadcast", "nativeWrapper":"angle", "durationSuffix": {"supported":false},
+                   "notes":"All commands wrapped in <...>; chain via comma <a,b> or back-to-back <a><b>. Transport Serial/UART/I2C. Distinct from the wcb-hcr ;H verb book." },
+      "commands": [
+        { "id":"hcr.native.stimulus", "name":"Emotional Stimulus", "group":"Stimuli", "safety":"cosmetic",
+          "encoder":"template", "template":"<S{emotion}{intensity}>",
+          "params":[ {"name":"emotion","enum":"hcr.emotion","required":true},{"name":"intensity","enum":"hcr.intensity","required":true} ],
+          "examples":["<SH1>","<SM0>"], "commentLabel":"HCR stimulus" },
+        { "id":"hcr.native.overload", "name":"Overload / Electrocution", "group":"Stimuli", "safety":"cosmetic",
+          "encoder":"template", "template":"<SE>", "params":[], "examples":["<SE>"], "commentLabel":"HCR overload" },
+
+        { "id":"hcr.native.muse", "name":"Muse Enable/Disable/Toggle", "group":"Muse", "safety":"cosmetic",
+          "encoder":"template", "template":"<M{state}>",
+          "params":[ {"name":"state","enum":"hcr.museState","required":true} ],
+          "examples":["<M1>","<M0>","<MT>"], "commentLabel":"HCR muse" },
+        { "id":"hcr.native.museSingle", "name":"Trigger Single Musing", "group":"Muse", "safety":"cosmetic",
+          "encoder":"template", "template":"<MM>", "params":[], "examples":["<MM>"], "commentLabel":"HCR muse once" },
+        { "id":"hcr.native.museMinGap", "name":"Muse Min Gap (s)", "group":"Muse", "safety":"cosmetic",
+          "encoder":"template", "template":"<MN{seconds}>",
+          "params":[ {"name":"seconds","type":"int","min":0,"required":true} ],
+          "examples":["<MN5>"], "commentLabel":"HCR muse min gap" },
+        { "id":"hcr.native.museMaxGap", "name":"Muse Max Gap (s)", "group":"Muse", "safety":"cosmetic",
+          "encoder":"template", "template":"<MX{seconds}>",
+          "params":[ {"name":"seconds","type":"int","min":0,"required":true} ],
+          "examples":["<MX30>"], "commentLabel":"HCR muse max gap" },
+
+        { "id":"hcr.native.playWav", "name":"Play WAV File", "group":"SD WAV", "safety":"cosmetic",
+          "encoder":"template", "template":"<C{channel}{file}>",
+          "params":[ {"name":"channel","enum":"hcr.channel","required":true},
+                     {"name":"file","type":"int","min":0,"max":9999,"pad":4,"required":true} ],
+          "examples":["<CA0025>","<CB0009>"], "commentLabel":"HCR play WAV" },
+        { "id":"hcr.native.playWavRandom", "name":"Play Random WAV (range)", "group":"SD WAV", "safety":"cosmetic",
+          "encoder":"template", "template":"<C{channel}{fileFrom}C{fileTo}>",
+          "params":[ {"name":"channel","enum":"hcr.channel","required":true},
+                     {"name":"fileFrom","type":"int","min":0,"max":9999,"pad":4,"required":true},
+                     {"name":"fileTo","type":"int","min":0,"max":9999,"pad":4,"required":true} ],
+          "examples":["<CB0003C0185>"], "commentLabel":"HCR play random WAV" },
+
+        { "id":"hcr.native.stop", "name":"Stop", "group":"Stop", "safety":"cosmetic",
+          "encoder":"template", "template":"<PS{target}>",
+          "params":[ {"name":"target","enum":"hcr.stopTarget","required":true} ],
+          "examples":["<PSV>","<PSG>"], "commentLabel":"HCR stop" },
+
+        { "id":"hcr.native.volume", "name":"Set Volume", "group":"Volume", "safety":"cosmetic",
+          "encoder":"template", "template":"<PV{target}{level}>",
+          "params":[ {"name":"target","enum":"hcr.volTarget","required":true},
+                     {"name":"level","type":"int","min":0,"max":100,"required":true} ],
+          "examples":["<PVV100>","<PVA50>"], "commentLabel":"HCR volume" },
+
+        { "id":"hcr.native.canonMode", "name":"Canonical / Improvisational Mode", "group":"Override", "safety":"config",
+          "encoder":"template", "template":"<OA{mode}>",
+          "params":[ {"name":"mode","enum":"hcr.canonMode","required":true} ],
+          "examples":["<OA1>","<OA0>"], "commentLabel":"HCR mode" },
+        { "id":"hcr.native.personalityOverride", "name":"Personality Chip Override", "group":"Override", "safety":"config",
+          "encoder":"template", "template":"<O{state}>",
+          "params":[ {"name":"state","enum":"hcr.onoff","required":true} ],
+          "examples":["<O1>","<O0>"], "commentLabel":"HCR personality override" },
+        { "id":"hcr.native.resetEmotions", "name":"Reset All Emotions", "group":"Override", "safety":"config",
+          "encoder":"template", "template":"<OR>", "params":[], "examples":["<OR>"], "commentLabel":"HCR reset emotions" },
+        { "id":"hcr.native.setEmotion", "name":"Set Emotion Level", "group":"Override", "safety":"config",
+          "encoder":"template", "template":"<O{emotion}{value}>",
+          "params":[ {"name":"emotion","enum":"hcr.emotion","required":true},
+                     {"name":"value","type":"int","min":0,"max":100,"required":true} ],
+          "examples":["<OH50>","<OM100>"], "commentLabel":"HCR set emotion" },
+
+        { "id":"hcr.native.memoryPlay", "name":"Play Memory Slot", "group":"Record", "safety":"cosmetic",
+          "encoder":"template", "template":"<RRP{slot}>",
+          "params":[ {"name":"slot","type":"int","min":0,"max":9,"required":true} ],
+          "examples":["<RRP3>"], "commentLabel":"HCR memory play" },
+        { "id":"hcr.native.memorySave", "name":"Save Memory Slot", "group":"Record", "safety":"config",
+          "encoder":"template", "template":"<RRS{slot}>",
+          "params":[ {"name":"slot","type":"int","min":0,"max":9,"required":true} ],
+          "examples":["<RRS3>"], "commentLabel":"HCR memory save" },
+        { "id":"hcr.native.memoryMode", "name":"Memory Playback Mode", "group":"Record", "safety":"config",
+          "encoder":"template", "template":"<R{mode}>",
+          "params":[ {"name":"mode","enum":"hcr.memMode","required":true} ],
+          "examples":["<R0>","<R1>"], "commentLabel":"HCR memory mode" },
+
+        { "id":"hcr.native.query", "name":"Query", "group":"Query", "safety":"cosmetic",
+          "encoder":"template", "template":"<Q{query}>",
+          "params":[ {"name":"query","enum":"hcr.query","required":true} ],
+          "examples":["<QEH>","<QE>","<QD>"], "commentLabel":"HCR query" }
+      ]
+    }
+  ]
+}

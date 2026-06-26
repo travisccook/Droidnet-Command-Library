@@ -1,0 +1,103 @@
+# DroidNet Command Library
+
+> `droidnet-command-library`
+
+A small, dependency-free engine + visual composer for building **board serial
+commands** from structured, schema-driven definitions. Anyone can add support for
+their board by editing a JSON library — **no code changes required** for the common
+case.
+
+This is a standalone project in the **DroidNet universe** — not part of any one
+product. [DroidNet Signal Booster](https://github.com/travisccook/droidnetsignalbooster)
+is one consumer (it powers the Signal Booster's visual WCB command builder), but
+the library is independent and meant to be used by any app or droid, with the
+community growing a shared catalog of boards.
+
+```text
+ Board library (JSON)            droidnet-command-library            droidnet-command-library-ui
+ ─────────────────────           ───────────────────             ──────────────────
+ components / commands  ──load──▶  encode / parse / match  ──▶  inline step composer
+ enums / templates                round-trip wire strings       (drag-reorder, no modal)
+```
+
+## Why
+
+Most "command builders" hard-code every board's grammar in the app. This one moves
+the grammar into **data**: a `library.json` describes each board's commands as
+templates with typed parameters, and the engine turns structured steps into wire
+strings (and back). Adding a board is a pull request against a JSON file that CI
+validates — not a code change.
+
+## Quick start
+
+### Browser (drop-in, no build step)
+
+```html
+<script src="src/droidnet-command-library.js"></script>
+<script src="src/droidnet-command-library-ui.js"></script>
+<script>
+  fetch('libraries/droidnet-astromech.json')
+    .then(r => r.json())
+    .then(lib => {
+      DroidNetCommandLibrary.loadLibrary(lib);
+      DroidNetCommandLibraryUI.renderComposer(
+        document.getElementById('host'),
+        'A006^*** Flthy Rainbow',           // initial value (optional)
+        { onChange: (wire) => console.log(wire) }
+      );
+    });
+</script>
+```
+
+### Node / bundler
+
+```js
+const DroidNetCommandLibrary = require('droidnet-command-library');
+const lib = require('droidnet-command-library/libraries/droidnet-astromech.json');
+
+DroidNetCommandLibrary.loadLibrary(lib);
+
+const solid = DroidNetCommandLibrary.getCommand('flthy.led.solid');
+DroidNetCommandLibrary.encode(solid, { designator: 'A', color: '5' }, {}); // 'A0055'
+DroidNetCommandLibrary.match('A0055'); // { commandId: 'flthy.led.solid', params: {...} }
+```
+
+See **[docs/INTEGRATION_GUIDE.md](docs/INTEGRATION_GUIDE.md)** for the full API.
+
+## Adding or editing a board
+
+Edit a file under `libraries/`, then validate:
+
+```bash
+npm install
+npm run validate     # schema + cross-reference checks
+npm test             # round-trip + encode/decode tests
+```
+
+The full walkthrough — schema, a worked example, and custom encoders — is in
+**[docs/BOARD_AUTHORING_GUIDE.md](docs/BOARD_AUTHORING_GUIDE.md)**. See
+**[CONTRIBUTING.md](CONTRIBUTING.md)** for the PR process.
+
+## What's here
+
+| Path | What |
+| --- | --- |
+| `src/droidnet-command-library.js` | The engine (pure, no DOM). `window.DroidNetCommandLibrary` / CommonJS. |
+| `src/droidnet-command-library-ui.js` | The inline visual composer. `window.DroidNetCommandLibraryUI`. |
+| `schema/library.schema.json` | The formal JSON Schema for a board library. |
+| `scripts/validate.js` | `npm run validate` — structural + semantic validation. |
+| `libraries/` | Board libraries. Add yours here. |
+| `releases.json` | Update manifest consumed by host apps' "Update Library" flows. |
+| `docs/` | Integration guide + board authoring guide. |
+
+## Versioning
+
+Each library carries a semver `libraryVersion`. Host applications compare it
+against `releases.json` to offer one-click library updates without shipping a full
+application update. Bump it on every catalog change (see the authoring guide).
+
+## License
+
+[MPL-2.0](LICENSE). You can use this commercially and link it from closed code;
+improvements to the library's own files stay open. Contributed board definitions
+are licensed under the same terms.

@@ -1,0 +1,43 @@
+{
+  "name": "droidnet-command-library",
+  "version": "1.0.0",
+  "description": "Schema-driven encoder/decoder and visual composer for board serial command 'books'. Anyone can add their board by editing a JSON library — no code changes required.",
+  "license": "MPL-2.0",
+  "keywords": [
+    "serial",
+    "command-builder",
+    "firmware",
+    "arduino",
+    "esp32",
+    "astromech",
+    "droid",
+    "encoder"
+  ],
+  "main": "src/droidnet-command-library.js",
+  "exports": {
+    ".": "./src/droidnet-command-library.js",
+    "./ui": "./src/droidnet-command-library-ui.js",
+    "./schema": "./schema/library.schema.json"
+  },
+  "files": [
+    "src/",
+    "schema/",
+    "libraries/",
+    "scripts/validate.js",
+    "docs/",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "jest",
+    "validate": "node scripts/validate.js",
+    "lint": "eslint src scripts test || true"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/travisccook/droidnet-command-library.git"
+  },
+  "devDependencies": {
+    "ajv": "^8.17.1",
+    "jest": "^29.7.0"
+  }
+}

@@ -1,0 +1,23 @@
+name: CI
+
+# Runs on every push and pull request. Board contributions are gated on the
+# validator (structural schema + semantic cross-checks) and the test suite.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  validate-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - name: Validate all libraries against the schema
+        run: npm run validate
+      - name: Run the test suite
+        run: npm test
