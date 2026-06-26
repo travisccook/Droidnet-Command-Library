@@ -2,13 +2,13 @@
 
 > `droidnet-command-library`
 
-A small, dependency-free engine + visual composer for building **board serial
-commands** from structured, schema-driven definitions. Anyone can add support for
-their board by editing a JSON library — **no code changes required** for the common
-case.
+A small, dependency-free engine + visual composer for building **serial commands
+to control a vibrant community of Astromech droid components** from structured,
+schema-driven definitions. Anyone can add support for their board by editing a JSON
+library — **no code changes required** for the common case.
 
 This is a standalone project in the **DroidNet universe** — not part of any one
-product. [DroidNet Signal Booster](https://github.com/travisccook/droidnetsignalbooster)
+product. [DroidNet Signal Booster](https://github.com/travisccook/droidnetsignalbooster-releases)
 is one consumer (it powers the Signal Booster's visual WCB command builder), but
 the library is independent and meant to be used by any app or droid, with the
 community growing a shared catalog of boards.

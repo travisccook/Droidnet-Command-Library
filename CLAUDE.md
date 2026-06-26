@@ -4,8 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-A dependency-free engine + visual composer that builds **board serial commands**
-from schema-driven JSON definitions. The grammar of each board lives in **data**
+A dependency-free engine + visual composer that builds **serial commands to
+control a vibrant community of Astromech droid components** from schema-driven JSON
+definitions. The grammar of each board lives in **data**
 (`libraries/*.json`), not code: the engine turns structured steps into wire
 strings and parses them back. Adding/editing a board is a PR against a JSON file
 that CI validates — **no code change** for the common (template) case. The
