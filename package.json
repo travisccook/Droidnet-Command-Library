@@ -1,6 +1,6 @@
 {
   "name": "droidnet-command-library",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Schema-driven encoder/decoder and visual composer for building serial commands to control a vibrant community of Astromech droid components. Anyone can add their board by editing a JSON library — no code changes required.",
   "license": "MPL-2.0",
   "keywords": [

@@ -1,24 +1,25 @@
-const fs = require('fs');
-const path = require('path');
+const { readCatalog } = require('../src/load-node.js');
 
 // Fresh engine instance per call (the engine holds a module-level loaded library).
 function loadEngine() {
   jest.resetModules();
   return require('../src/droidnet-command-library.js');
 }
-const LIB = JSON.parse(
-  fs.readFileSync(path.join(__dirname, '..', 'libraries', 'droidnet-astromech.json'), 'utf8')
-);
+
+const { manifest, boards } = readCatalog();
+const VERSION = manifest.libraryVersion;
+function freshBoards() { return boards.map(b => JSON.parse(JSON.stringify(b))); }
+function loadCatalog(cb) { cb.loadLibrary(freshBoards(), { libraryVersion: VERSION }); }
 
 describe('engine lookups', () => {
   let cb;
-  beforeEach(() => { cb = loadEngine(); cb.loadLibrary(JSON.parse(JSON.stringify(LIB))); });
+  beforeEach(() => { cb = loadEngine(); loadCatalog(cb); });
 
   test('getComponents returns the seed books', () => {
     expect(cb.getComponents().map(c => c.id)).toEqual(expect.arrayContaining(['flthy-hps', 'magic-panel']));
   });
   test('getLibraryVersion reports the loaded version', () => {
-    expect(cb.getLibraryVersion()).toBe('1.0.0');
+    expect(cb.getLibraryVersion()).toBe('2.0.0');
   });
   test('getCommand resolves and back-links its component', () => {
     const cmd = cb.getCommand('flthy.led.solid');
@@ -37,7 +38,7 @@ describe('engine lookups', () => {
 
 describe('encode (template)', () => {
   let cb;
-  beforeEach(() => { cb = loadEngine(); cb.loadLibrary(LIB); });
+  beforeEach(() => { cb = loadEngine(); loadCatalog(cb); });
 
   test('substitutes enum params', () => {
     expect(cb.encode(cb.getCommand('flthy.led.solid'), { designator: 'A', color: '5' }, {})).toBe('A0055');
@@ -58,7 +59,7 @@ describe('encode (template)', () => {
 
 describe('match (template)', () => {
   let cb;
-  beforeEach(() => { cb = loadEngine(); cb.loadLibrary(LIB); });
+  beforeEach(() => { cb = loadEngine(); loadCatalog(cb); });
 
   test('recognizes a FlthyHPs solid token', () => {
     expect(cb.match('A0055')).toEqual({ commandId: 'flthy.led.solid', params: { designator: 'A', color: '5' }, duration: undefined });
@@ -76,7 +77,7 @@ describe('match (template)', () => {
 
 describe('build/parse + round-trip', () => {
   let cb;
-  beforeEach(() => { cb = loadEngine(); cb.loadLibrary(LIB); });
+  beforeEach(() => { cb = loadEngine(); loadCatalog(cb); });
 
   test('buildWCBValue joins steps and emits labels', () => {
     const v = cb.buildWCBValue([
@@ -108,7 +109,7 @@ describe('build/parse + round-trip', () => {
 
 describe('rseries-le encoder', () => {
   let cb;
-  beforeEach(() => { cb = loadEngine(); cb.loadLibrary(LIB); });
+  beforeEach(() => { cb = loadEngine(); loadCatalog(cb); });
 
   test('encodes a broadcast effect', () => {
     expect(cb.encode(cb.getCommand('rseries.effect'),
@@ -137,7 +138,7 @@ describe('rseries-le encoder', () => {
 
 describe('wcb-verb books', () => {
   let cb;
-  beforeEach(() => { cb = loadEngine(); cb.loadLibrary(LIB); });
+  beforeEach(() => { cb = loadEngine(); loadCatalog(cb); });
 
   test('HCR stimulus encodes', () => {
     expect(cb.encode(cb.getCommand('hcr.stim'), { emotion: 'H', strength: 'STRONG' }, {})).toBe(';H,STIM,H,STRONG');
@@ -158,7 +159,7 @@ describe('wcb-verb books', () => {
 
 describe('PSIPro book', () => {
   let cb;
-  beforeEach(() => { cb = loadEngine(); cb.loadLibrary(LIB); });
+  beforeEach(() => { cb = loadEngine(); loadCatalog(cb); });
   test('PSI front mode encodes with address prefix', () => {
     expect(cb.encode(cb.getCommand('psi.mode'), { address: '4', mode: '92' }, {})).toBe('4T92');
   });
@@ -176,7 +177,7 @@ describe('PSIPro book', () => {
 
 describe('hcr-native book', () => {
   let cb;
-  beforeEach(() => { cb = loadEngine(); cb.loadLibrary(LIB); });
+  beforeEach(() => { cb = loadEngine(); loadCatalog(cb); });
 
   test('stimulus encodes wrapped', () => {
     expect(cb.encode(cb.getCommand('hcr.native.stimulus'), { emotion: 'H', intensity: '1' }, {})).toBe('<SH1>');
