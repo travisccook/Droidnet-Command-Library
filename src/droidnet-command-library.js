@@ -29,16 +29,100 @@
   let _lib = null;
   const _commandsById = {};
 
-  function loadLibrary(lib) {
-    _lib = lib;
-    for (const k of Object.keys(_commandsById)) delete _commandsById[k];
-    for (const comp of (lib && lib.components) || []) {
-      for (const cmd of comp.commands || []) {
-        delete cmd._matcher;
-        Object.defineProperty(cmd, '_component', { value: comp, enumerable: false, configurable: true, writable: true });
-        _commandsById[cmd.id] = cmd;
+  function deepEqual(a, b) {
+    if (a === b) return true;
+    if (Array.isArray(a) || Array.isArray(b)) {
+      if (!Array.isArray(a) || !Array.isArray(b) || a.length !== b.length) return false;
+      for (let i = 0; i < a.length; i++) if (!deepEqual(a[i], b[i])) return false;
+      return true;
+    }
+    if (a && b && typeof a === 'object' && typeof b === 'object') {
+      const ka = Object.keys(a), kb = Object.keys(b);
+      if (ka.length !== kb.length) return false;
+      for (const k of ka) {
+        if (!Object.prototype.hasOwnProperty.call(b, k)) return false;
+        if (!deepEqual(a[k], b[k])) return false;
+      }
+      return true;
+    }
+    return false;
+  }
+
+  // Build a merged library from an array of libraries. Runs ALL conflict checks
+  // before returning, so a thrown conflict never leaves a half-written result
+  // (callers commit only on success). Sets each command's non-enumerable
+  // _component back-ref and clears its _matcher cache as it goes.
+  function _accumulate(libs, opts) {
+    opts = opts || {};
+    const acc = {
+      libraryVersion: opts.libraryVersion !== undefined ? opts.libraryVersion
+        : (libs[0] && libs[0].libraryVersion !== undefined ? libs[0].libraryVersion : null),
+      enums: {}, components: [],
+    };
+    const byId = {};
+    for (const lib of libs) {
+      const enums = (lib && lib.enums) || {};
+      for (const id of Object.keys(enums)) {
+        if (Object.prototype.hasOwnProperty.call(acc.enums, id)) {
+          if (!deepEqual(acc.enums[id], enums[id])) {
+            throw new Error("enum '" + id + "' is defined differently across board files");
+          }
+        } else {
+          acc.enums[id] = enums[id];
+        }
+      }
+      for (const comp of (lib && lib.components) || []) {
+        for (const cmd of comp.commands || []) {
+          if (Object.prototype.hasOwnProperty.call(byId, cmd.id)) {
+            throw new Error("duplicate command id '" + cmd.id + "' across board files");
+          }
+          delete cmd._matcher;
+          Object.defineProperty(cmd, '_component', { value: comp, enumerable: false, configurable: true, writable: true });
+          byId[cmd.id] = cmd;
+        }
+        acc.components.push(comp);
       }
     }
+    return { acc, byId };
+  }
+
+  // Pure: merged library object, no engine-state mutation.
+  function merge(libOrArray, opts) {
+    return _accumulate(Array.isArray(libOrArray) ? libOrArray : [libOrArray], opts).acc;
+  }
+
+  function _commit(acc, byId) {
+    _lib = acc;
+    for (const k of Object.keys(_commandsById)) delete _commandsById[k];
+    Object.assign(_commandsById, byId);
+  }
+
+  // Reset, then load a single library or merge an array (in order).
+  function loadLibrary(libOrArray, opts) {
+    const libs = Array.isArray(libOrArray) ? libOrArray : [libOrArray];
+    const { acc, byId } = _accumulate(libs, opts);
+    _commit(acc, byId);
+  }
+
+  // Append a library without resetting. A component whose id is already loaded
+  // is a no-op when identical, and throws when its content differs.
+  function mergeLibrary(lib) {
+    const current = _lib || { libraryVersion: null, enums: {}, components: [] };
+    const existing = {};
+    for (const c of current.components) existing[c.id] = c;
+    const incoming = [];
+    for (const comp of (lib.components || [])) {
+      if (existing[comp.id]) {
+        if (deepEqual(existing[comp.id], comp)) continue; // identical -> no-op
+        throw new Error("component '" + comp.id + "' already loaded with different content");
+      }
+      incoming.push(comp);
+    }
+    const { acc, byId } = _accumulate([
+      { libraryVersion: current.libraryVersion, enums: current.enums, components: current.components },
+      { enums: lib.enums || {}, components: incoming },
+    ], { libraryVersion: current.libraryVersion });
+    _commit(acc, byId);
   }
   function getComponents() { return (_lib && _lib.components) || []; }
   function getCommands(componentId) {
@@ -232,7 +316,7 @@
   }
 
   return {
-    loadLibrary, getLibraryVersion,
+    loadLibrary, mergeLibrary, merge, deepEqual, getLibraryVersion,
     getComponents, getCommands, getCommand, getEnum,
     encode, registerEncoder, match,
     buildWCBValue, parseWCBValue,
