@@ -1,5 +1,3 @@
-const path = require('path');
-
 function loadEngine() {
   jest.resetModules();
   return require('../src/droidnet-command-library.js');
@@ -36,6 +34,11 @@ describe('deepEqual', () => {
   });
   test('nested mismatch is detected', () => {
     expect(cb.deepEqual({ v: [{ code: 'H' }] }, { v: [{ code: 'S' }] })).toBe(false);
+  });
+  test('null and mixed primitive types', () => {
+    expect(cb.deepEqual(null, null)).toBe(true);
+    expect(cb.deepEqual(null, {})).toBe(false);
+    expect(cb.deepEqual(1, '1')).toBe(false);
   });
 });
 

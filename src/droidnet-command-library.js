@@ -86,7 +86,10 @@
     return { acc, byId };
   }
 
-  // Pure: merged library object, no engine-state mutation.
+  // Returns a merged library object without touching engine state
+  // (_lib/_commandsById). It DOES set each input command's non-enumerable
+  // _component back-ref (required for encode()) and clears its _matcher cache,
+  // exactly as loadLibrary does.
   function merge(libOrArray, opts) {
     return _accumulate(Array.isArray(libOrArray) ? libOrArray : [libOrArray], opts).acc;
   }
