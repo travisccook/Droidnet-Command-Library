@@ -1,95 +1,69 @@
 #!/usr/bin/env node
 /*
- * validate.js — validate a droidnet-command-library board library file.
+ * validate.js — validate a droidnet-command-library catalog.
  *
- * Two layers:
- *   1. Structural — against schema/library.schema.json (uses ajv if installed).
- *   2. Semantic   — cross-references that JSON Schema can't express:
- *        - every param.enum resolves to a defined enum
- *        - every {placeholder} in a template has a matching param (template encoder)
- *        - every param maps to a {placeholder} (template encoder) — catches typos
- *        - command ids are unique across the whole library
- *        - non-template encoders are flagged (must be registered in code)
+ * Manifest mode (libraries/manifest.json present):
+ *   - manifest validates against schema/manifest.schema.json
+ *   - manifest <-> disk consistency (every listed board exists; no orphans)
+ *   - each board validates against schema/library.schema.json + has exactly one component
+ *   - cross-file conflicts (duplicate command ids, conflicting shared enums) via engine.merge
+ *   - manifest libraryVersion matches releases.json latest.libraryVersion
+ * Legacy mode (no manifest): validate libraries/*.json as before.
  *
- * Usage:
- *   node scripts/validate.js [file ...]      # defaults to libraries/*.json
- *   npm run validate
- *
- * Exit code 0 = all files valid, 1 = at least one error.
+ * Exit code 0 = valid, 1 = at least one error.
  * Licensed under the Mozilla Public License 2.0.
  */
 'use strict';
 const fs = require('fs');
 const path = require('path');
+const engine = require('../src/droidnet-command-library.js');
 
 const ROOT = path.join(__dirname, '..');
-const SCHEMA_PATH = path.join(ROOT, 'schema', 'library.schema.json');
+const LIB_DIR = path.join(ROOT, 'libraries');
+const BOARDS_DIR = path.join(LIB_DIR, 'boards');
+const MANIFEST_PATH = path.join(LIB_DIR, 'manifest.json');
+const RELEASES_PATH = path.join(ROOT, 'releases.json');
+const LIB_SCHEMA_PATH = path.join(ROOT, 'schema', 'library.schema.json');
+const MANIFEST_SCHEMA_PATH = path.join(ROOT, 'schema', 'manifest.schema.json');
 const KNOWN_BUILTIN_ENCODERS = new Set(['template', 'rseries-le']);
 
-function listDefaultFiles() {
-  const dir = path.join(ROOT, 'libraries');
-  if (!fs.existsSync(dir)) return [];
-  return fs.readdirSync(dir).filter(f => f.endsWith('.json')).map(f => path.join(dir, f));
-}
-
-function loadJson(file) {
-  return JSON.parse(fs.readFileSync(file, 'utf8'));
-}
+function loadJson(file) { return JSON.parse(fs.readFileSync(file, 'utf8')); }
 
 // ---- structural validation (optional ajv) ----
-function structuralValidate(lib) {
+function structuralValidate(obj, schemaPath) {
   let Ajv;
-  // The schema is JSON Schema draft 2020-12, so use ajv's 2020 build.
   try { Ajv = require('ajv/dist/2020'); } catch (_) {
-    try { Ajv = require('ajv'); } catch (_2) {
-      return { skipped: true, errors: [] };
-    }
+    try { Ajv = require('ajv'); } catch (_2) { return { skipped: true, errors: [] }; }
   }
   const ajv = new Ajv({ allErrors: true, strict: false });
-  const schema = loadJson(SCHEMA_PATH);
   let validate;
-  try {
-    validate = ajv.compile(schema);
-  } catch (e) {
-    return { skipped: false, errors: [`schema failed to compile: ${e.message}`] };
-  }
-  if (validate(lib)) return { skipped: false, errors: [] };
-  return {
-    skipped: false,
-    errors: (validate.errors || []).map(e => `${e.instancePath || '/'} ${e.message}`),
-  };
+  try { validate = ajv.compile(loadJson(schemaPath)); }
+  catch (e) { return { skipped: false, errors: [`schema failed to compile: ${e.message}`] }; }
+  if (validate(obj)) return { skipped: false, errors: [] };
+  return { skipped: false, errors: (validate.errors || []).map(e => `${e.instancePath || '/'} ${e.message}`) };
 }
 
-// ---- semantic validation ----
-function semanticValidate(lib) {
+// ---- per-board semantic checks (cross-references JSON Schema can't express) ----
+function boardSemanticErrors(lib) {
   const errors = [];
   const warnings = [];
   const enums = lib.enums || {};
-  const seenCommandIds = new Map();
-
-  for (const comp of lib.components || []) {
+  const comps = lib.components || [];
+  if (comps.length !== 1) {
+    errors.push(`a board file must contain exactly one component (found ${comps.length})`);
+  }
+  for (const comp of comps) {
     for (const cmd of comp.commands || []) {
       const where = `${comp.id}/${cmd.id}`;
-
-      if (seenCommandIds.has(cmd.id)) {
-        errors.push(`duplicate command id '${cmd.id}' (in ${comp.id} and ${seenCommandIds.get(cmd.id)})`);
-      } else {
-        seenCommandIds.set(cmd.id, comp.id);
-      }
-
       const encoder = cmd.encoder || 'template';
       if (!KNOWN_BUILTIN_ENCODERS.has(encoder)) {
         warnings.push(`${where}: uses custom encoder '${encoder}' — it must be registered via DroidNetCommandLibrary.registerEncoder() at runtime.`);
       }
-
-      // enum references
       for (const p of cmd.params || []) {
         if (p.enum && !enums[p.enum]) {
           errors.push(`${where}: param '${p.name}' references undefined enum '${p.enum}'`);
         }
       }
-
-      // template placeholder <-> param consistency (template encoder only)
       if (encoder === 'template') {
         if (typeof cmd.template !== 'string') {
           errors.push(`${where}: template encoder requires a 'template' string`);
@@ -98,14 +72,10 @@ function semanticValidate(lib) {
         const paramNames = new Set((cmd.params || []).map(p => p.name));
         const placeholders = [...cmd.template.matchAll(/\{(\w+)\}/g)].map(m => m[1]);
         for (const ph of placeholders) {
-          if (!paramNames.has(ph)) {
-            errors.push(`${where}: template placeholder {${ph}} has no matching param`);
-          }
+          if (!paramNames.has(ph)) errors.push(`${where}: template placeholder {${ph}} has no matching param`);
         }
         for (const name of paramNames) {
-          if (!placeholders.includes(name)) {
-            warnings.push(`${where}: param '${name}' is never used in the template`);
-          }
+          if (!placeholders.includes(name)) warnings.push(`${where}: param '${name}' is never used in the template`);
         }
       }
     }
@@ -113,50 +83,127 @@ function semanticValidate(lib) {
   return { errors, warnings };
 }
 
-function validateFile(file) {
-  let lib;
-  try {
-    lib = loadJson(file);
-  } catch (e) {
-    return { errors: [`could not parse JSON: ${e.message}`], warnings: [], structuralSkipped: false };
+// ---- cross-file checks via the engine's single merge implementation ----
+function crossFileErrors(boards) {
+  try { engine.merge(boards); return []; }
+  catch (e) { return [e.message]; }
+}
+
+// ---- manifest <-> disk consistency ----
+function manifestConsistencyErrors(manifest, filesOnDisk) {
+  const errors = [];
+  const listed = new Set((manifest.boards || []).map(b => b.file));
+  const onDisk = new Set(filesOnDisk);
+  for (const b of manifest.boards || []) {
+    if (!onDisk.has(b.file)) errors.push(`manifest lists '${b.file}' but it does not exist on disk`);
   }
-  const structural = structuralValidate(lib);
-  const semantic = semanticValidate(lib);
-  return {
-    errors: [...structural.errors, ...semantic.errors],
-    warnings: semantic.warnings,
-    structuralSkipped: structural.skipped,
+  for (const f of filesOnDisk) {
+    if (!listed.has(f)) errors.push(`board file '${f}' exists on disk but is not listed in the manifest`);
+  }
+  return errors;
+}
+
+// ---- manifest version <-> releases.json sync ----
+function versionSyncErrors(manifest, releases) {
+  if (!releases || !releases.latest) return [];
+  if (releases.latest.libraryVersion !== manifest.libraryVersion) {
+    return [`manifest libraryVersion '${manifest.libraryVersion}' does not match releases.json latest.libraryVersion '${releases.latest.libraryVersion}'`];
+  }
+  return [];
+}
+
+// ---- legacy single-file semantic validation (no manifest) ----
+function legacySemanticErrors(lib) {
+  const errors = [];
+  const seen = new Map();
+  for (const comp of lib.components || []) {
+    for (const cmd of comp.commands || []) {
+      if (seen.has(cmd.id)) errors.push(`duplicate command id '${cmd.id}' (in ${comp.id} and ${seen.get(cmd.id)})`);
+      else seen.set(cmd.id, comp.id);
+    }
+  }
+  // reuse the per-board param/template checks per component (skip the one-component assertion)
+  for (const comp of lib.components || []) {
+    const { errors: e } = boardSemanticErrors({ enums: lib.enums || {}, components: [comp] });
+    for (const msg of e) if (!/exactly one component/.test(msg)) errors.push(msg);
+  }
+  return errors;
+}
+
+function listBoardFilesOnDisk() {
+  if (!fs.existsSync(BOARDS_DIR)) return [];
+  return fs.readdirSync(BOARDS_DIR).filter(f => f.endsWith('.json')).map(f => `boards/${f}`);
+}
+
+function runManifestMode() {
+  let anyError = false;
+  let anySkip = false;
+  const report = (ok, rel, errors, warnings) => {
+    if (errors.length) { anyError = true; console.error(`✗ ${rel}`); for (const e of errors) console.error(`    ERROR  ${e}`); }
+    else console.log(`✓ ${rel}`);
+    for (const w of (warnings || [])) console.log(`    warn   ${w}`);
   };
+
+  const manifest = loadJson(MANIFEST_PATH);
+  const ms = structuralValidate(manifest, MANIFEST_SCHEMA_PATH);
+  anySkip = anySkip || ms.skipped;
+  const consistency = manifestConsistencyErrors(manifest, listBoardFilesOnDisk());
+  const releases = fs.existsSync(RELEASES_PATH) ? loadJson(RELEASES_PATH) : null;
+  report(true, 'libraries/manifest.json', [...ms.errors, ...consistency, ...versionSyncErrors(manifest, releases)], []);
+
+  const boards = [];
+  for (const entry of manifest.boards || []) {
+    const file = path.join(LIB_DIR, entry.file);
+    let lib;
+    try { lib = loadJson(file); } catch (e) { report(true, entry.file, [`could not parse JSON: ${e.message}`], []); continue; }
+    boards.push(lib);
+    const s = structuralValidate(lib, LIB_SCHEMA_PATH);
+    anySkip = anySkip || s.skipped;
+    const sem = boardSemanticErrors(lib);
+    report(true, entry.file, [...s.errors, ...sem.errors], sem.warnings);
+  }
+
+  const cross = crossFileErrors(boards);
+  if (cross.length) { anyError = true; console.error('✗ cross-file'); for (const e of cross) console.error(`    ERROR  ${e}`); }
+  else console.log('✓ cross-file (merged catalog)');
+
+  if (anySkip) console.log('\nNote: ajv not installed — ran semantic checks only. Run `npm install` for full structural validation.');
+  return anyError;
+}
+
+function runLegacyMode(files) {
+  let anyError = false;
+  let anySkip = false;
+  for (const file of files) {
+    const rel = path.relative(process.cwd(), file);
+    let lib;
+    try { lib = loadJson(file); } catch (e) { anyError = true; console.error(`✗ ${rel}`); console.error(`    ERROR  could not parse JSON: ${e.message}`); continue; }
+    const s = structuralValidate(lib, LIB_SCHEMA_PATH);
+    anySkip = anySkip || s.skipped;
+    const errors = [...s.errors, ...legacySemanticErrors(lib)];
+    if (errors.length) { anyError = true; console.error(`✗ ${rel}`); for (const e of errors) console.error(`    ERROR  ${e}`); }
+    else console.log(`✓ ${rel}`);
+  }
+  if (anySkip) console.log('\nNote: ajv not installed — ran semantic checks only. Run `npm install` for full structural validation.');
+  return anyError;
 }
 
 function main() {
-  const files = process.argv.slice(2);
-  const targets = files.length ? files : listDefaultFiles();
-  if (!targets.length) {
-    console.error('No library files to validate (pass paths or add files to libraries/).');
-    process.exit(1);
-  }
-
-  let anyError = false;
-  let anySkip = false;
-  for (const file of targets) {
-    const rel = path.relative(process.cwd(), file);
-    const { errors, warnings, structuralSkipped } = validateFile(file);
-    anySkip = anySkip || structuralSkipped;
-    if (errors.length) {
-      anyError = true;
-      console.error(`✗ ${rel}`);
-      for (const e of errors) console.error(`    ERROR  ${e}`);
-    } else {
-      console.log(`✓ ${rel}`);
-    }
-    for (const w of warnings) console.log(`    warn   ${w}`);
-  }
-
-  if (anySkip) {
-    console.log('\nNote: ajv not installed — ran semantic checks only. Run `npm install` for full structural validation.');
+  const argv = process.argv.slice(2);
+  let anyError;
+  if (argv.length) {
+    anyError = runLegacyMode(argv);
+  } else if (fs.existsSync(MANIFEST_PATH)) {
+    anyError = runManifestMode();
+  } else {
+    const files = fs.existsSync(LIB_DIR)
+      ? fs.readdirSync(LIB_DIR).filter(f => f.endsWith('.json')).map(f => path.join(LIB_DIR, f)) : [];
+    if (!files.length) { console.error('No library files to validate.'); process.exit(1); }
+    anyError = runLegacyMode(files);
   }
   process.exit(anyError ? 1 : 0);
 }
 
-main();
+module.exports = { boardSemanticErrors, crossFileErrors, manifestConsistencyErrors, versionSyncErrors, legacySemanticErrors };
+
+if (require.main === module) main();
