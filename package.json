@@ -17,6 +17,7 @@
   "exports": {
     ".": "./src/droidnet-command-library.js",
     "./ui": "./src/droidnet-command-library-ui.js",
+    "./node-loader": "./src/load-node.js",
     "./schema": "./schema/library.schema.json"
   },
   "files": [
