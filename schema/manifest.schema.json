@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/travisccook/droidnet-command-library/main/schema/manifest.schema.json",
+  "title": "Command Builder Catalog Manifest",
+  "description": "The catalog entry point: an ordered list of board files plus the catalog libraryVersion. Distinct from releases.json (the update pointer).",
+  "type": "object",
+  "required": ["libraryVersion", "boards"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "libraryVersion": {
+      "type": "string",
+      "description": "Semantic version of the whole catalog.",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+([.-].*)?$"
+    },
+    "schemaVersion": { "type": "string" },
+    "generatedFrom": { "type": "string" },
+    "boards": {
+      "type": "array",
+      "description": "Board files in authoritative load/iteration order.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "file"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+          "file": { "type": "string", "description": "Path to the board file, relative to the manifest's directory." },
+          "name": { "type": "string" },
+          "confidence": { "type": "string", "enum": ["high", "community", "low"] }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}

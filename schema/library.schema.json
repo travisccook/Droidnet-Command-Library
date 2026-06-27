@@ -4,7 +4,7 @@
   "title": "Command Builder Library",
   "description": "A library of board command 'books' for droidnet-command-library. Each component is a board (or a WCB verb book); each command declares how a structured step encodes to a wire string.",
   "type": "object",
-  "required": ["libraryVersion", "components"],
+  "required": ["components"],
   "properties": {
     "$schema": {
       "type": "string",
