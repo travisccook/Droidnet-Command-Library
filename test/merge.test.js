@@ -121,3 +121,29 @@ describe('mergeLibrary', () => {
     expect(cb.getCommand('flthy.solid')).not.toBeNull();
   });
 });
+
+describe('matcher cache invalidation on reload', () => {
+  let cb;
+  beforeEach(() => { cb = loadEngine(); });
+
+  test('a widened enum is recognized after reloading the same library (cached matcher is invalidated)', () => {
+    const lib = {
+      enums: { 'c.color': { values: [{ code: '5', label: 'Blue' }] } },
+      components: [{
+        id: 'flthy', name: 'Flthy', kind: 'device-native',
+        commands: [{ id: 'flthy.solid', name: 'Solid', template: '{color}', params: [{ name: 'color', enum: 'c.color' }] }],
+      }],
+    };
+    cb.loadLibrary(lib);
+    // First match() builds and caches the matcher against the initial enum {5}.
+    expect(cb.match('5')).toMatchObject({ commandId: 'flthy.solid', params: { color: '5' } });
+    expect(cb.match('7')).toBeNull(); // '7' is not yet a valid code
+
+    // Widen the enum on the SAME command object, then reload.
+    lib.enums['c.color'].values.push({ code: '7', label: 'Red' });
+    cb.loadLibrary(lib);
+
+    // The cached matcher must have been invalidated and rebuilt against {5,7}.
+    expect(cb.match('7')).toMatchObject({ commandId: 'flthy.solid', params: { color: '7' } });
+  });
+});
