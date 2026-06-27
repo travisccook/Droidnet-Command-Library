@@ -16,6 +16,14 @@ describe('boardSemanticErrors', () => {
     const lib = board('a', {}, [{ id: 'a.x', name: 'X', template: 'X' }]);
     expect(v.boardSemanticErrors(lib).errors).toEqual([]);
   });
+  test('errors when a param references an undefined enum', () => {
+    const lib = board('a', {}, [{ id: 'a.x', name: 'X', template: '{p}', params: [{ name: 'p', enum: 'nope' }] }]);
+    expect(v.boardSemanticErrors(lib).errors.join(' ')).toMatch(/undefined enum/i);
+  });
+  test('errors when a template placeholder has no matching param', () => {
+    const lib = board('a', {}, [{ id: 'a.x', name: 'X', template: '{missing}' }]);
+    expect(v.boardSemanticErrors(lib).errors.join(' ')).toMatch(/placeholder/i);
+  });
 });
 
 describe('crossFileErrors', () => {
@@ -55,5 +63,28 @@ describe('versionSyncErrors', () => {
   });
   test('flags a mismatch', () => {
     expect(v.versionSyncErrors({ libraryVersion: '2.0.0' }, { latest: { libraryVersion: '1.0.0' } }).join(' ')).toMatch(/2\.0\.0/);
+  });
+});
+
+describe('legacySemanticErrors', () => {
+  test('errors when two components share a duplicate command id', () => {
+    const lib = {
+      enums: {},
+      components: [
+        { id: 'a', name: 'A', kind: 'device-native', commands: [{ id: 'dup', name: 'X', template: 'X' }] },
+        { id: 'b', name: 'B', kind: 'device-native', commands: [{ id: 'dup', name: 'Y', template: 'Y' }] },
+      ],
+    };
+    expect(v.legacySemanticErrors(lib).errors.join(' ')).toMatch(/duplicate command id/i);
+  });
+  test('clean multi-component library returns no duplicate error', () => {
+    const lib = {
+      enums: {},
+      components: [
+        { id: 'a', name: 'A', kind: 'device-native', commands: [{ id: 'a.x', name: 'X', template: 'X' }] },
+        { id: 'b', name: 'B', kind: 'device-native', commands: [{ id: 'b.y', name: 'Y', template: 'Y' }] },
+      ],
+    };
+    expect(v.legacySemanticErrors(lib).errors.filter(e => /duplicate/.test(e))).toEqual([]);
   });
 });

@@ -86,7 +86,7 @@ function boardSemanticErrors(lib) {
 // ---- cross-file checks via the engine's single merge implementation ----
 function crossFileErrors(boards) {
   try { engine.merge(boards); return []; }
-  catch (e) { return [e.message]; }
+  catch (e) { return [e instanceof Error ? e.message : String(e)]; }
 }
 
 // ---- manifest <-> disk consistency ----
@@ -115,6 +115,7 @@ function versionSyncErrors(manifest, releases) {
 // ---- legacy single-file semantic validation (no manifest) ----
 function legacySemanticErrors(lib) {
   const errors = [];
+  const warnings = [];
   const seen = new Map();
   for (const comp of lib.components || []) {
     for (const cmd of comp.commands || []) {
@@ -124,10 +125,11 @@ function legacySemanticErrors(lib) {
   }
   // reuse the per-board param/template checks per component (skip the one-component assertion)
   for (const comp of lib.components || []) {
-    const { errors: e } = boardSemanticErrors({ enums: lib.enums || {}, components: [comp] });
+    const { errors: e, warnings: w } = boardSemanticErrors({ enums: lib.enums || {}, components: [comp] });
     for (const msg of e) if (!/exactly one component/.test(msg)) errors.push(msg);
+    for (const msg of w) warnings.push(msg);
   }
-  return errors;
+  return { errors, warnings };
 }
 
 function listBoardFilesOnDisk() {
@@ -138,7 +140,7 @@ function listBoardFilesOnDisk() {
 function runManifestMode() {
   let anyError = false;
   let anySkip = false;
-  const report = (ok, rel, errors, warnings) => {
+  const report = (rel, errors, warnings) => {
     if (errors.length) { anyError = true; console.error(`✗ ${rel}`); for (const e of errors) console.error(`    ERROR  ${e}`); }
     else console.log(`✓ ${rel}`);
     for (const w of (warnings || [])) console.log(`    warn   ${w}`);
@@ -149,18 +151,18 @@ function runManifestMode() {
   anySkip = anySkip || ms.skipped;
   const consistency = manifestConsistencyErrors(manifest, listBoardFilesOnDisk());
   const releases = fs.existsSync(RELEASES_PATH) ? loadJson(RELEASES_PATH) : null;
-  report(true, 'libraries/manifest.json', [...ms.errors, ...consistency, ...versionSyncErrors(manifest, releases)], []);
+  report('libraries/manifest.json', [...ms.errors, ...consistency, ...versionSyncErrors(manifest, releases)], []);
 
   const boards = [];
   for (const entry of manifest.boards || []) {
     const file = path.join(LIB_DIR, entry.file);
     let lib;
-    try { lib = loadJson(file); } catch (e) { report(true, entry.file, [`could not parse JSON: ${e.message}`], []); continue; }
+    try { lib = loadJson(file); } catch (e) { report(entry.file, [`could not parse JSON: ${e.message}`], []); continue; }
     boards.push(lib);
     const s = structuralValidate(lib, LIB_SCHEMA_PATH);
     anySkip = anySkip || s.skipped;
     const sem = boardSemanticErrors(lib);
-    report(true, entry.file, [...s.errors, ...sem.errors], sem.warnings);
+    report(entry.file, [...s.errors, ...sem.errors], sem.warnings);
   }
 
   const cross = crossFileErrors(boards);
@@ -180,9 +182,10 @@ function runLegacyMode(files) {
     try { lib = loadJson(file); } catch (e) { anyError = true; console.error(`✗ ${rel}`); console.error(`    ERROR  could not parse JSON: ${e.message}`); continue; }
     const s = structuralValidate(lib, LIB_SCHEMA_PATH);
     anySkip = anySkip || s.skipped;
-    const errors = [...s.errors, ...legacySemanticErrors(lib)];
+    const { errors: semErrors, warnings } = legacySemanticErrors(lib);
+    const errors = [...s.errors, ...semErrors];
     if (errors.length) { anyError = true; console.error(`✗ ${rel}`); for (const e of errors) console.error(`    ERROR  ${e}`); }
-    else console.log(`✓ ${rel}`);
+    else { console.log(`✓ ${rel}`); for (const w of warnings) console.log(`    warn   ${w}`); }
   }
   if (anySkip) console.log('\nNote: ajv not installed — ran semantic checks only. Run `npm install` for full structural validation.');
   return anyError;
