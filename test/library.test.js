@@ -33,7 +33,10 @@ describe.each(boardFiles)('board %s', (file) => {
         if (!p.enum) continue;
         const e = enums[p.enum];
         if (!e) throw new Error(`enum ${p.enum} (in ${cmd.id}) is not defined in this board file`);
-        for (const v of e.values) expect(typeof v.code === 'string' && typeof v.label === 'string').toBe(true);
+        for (const v of e.values) {
+          expect(typeof v.code).toBe('string');
+          expect(typeof v.label).toBe('string');
+        }
       }
     }
   });
@@ -63,6 +66,16 @@ describe('catalog', () => {
         expect(seen.has(cmd.id)).toBe(false);
         seen.add(cmd.id);
       }
+    }
+  });
+
+  test('hcr.emotion and hcr.channel are byte-identical across the two HCR boards', () => {
+    const wcb = JSON.parse(fs.readFileSync(path.join(BOARDS_DIR, 'wcb-hcr.json'), 'utf8'));
+    const nat = JSON.parse(fs.readFileSync(path.join(BOARDS_DIR, 'hcr-native.json'), 'utf8'));
+    for (const id of ['hcr.emotion', 'hcr.channel']) {
+      expect(wcb.enums[id]).toBeDefined();
+      expect(nat.enums[id]).toBeDefined();
+      expect(JSON.stringify(wcb.enums[id])).toBe(JSON.stringify(nat.enums[id]));
     }
   });
 });
