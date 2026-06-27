@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 const LIB_DIR = path.join(__dirname, '..', 'libraries');
-const libFiles = fs.readdirSync(LIB_DIR).filter(f => f.endsWith('.json'));
+const libFiles = fs.readdirSync(LIB_DIR).filter(f => f.endsWith('.json') && f !== 'manifest.json');
 
 describe.each(libFiles)('library %s', (file) => {
   const lib = JSON.parse(fs.readFileSync(path.join(LIB_DIR, file), 'utf8'));

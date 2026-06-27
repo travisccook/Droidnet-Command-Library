@@ -1,0 +1,151 @@
+{
+  "$schema": "droidnet-command-library/library/v1",
+  "enums": {
+    "flthy.designator": {
+      "label": "Holoprojector",
+      "values": [
+        {
+          "code": "F",
+          "label": "Front"
+        },
+        {
+          "code": "R",
+          "label": "Rear"
+        },
+        {
+          "code": "T",
+          "label": "Top"
+        },
+        {
+          "code": "A",
+          "label": "All"
+        },
+        {
+          "code": "X",
+          "label": "Front+Rear"
+        },
+        {
+          "code": "Y",
+          "label": "Front+Top"
+        },
+        {
+          "code": "Z",
+          "label": "Rear+Top"
+        }
+      ]
+    },
+    "flthy.color": {
+      "label": "Color",
+      "values": [
+        {
+          "code": "1",
+          "label": "Red"
+        },
+        {
+          "code": "2",
+          "label": "Yellow"
+        },
+        {
+          "code": "3",
+          "label": "Green"
+        },
+        {
+          "code": "4",
+          "label": "Cyan"
+        },
+        {
+          "code": "5",
+          "label": "Blue"
+        },
+        {
+          "code": "6",
+          "label": "Magenta"
+        },
+        {
+          "code": "7",
+          "label": "Orange"
+        },
+        {
+          "code": "8",
+          "label": "Purple"
+        },
+        {
+          "code": "9",
+          "label": "White"
+        },
+        {
+          "code": "0",
+          "label": "Random"
+        }
+      ]
+    }
+  },
+  "components": [
+    {
+      "id": "flthy-hps",
+      "name": "FlthyHPs Holoprojectors",
+      "kind": "device-native",
+      "confidence": "high",
+      "firmware": "v1.8",
+      "routing": {
+        "class": "broadcast",
+        "nativeWrapper": "none",
+        "durationSuffix": {
+          "supported": true,
+          "sep": "|",
+          "unit": "seconds",
+          "max": 32767
+        }
+      },
+      "commands": [
+        {
+          "id": "flthy.led.solid",
+          "name": "Solid Color",
+          "group": "LED Effects",
+          "safety": "cosmetic",
+          "encoder": "template",
+          "template": "{designator}005{color}",
+          "params": [
+            {
+              "name": "designator",
+              "enum": "flthy.designator",
+              "required": true
+            },
+            {
+              "name": "color",
+              "enum": "flthy.color",
+              "default": "5"
+            }
+          ],
+          "supportsDuration": true,
+          "examples": [
+            "A0055",
+            "A0055|60"
+          ],
+          "commentLabel": "Flthy solid"
+        },
+        {
+          "id": "flthy.led.rainbow",
+          "name": "Rainbow",
+          "group": "LED Effects",
+          "safety": "cosmetic",
+          "encoder": "template",
+          "template": "{designator}006",
+          "params": [
+            {
+              "name": "designator",
+              "enum": "flthy.designator",
+              "required": true
+            }
+          ],
+          "supportsDuration": true,
+          "examples": [
+            "A006",
+            "A006|240"
+          ],
+          "commentLabel": "Flthy rainbow"
+        }
+      ]
+    }
+  ]
+}

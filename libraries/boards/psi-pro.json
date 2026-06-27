@@ -1,0 +1,114 @@
+{
+  "$schema": "droidnet-command-library/library/v1",
+  "enums": {
+    "psi.address": {
+      "label": "PSI",
+      "values": [
+        {
+          "code": "0",
+          "label": "All"
+        },
+        {
+          "code": "4",
+          "label": "Front"
+        },
+        {
+          "code": "5",
+          "label": "Rear"
+        }
+      ]
+    },
+    "psi.mode": {
+      "label": "Effect",
+      "values": [
+        {
+          "code": "1",
+          "label": "Reset"
+        },
+        {
+          "code": "3",
+          "label": "Slow Flash"
+        },
+        {
+          "code": "5",
+          "label": "Scream"
+        },
+        {
+          "code": "9",
+          "label": "Heart"
+        },
+        {
+          "code": "11",
+          "label": "Imperial March"
+        },
+        {
+          "code": "13",
+          "label": "Disco"
+        },
+        {
+          "code": "15",
+          "label": "Knight Rider"
+        },
+        {
+          "code": "17",
+          "label": "Solid Red"
+        },
+        {
+          "code": "18",
+          "label": "Solid Green"
+        },
+        {
+          "code": "92",
+          "label": "VU Meter"
+        }
+      ]
+    }
+  },
+  "components": [
+    {
+      "id": "psi-pro",
+      "name": "PSIPro (Process State Indicators)",
+      "kind": "device-native",
+      "confidence": "high",
+      "routing": {
+        "class": "broadcast",
+        "nativeWrapper": "none",
+        "durationSuffix": {
+          "supported": true,
+          "sep": "|",
+          "unit": "seconds",
+          "max": 99
+        }
+      },
+      "commands": [
+        {
+          "id": "psi.mode",
+          "name": "Run Effect",
+          "group": "Effects",
+          "safety": "cosmetic",
+          "encoder": "template",
+          "template": "{address}T{mode}",
+          "params": [
+            {
+              "name": "address",
+              "enum": "psi.address",
+              "required": true
+            },
+            {
+              "name": "mode",
+              "enum": "psi.mode",
+              "required": true
+            }
+          ],
+          "supportsDuration": true,
+          "examples": [
+            "4T92",
+            "5T03",
+            "0T6"
+          ],
+          "commentLabel": "PSI effect"
+        }
+      ]
+    }
+  ]
+}

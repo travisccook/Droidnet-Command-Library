@@ -1,0 +1,50 @@
+{
+  "$schema": "droidnet-command-library/catalog/v1",
+  "libraryVersion": "2.0.0",
+  "schemaVersion": "v1",
+  "generatedFrom": "C2B5 firmware + WIPDocs (2026-06)",
+  "boards": [
+    {
+      "id": "flthy-hps",
+      "file": "boards/flthy-hps.json",
+      "name": "FlthyHPs Holoprojectors",
+      "confidence": "high"
+    },
+    {
+      "id": "magic-panel",
+      "file": "boards/magic-panel.json",
+      "name": "MagicPanel",
+      "confidence": "high"
+    },
+    {
+      "id": "rseries-logic",
+      "file": "boards/rseries-logic.json",
+      "name": "RSeriesLogic (Logic Displays)",
+      "confidence": "high"
+    },
+    {
+      "id": "wcb-hcr",
+      "file": "boards/wcb-hcr.json",
+      "name": "WCB · HCR Vocalizer",
+      "confidence": "high"
+    },
+    {
+      "id": "maestro",
+      "file": "boards/maestro.json",
+      "name": "Maestro (sequence trigger)",
+      "confidence": "high"
+    },
+    {
+      "id": "psi-pro",
+      "file": "boards/psi-pro.json",
+      "name": "PSIPro (Process State Indicators)",
+      "confidence": "high"
+    },
+    {
+      "id": "hcr-native",
+      "file": "boards/hcr-native.json",
+      "name": "HCR Vocalizer (native <…>)",
+      "confidence": "high"
+    }
+  ]
+}

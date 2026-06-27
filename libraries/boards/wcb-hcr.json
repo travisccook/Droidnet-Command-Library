@@ -1,0 +1,116 @@
+{
+  "$schema": "droidnet-command-library/library/v1",
+  "enums": {
+    "hcr.emotion": {
+      "label": "Emotion",
+      "values": [
+        {
+          "code": "H",
+          "label": "Happy"
+        },
+        {
+          "code": "S",
+          "label": "Sad"
+        },
+        {
+          "code": "M",
+          "label": "Mad"
+        },
+        {
+          "code": "C",
+          "label": "Scared"
+        }
+      ]
+    },
+    "hcr.strength": {
+      "label": "Strength",
+      "values": [
+        {
+          "code": "MOD",
+          "label": "Moderate"
+        },
+        {
+          "code": "STRONG",
+          "label": "Strong"
+        }
+      ]
+    },
+    "hcr.channel": {
+      "label": "Channel",
+      "values": [
+        {
+          "code": "A",
+          "label": "A"
+        },
+        {
+          "code": "B",
+          "label": "B"
+        }
+      ]
+    }
+  },
+  "components": [
+    {
+      "id": "wcb-hcr",
+      "name": "WCB · HCR Vocalizer",
+      "kind": "wcb-verb",
+      "confidence": "high",
+      "firmware": "WCB 6.1.0 HCR_Integration",
+      "routing": {
+        "class": "wcb-verb"
+      },
+      "commands": [
+        {
+          "id": "hcr.stim",
+          "name": "Emotional Stimulus",
+          "group": "Emotion",
+          "safety": "cosmetic",
+          "encoder": "template",
+          "template": ";H,STIM,{emotion},{strength}",
+          "params": [
+            {
+              "name": "emotion",
+              "enum": "hcr.emotion",
+              "required": true
+            },
+            {
+              "name": "strength",
+              "enum": "hcr.strength",
+              "required": true
+            }
+          ],
+          "examples": [
+            ";H,STIM,H,STRONG"
+          ],
+          "commentLabel": "HCR stimulus"
+        },
+        {
+          "id": "hcr.play",
+          "name": "Play WAV",
+          "group": "Audio",
+          "safety": "cosmetic",
+          "encoder": "template",
+          "template": ";H,PLAY,{channel},{file}",
+          "params": [
+            {
+              "name": "channel",
+              "enum": "hcr.channel",
+              "required": true
+            },
+            {
+              "name": "file",
+              "type": "int",
+              "min": 0,
+              "max": 9999,
+              "required": true
+            }
+          ],
+          "examples": [
+            ";H,PLAY,B,9"
+          ],
+          "commentLabel": "HCR play"
+        }
+      ]
+    }
+  ]
+}
