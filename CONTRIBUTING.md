@@ -1,8 +1,7 @@
 # Contributing
 
 Thanks for helping grow the shared board catalog! Most contributions are **new
-boards** or **fixes/additions to existing boards** — both are pure edits to a JSON
-library under `libraries/`.
+boards** or **fixes/additions to existing boards** — both are pure edits to a board file under `libraries/boards/`.
 
 ## Quick checklist
 

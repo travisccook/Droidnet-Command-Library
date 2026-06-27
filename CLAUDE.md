@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 A dependency-free engine + visual composer that builds **serial commands to
 control a vibrant community of Astromech droid components** from schema-driven JSON
 definitions. The grammar of each board lives in **data**
-(`libraries/*.json`), not code: the engine turns structured steps into wire
+(`libraries/boards/*.json`), not code: the engine turns structured steps into wire
 strings and parses them back. Adding/editing a board is a PR against a JSON file
 that CI validates — **no code change** for the common (template) case. The
 non-template case (bespoke grammars) requires a registered custom encoder in
@@ -54,7 +54,7 @@ libraries/manifest.json             ──fetch+merge──▶  loadLibrary  ─
   CommonJS). Owns no encode/parse logic — it calls `buildWCBValue`/`parseWCBValue`
   for everything and just renders. `window.DroidNetCommandLibraryUI`.
 - **`schema/library.schema.json`** — JSON Schema (draft 2020-12) for a library.
-  The contract every `libraries/*.json` must satisfy.
+  The contract every board file under `libraries/boards/` must satisfy.
 - **`scripts/validate.js`** — `npm run validate`. Two layers: structural (ajv vs
   the schema; skipped with a note if ajv is absent) + semantic checks JSON Schema
   can't express (enum refs resolve, every `{placeholder}` ↔ param, unique command

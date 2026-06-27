@@ -23,7 +23,7 @@ community growing a shared catalog of boards.
 ## Why
 
 Most "command builders" hard-code every board's grammar in the app. This one moves
-the grammar into **data**: a `library.json` describes each board's commands as
+the grammar into **data**: a per-board JSON file describes each board's commands as
 templates with typed parameters, and the engine turns structured steps into wire
 strings (and back). Adding a board is a pull request against a JSON file that CI
 validates — not a code change.
@@ -66,7 +66,7 @@ See **[docs/INTEGRATION_GUIDE.md](docs/INTEGRATION_GUIDE.md)** for the full API.
 
 ## Adding or editing a board
 
-Edit a file under `libraries/`, then validate:
+Edit or add a board file under `libraries/boards/<id>.json` (and list it in `libraries/manifest.json`), then validate:
 
 ```bash
 npm install
@@ -94,7 +94,7 @@ The full walkthrough — schema, a worked example, and custom encoders — is in
 
 ## Versioning
 
-Each library carries a semver `libraryVersion`. Host applications compare it
+The catalog's semver `libraryVersion` lives in `libraries/manifest.json`. Host applications compare it
 against `releases.json` to offer one-click library updates without shipping a full
 application update. Bump it on every catalog change (see the authoring guide).
 

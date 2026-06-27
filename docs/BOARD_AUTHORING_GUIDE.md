@@ -220,7 +220,7 @@ npm run validate        # schema + enum/template/uniqueness checks
 npm test                # encode/decode + round-trip across all libraries
 ```
 
-The library tests automatically pick up every file in `libraries/`, so a new
+The library tests automatically pick up every board file in `libraries/boards/`, so a new
 board is covered as soon as it parses. Adding explicit round-trip cases for your
 `examples` in `test/` is welcome for tricky grammars.
 
