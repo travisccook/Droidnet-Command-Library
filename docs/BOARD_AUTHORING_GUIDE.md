@@ -19,15 +19,23 @@ friendly version.
 
 ## Anatomy of a library
 
+Each file under `libraries/boards/` is a **standalone mini-library**: it contains
+its own `enums` and exactly **one** `component`. Board files do **not** carry a
+`libraryVersion` — the catalog version lives in `libraries/manifest.json` and is
+bumped there.
+
 ```jsonc
 {
   "$schema": "droidnet-command-library/library/v1",
-  "libraryVersion": "1.0.0",        // semver — bump on every change
   "generatedFrom": "MyBoard fw 2.3", // free-text provenance (optional)
-  "enums":    { /* reusable value sets */ },
-  "components": [ /* boards */ ]
+  "enums":    { /* reusable value sets defined by this board */ },
+  "components": [ /* exactly one board */ ]
 }
 ```
+
+If your board reuses an enum that another board already defines (for example
+`hcr.emotion`), copy it **byte-identically** — the validator enforces that any
+enum id shared across files has the same definition in every file.
 
 ## Enums
 
@@ -218,7 +226,9 @@ board is covered as soon as it parses. Adding explicit round-trip cases for your
 
 ## Versioning
 
-Bump `libraryVersion` on every change so host apps can detect updates:
+The catalog `libraryVersion` lives in `libraries/manifest.json` — **not** in the
+individual board files. Bump it there on every catalog change so host apps can
+detect updates:
 
 - **patch** (`1.0.0 → 1.0.1`) — fix a template/enum/typo.
 - **minor** (`1.0.0 → 1.1.0`) — add commands or a new board.

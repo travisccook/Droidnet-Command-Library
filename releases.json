@@ -1,20 +1,20 @@
 {
-  "$schema": "droidnet-command-library/manifest/v1",
-  "_comment": "Update manifest for the 'Update Library' flow. A device fetches this file, compares latest.libraryVersion to its installed library, and (if newer) downloads latest.url, validates it against the schema, and installs it as an overlay. Keep 'latest' pointing at the recommended library for general use.",
+  "$schema": "droidnet-command-library/releases/v1",
+  "_comment": "Update pointer for the 'Update Library' flow. A device fetches this file, compares latest.libraryVersion to its installed catalog, and (if newer) downloads latest.url (the catalog manifest), then fetches each board listed in manifest.boards in order, validates them, and loads them via loadLibrary(boards, { libraryVersion }).",
   "latest": {
     "libraryVersion": "2.0.0",
     "schemaVersion": "v1",
     "releasedAt": "2026-06-26",
     "url": "https://raw.githubusercontent.com/travisccook/droidnet-command-library/main/libraries/manifest.json",
-    "notes": "Split into per-board files under libraries/boards/ with libraries/manifest.json as the catalog index."
+    "notes": "Per-board catalog: FlthyHPs, MagicPanel, RSeriesLogic, WCB·HCR, Maestro, PSIPro, HCR native, indexed by manifest.json."
   },
   "libraries": [
     {
       "id": "droidnet-astromech",
       "name": "DroidNet Astromech Boards",
-      "libraryVersion": "1.0.0",
+      "libraryVersion": "2.0.0",
       "schemaVersion": "v1",
-      "url": "https://raw.githubusercontent.com/travisccook/droidnet-command-library/main/libraries/droidnet-astromech.json"
+      "url": "https://raw.githubusercontent.com/travisccook/droidnet-command-library/main/libraries/manifest.json"
     }
   ]
 }

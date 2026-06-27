@@ -7,9 +7,10 @@
  */
 'use strict';
 const DroidNetCommandLibrary = require('../src/droidnet-command-library.js');
-const lib = require('../libraries/droidnet-astromech.json');
+const { readCatalog } = require('../src/load-node.js');
 
-DroidNetCommandLibrary.loadLibrary(lib);
+const { manifest, boards } = readCatalog();
+DroidNetCommandLibrary.loadLibrary(boards, { libraryVersion: manifest.libraryVersion });
 
 // 1) Build a multi-step macro from structured steps.
 const macro = DroidNetCommandLibrary.buildWCBValue([

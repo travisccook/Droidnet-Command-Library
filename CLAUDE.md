@@ -39,16 +39,15 @@ Three layers, strictly separated — the data describes grammar, the engine is p
 logic, the UI is view-only:
 
 ```
-libraries/*.json  ──loadLibrary──▶  droidnet-command-library  ──renderComposer──▶  droidnet-command-library-ui
-(components/commands,               (encode / match / parse,                       (inline step composer,
- enums, templates)                   round-trips wire strings)                      drag-reorder, no modal)
+libraries/manifest.json             ──fetch+merge──▶  loadLibrary  ──▶  droidnet-command-library  ──renderComposer──▶  droidnet-command-library-ui
++ libraries/boards/*.json                             (boards[],         (encode / match / parse,                       (inline step composer,
+  (one component per file,                             { libraryVersion}) round-trips wire strings)                      drag-reorder, no modal)
+   enums, templates)
 ```
 
 - **`src/droidnet-command-library.js`** — the engine (pure, no DOM). Holds the
   loaded library in module-level state (`_lib`, `_commandsById`), so there is **one
-  global loaded library per module instance**. Public API: `loadLibrary`,
-  `getComponents`/`getCommands`/`getCommand`/`getEnum`, `encode`, `match`,
-  `buildWCBValue`/`parseWCBValue`, `registerEncoder`. Exposed as
+  global loaded library per module instance**. Public API: `loadLibrary(obj|array, opts?)` (load/replace; pass an array of board objects + `{ libraryVersion }` for the per-board catalog; board order is authoritative for `match()`), `mergeLibrary(lib)` (additive single-board merge), `merge(obj|array, opts?)` (return merged result without loading), `getComponents`/`getCommands`/`getCommand`/`getEnum`, `encode`, `match`, `buildWCBValue`/`parseWCBValue`, `registerEncoder`. Exposed as
   `window.DroidNetCommandLibrary` (browser) and `module.exports` (CommonJS/AMD).
 - **`src/droidnet-command-library-ui.js`** — the visual composer. Depends only on
   the engine (resolved lazily off the global in the browser, `require`d under
@@ -106,13 +105,14 @@ rseries leading-zero canonicalization).
 
 ## Working in this repo
 
-- **Most changes are JSON, not code.** New/edited boards go in `libraries/`. After
+- **Most changes are JSON, not code.** New/edited boards go in `libraries/boards/<id>.json`; list the entry in `libraries/manifest.json`. After
   editing, `npm run validate && npm test` — the test suite auto-discovers every
-  `libraries/*.json` (`test/library.test.js`) and every command's `examples` array
-  is exercised, so add at least one `examples` string per command.
-- **Bump `libraryVersion`** (semver) on every catalog change: patch = fix a
-  template/enum, minor = add commands/board, major = rename/remove command ids
-  (breaks stored values). Update `releases.json` if the released library changes.
+  board file and every command's `examples` array is exercised, so add at least
+  one `examples` string per command.
+- **Bump `libraryVersion`** (semver) in `libraries/manifest.json` on every catalog
+  change: patch = fix a template/enum, minor = add commands/board, major =
+  rename/remove command ids (breaks stored values). Update `releases.json` when the
+  released version changes.
 - **The engine's loaded-library state is module-global.** Tests get a fresh engine
   via `jest.resetModules()` + `require(...)` (see `loadEngine()` in
   `test/engine.test.js`) — follow that pattern rather than relying on `loadLibrary`

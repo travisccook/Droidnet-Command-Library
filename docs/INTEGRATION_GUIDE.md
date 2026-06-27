@@ -27,19 +27,29 @@ The examples mirror how the visual WCB command builder is wired in DroidNet.
 
 ## Loading the engine
 
-The engine is a UMD module. In a browser it attaches to `window.DroidNetCommandLibrary`:
+The engine is a UMD module. In a browser it attaches to `window.DroidNetCommandLibrary`.
+Fetch the manifest first, then fetch each board in order, then load:
 
 ```html
 <script src="src/droidnet-command-library.js"></script>
 <script>
-  fetch('libraries/droidnet-astromech.json')
+  const base = 'libraries/';
+  fetch(base + 'manifest.json')
     .then(r => r.json())
-    .then(lib => DroidNetCommandLibrary.loadLibrary(lib));
+    .then(m => Promise.all(m.boards.map(b => fetch(base + b.file).then(r => r.json())))
+      .then(boards => DroidNetCommandLibrary.loadLibrary(boards, { libraryVersion: m.libraryVersion })));
 </script>
 ```
 
+In Node, use the `node-loader` helper which reads manifest + board files from disk:
+
+```js
+const { loadCatalog } = require('droidnet-command-library/node-loader');
+loadCatalog(); // reads manifest + all boards from disk and calls loadLibrary for you
+```
+
 `loadLibrary()` is idempotent — call it again to hot-swap the catalog (this is
-exactly what an "Update Library" button does after downloading a newer file).
+exactly what an "Update Library" button does after downloading a newer set of files).
 
 ## Engine API
 
@@ -47,7 +57,9 @@ exactly what an "Update Library" button does after downloading a newer file).
 
 | Method | Returns | Notes |
 | --- | --- | --- |
-| `loadLibrary(lib)` | — | Load/replace the active library. |
+| `loadLibrary(lib \| lib[], opts?)` | — | Load/replace the active library. Pass an array of board objects and `{ libraryVersion }` for the per-board catalog. Board order is authoritative for `match()`. |
+| `mergeLibrary(lib)` | — | Merge a single board library into the loaded catalog (additive). |
+| `merge(lib \| lib[], opts?)` | `object` | Merge one or more board libraries and return the merged result without loading it. |
 | `getLibraryVersion()` | `string\|null` | The loaded library's `libraryVersion`. |
 | `getComponents()` | `Component[]` | All boards/books. |
 | `getCommands(componentId)` | `Command[]` | Commands for one board. |
@@ -96,20 +108,24 @@ engine being loaded first.
 <script src="src/droidnet-command-library-ui.js"></script>
 <div id="host"></div>
 <script>
-  fetch('libraries/droidnet-astromech.json').then(r => r.json()).then(lib => {
-    DroidNetCommandLibrary.loadLibrary(lib);
-    DroidNetCommandLibraryUI.renderComposer(
-      document.getElementById('host'),
-      'A006^*** Flthy Rainbow',           // initial wire value (or '' for empty)
-      {
-        onChange: (wireValue) => {
-          // fired on every edit — persist or mirror it
-          document.getElementById('out').textContent = wireValue;
-        },
-        onTest: () => { /* optional: wire a "test" affordance */ },
-      }
-    );
-  });
+  const base = 'libraries/';
+  fetch(base + 'manifest.json')
+    .then(r => r.json())
+    .then(m => Promise.all(m.boards.map(b => fetch(base + b.file).then(r => r.json())))
+      .then(boards => {
+        DroidNetCommandLibrary.loadLibrary(boards, { libraryVersion: m.libraryVersion });
+        DroidNetCommandLibraryUI.renderComposer(
+          document.getElementById('host'),
+          'A006^*** Flthy Rainbow',           // initial wire value (or '' for empty)
+          {
+            onChange: (wireValue) => {
+              // fired on every edit — persist or mirror it
+              document.getElementById('out').textContent = wireValue;
+            },
+            onTest: () => { /* optional: wire a "test" affordance */ },
+          }
+        );
+      }));
 </script>
 ```
 
@@ -136,11 +152,14 @@ but ships **no CSS** — style it to match your app. The classes you'll target:
 
 Because the catalog is just data, a host app can refresh it without an app update:
 
-1. Fetch the project's `releases.json` manifest.
+1. Fetch the project's `releases.json`.
 2. Compare `latest.libraryVersion` to your installed `DroidNetCommandLibrary.getLibraryVersion()`.
-3. If newer, download `latest.url`, validate it (re-use `scripts/validate.js`
-   server-side, or at minimum check `libraryVersion` + parse), store it as an
-   overlay, and call `loadLibrary()` again.
+3. If newer, fetch `latest.url` — this is the catalog manifest (`libraries/manifest.json`).
+4. Fetch each file listed in `manifest.boards` in order.
+5. Validate and call `loadLibrary(boards, { libraryVersion })`.
+
+The update is **atomic**: one bad board file aborts the update and leaves the prior
+catalog intact.
 
 DroidNet implements exactly this as an "Update Library" button; see its
 `scripts/command_library_manager.py` and `/api/wcb/library*` endpoints for a
@@ -151,8 +170,8 @@ reference implementation.
 ```js
 const DroidNetCommandLibrary = require('droidnet-command-library');
 const DroidNetCommandLibraryUI = require('droidnet-command-library/ui'); // needs a DOM (e.g. jsdom)
-const lib = require('droidnet-command-library/libraries/droidnet-astromech.json');
-DroidNetCommandLibrary.loadLibrary(lib);
+const { loadCatalog } = require('droidnet-command-library/node-loader');
+loadCatalog(); // reads manifest + all boards from disk and calls loadLibrary
 ```
 
 The engine has zero runtime dependencies and no DOM requirement; only the UI

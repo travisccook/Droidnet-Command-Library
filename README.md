@@ -36,16 +36,18 @@ validates — not a code change.
 <script src="src/droidnet-command-library.js"></script>
 <script src="src/droidnet-command-library-ui.js"></script>
 <script>
-  fetch('libraries/droidnet-astromech.json')
+  const base = 'libraries/';
+  fetch(base + 'manifest.json')
     .then(r => r.json())
-    .then(lib => {
-      DroidNetCommandLibrary.loadLibrary(lib);
-      DroidNetCommandLibraryUI.renderComposer(
-        document.getElementById('host'),
-        'A006^*** Flthy Rainbow',           // initial value (optional)
-        { onChange: (wire) => console.log(wire) }
-      );
-    });
+    .then(m => Promise.all(m.boards.map(b => fetch(base + b.file).then(r => r.json())))
+      .then(boards => {
+        DroidNetCommandLibrary.loadLibrary(boards, { libraryVersion: m.libraryVersion });
+        DroidNetCommandLibraryUI.renderComposer(
+          document.getElementById('host'),
+          'A006^*** Flthy Rainbow',
+          { onChange: (wire) => console.log(wire) }
+        );
+      }));
 </script>
 ```
 
@@ -53,9 +55,7 @@ validates — not a code change.
 
 ```js
 const DroidNetCommandLibrary = require('droidnet-command-library');
-const lib = require('droidnet-command-library/libraries/droidnet-astromech.json');
-
-DroidNetCommandLibrary.loadLibrary(lib);
+require('droidnet-command-library/node-loader').loadCatalog(); // reads manifest + boards, merges, loads
 
 const solid = DroidNetCommandLibrary.getCommand('flthy.led.solid');
 DroidNetCommandLibrary.encode(solid, { designator: 'A', color: '5' }, {}); // 'A0055'
@@ -86,7 +86,9 @@ The full walkthrough — schema, a worked example, and custom encoders — is in
 | `src/droidnet-command-library-ui.js` | The inline visual composer. `window.DroidNetCommandLibraryUI`. |
 | `schema/library.schema.json` | The formal JSON Schema for a board library. |
 | `scripts/validate.js` | `npm run validate` — structural + semantic validation. |
-| `libraries/` | Board libraries. Add yours here. |
+| `libraries/manifest.json` | Catalog entry point — ordered board list + catalog `libraryVersion`. |
+| `libraries/boards/` | One self-contained file per board. Add yours here and list it in the manifest. |
+| `src/load-node.js` | Node helper: read the manifest + boards and merge them (`node-loader` export). |
 | `releases.json` | Update manifest consumed by host apps' "Update Library" flows. |
 | `docs/` | Integration guide + board authoring guide. |
 

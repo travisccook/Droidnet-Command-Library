@@ -17,7 +17,7 @@ jobs:
           node-version: '20'
           cache: 'npm'
       - run: npm ci
-      - name: Validate all libraries against the schema
+      - name: Validate the manifest and all board libraries (schema + cross-file checks)
         run: npm run validate
       - name: Run the test suite
         run: npm test

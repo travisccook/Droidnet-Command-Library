@@ -7,9 +7,10 @@ library under `libraries/`.
 ## Quick checklist
 
 1. Fork and create a branch.
-2. Add or edit a library under `libraries/` (see
+2. Add or edit a board file under `libraries/boards/<id>.json`, and add/keep its
+   entry in `libraries/manifest.json` (see
    [docs/BOARD_AUTHORING_GUIDE.md](docs/BOARD_AUTHORING_GUIDE.md)).
-3. Bump the library's `libraryVersion` (semver):
+3. Bump the catalog version in `libraries/manifest.json` (semver):
    - **patch** — fix a template/enum/typo,
    - **minor** — add commands or a new board,
    - **major** — rename/remove command ids or otherwise break existing stored values.
@@ -26,10 +27,13 @@ library under `libraries/`.
 
 ## What the validator enforces
 
-- The library matches `schema/library.schema.json` (structural).
+- Each board file matches `schema/library.schema.json` (structural).
 - Every `param.enum` resolves to a defined enum.
 - Every `{placeholder}` in a `template` has a matching param (and vice-versa).
-- Command ids are unique across the whole library.
+- Command ids are unique across **all** board files.
+- A duplicated enum id must be byte-identical across files.
+- The manifest and `boards/` agree (no missing or orphaned files); manifest version
+  matches `releases.json`.
 - Custom encoders are flagged (they must be registered in code — see below).
 
 ## Confidence badges
