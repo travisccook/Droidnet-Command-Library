@@ -1,6 +1,6 @@
 {
   "$schema": "droidnet-command-library/catalog/v1",
-  "libraryVersion": "2.0.0",
+  "libraryVersion": "2.1.0",
   "schemaVersion": "v1",
   "generatedFrom": "C2B5 firmware + WIPDocs (2026-06)",
   "boards": [
@@ -45,6 +45,12 @@
       "file": "boards/hcr-native.json",
       "name": "HCR Vocalizer (native <…>)",
       "confidence": "high"
+    },
+    {
+      "id": "chirp",
+      "file": "boards/chirp.json",
+      "name": "CHiRP Audio Trigger",
+      "confidence": "community"
     }
   ]
 }

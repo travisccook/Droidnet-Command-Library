@@ -19,7 +19,7 @@ describe('engine lookups', () => {
     expect(cb.getComponents().map(c => c.id)).toEqual(expect.arrayContaining(['flthy-hps', 'magic-panel']));
   });
   test('getLibraryVersion reports the loaded version', () => {
-    expect(cb.getLibraryVersion()).toBe('2.0.0');
+    expect(cb.getLibraryVersion()).toBe('2.1.0');
   });
   test('getCommand resolves and back-links its component', () => {
     const cmd = cb.getCommand('flthy.led.solid');
