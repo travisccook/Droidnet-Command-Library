@@ -265,3 +265,39 @@ describe('registerEncoder (custom board grammar)', () => {
     expect(cb.parseWCBValue('!HELLO')[0]).toMatchObject({ type: 'command', commandId: 'demo.shout', params: { text: 'HELLO' } });
   });
 });
+
+describe('chirp board', () => {
+  let cb;
+  beforeEach(() => { cb = loadEngine(); loadCatalog(cb); });
+
+  test('simple PLAY encodes, decodes, and round-trips', () => {
+    expect(cb.encode(cb.getCommand('chirp.play'), { index: '5' }, {})).toBe('PLAY:5');
+    expect(cb.match('PLAY:5')).toMatchObject({ commandId: 'chirp.play', params: { index: '5' } });
+    expect(cb.buildWCBValue(cb.parseWCBValue('PLAY:5'))).toBe('PLAY:5');
+  });
+
+  test('full PLAY (index,bank,page,volume) encodes, decodes, and round-trips', () => {
+    expect(cb.encode(cb.getCommand('chirp.play.full'),
+      { index: '5', bank: '2', page: 'A', volume: '80' }, {})).toBe('PLAY:5,2,A,80');
+    expect(cb.match('PLAY:5,2,A,80')).toMatchObject({
+      commandId: 'chirp.play.full',
+      params: { index: '5', bank: '2', page: 'A', volume: '80' },
+    });
+    expect(cb.buildWCBValue(cb.parseWCBValue('PLAY:5,2,A,80'))).toBe('PLAY:5,2,A,80');
+  });
+
+  test('the PLAY split disambiguates simple vs full by arity', () => {
+    expect(cb.match('PLAY:5').commandId).toBe('chirp.play');
+    expect(cb.match('PLAY:5,2,A,80').commandId).toBe('chirp.play.full');
+  });
+
+  test('CHRP sweep encodes, decodes, and round-trips', () => {
+    expect(cb.encode(cb.getCommand('chirp.chirp'),
+      { startHz: '200', endHz: '2000', durationMs: '500' }, {})).toBe('CHRP:200,2000,500');
+    expect(cb.match('CHRP:200,2000,500')).toMatchObject({
+      commandId: 'chirp.chirp',
+      params: { startHz: '200', endHz: '2000', durationMs: '500' },
+    });
+    expect(cb.buildWCBValue(cb.parseWCBValue('CHRP:200,2000,500'))).toBe('CHRP:200,2000,500');
+  });
+});

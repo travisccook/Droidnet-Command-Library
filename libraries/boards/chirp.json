@@ -270,6 +270,37 @@
           ],
           "examples": [ "PVOICE:HELLO" ],
           "commentLabel": "CHiRP voice"
+        },
+        {
+          "id": "chirp.play.full",
+          "name": "Play Sound (bank/page/volume)",
+          "group": "Playback",
+          "safety": "cosmetic",
+          "encoder": "template",
+          "template": "PLAY:{index},{bank},{page},{volume}",
+          "params": [
+            { "name": "index", "type": "int", "min": 0, "required": true },
+            { "name": "bank", "enum": "chirp.bank", "required": true },
+            { "name": "page", "enum": "chirp.page", "required": true },
+            { "name": "volume", "type": "int", "min": 0, "max": 99, "required": true }
+          ],
+          "examples": [ "PLAY:5,2,A,80" ],
+          "commentLabel": "CHiRP play full"
+        },
+        {
+          "id": "chirp.chirp",
+          "name": "Generated Chirp Sweep",
+          "group": "Generate",
+          "safety": "cosmetic",
+          "encoder": "template",
+          "template": "CHRP:{startHz},{endHz},{durationMs}",
+          "params": [
+            { "name": "startHz", "type": "int", "min": 0, "required": true },
+            { "name": "endHz", "type": "int", "min": 0, "required": true },
+            { "name": "durationMs", "type": "int", "min": 0, "required": true }
+          ],
+          "examples": [ "CHRP:200,2000,500" ],
+          "commentLabel": "CHiRP sweep"
         }
       ]
     }
