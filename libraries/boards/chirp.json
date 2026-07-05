@@ -47,6 +47,21 @@
     "chirp.stream": {
       "label": "Stream",
       "values": [
+        { "code": "0", "label": "Stream 0" },
+        { "code": "1", "label": "Stream 1" },
+        { "code": "2", "label": "Stream 2" },
+        { "code": "3", "label": "Stream 3" },
+        { "code": "4", "label": "Stream 4" },
+        { "code": "5", "label": "Stream 5" },
+        { "code": "6", "label": "Stream 6" },
+        { "code": "7", "label": "Stream 7" },
+        { "code": "8", "label": "Stream 8" },
+        { "code": "9", "label": "Stream 9" }
+      ]
+    },
+    "chirp.stream.all": {
+      "label": "Stream (or all)",
+      "values": [
         { "code": "*", "label": "All streams" },
         { "code": "0", "label": "Stream 0" },
         { "code": "1", "label": "Stream 1" },
@@ -91,7 +106,7 @@
         "class": "broadcast",
         "nativeWrapper": "none",
         "durationSuffix": { "supported": false },
-        "notes": "Colon-delimited ASCII over USB CDC serial / Serial2 UART, terminated by \\n or \\r. EXCLUDED: the SparkFun MP3-Trigger single-byte binary compatibility layer (O F R T t v p) — those are raw bytes, not ASCII tokens, and do not fit the template encoder. CHRP also accepts an optional trailing ,{volume} argument not modeled here."
+        "notes": "Colon-delimited ASCII over USB CDC serial / Serial2 UART, terminated by \\n or \\r. EXCLUDED: the SparkFun MP3-Trigger single-byte binary compatibility layer (O F R T t v p) — those are raw bytes, not ASCII tokens, and do not fit the template encoder. CHRP also accepts an optional trailing ,{volume} argument not modeled here. The `*` (all streams) form applies to STOP only per the documented protocol; STAT/VOL take a specific stream 0-9 (pending on-device confirmation). GNME is modeled 3-arg (bank,page,index) and PLAY as simple (1-arg) / full (4-arg) only; intermediate arities are not decoded."
       },
       "commands": [
         {
@@ -126,7 +141,7 @@
           "encoder": "template",
           "template": "STOP:{stream}",
           "params": [
-            { "name": "stream", "enum": "chirp.stream", "required": true }
+            { "name": "stream", "enum": "chirp.stream.all", "required": true }
           ],
           "examples": [ "STOP:1", "STOP:*" ],
           "commentLabel": "CHiRP stop stream"
@@ -264,9 +279,9 @@
           "group": "Debug",
           "safety": "cosmetic",
           "encoder": "template",
-          "template": "PVOICE:{phrase}",
+          "template": "PVOICE:{filename}",
           "params": [
-            { "name": "phrase", "required": true }
+            { "name": "filename", "required": true }
           ],
           "examples": [ "PVOICE:HELLO" ],
           "commentLabel": "CHiRP voice"

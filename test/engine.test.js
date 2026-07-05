@@ -300,4 +300,22 @@ describe('chirp board', () => {
     });
     expect(cb.buildWCBValue(cb.parseWCBValue('CHRP:200,2000,500'))).toBe('CHRP:200,2000,500');
   });
+
+  test('STOP:* (all streams) encodes, decodes, and round-trips', () => {
+    expect(cb.encode(cb.getCommand('chirp.stop.stream'), { stream: '*' }, {})).toBe('STOP:*');
+    expect(cb.match('STOP:*')).toMatchObject({ commandId: 'chirp.stop.stream', params: { stream: '*' } });
+    expect(cb.buildWCBValue(cb.parseWCBValue('STOP:*'))).toBe('STOP:*');
+  });
+
+  test('STAT:5 encodes, decodes, and round-trips', () => {
+    expect(cb.encode(cb.getCommand('chirp.stat'), { stream: '5' }, {})).toBe('STAT:5');
+    expect(cb.match('STAT:5')).toMatchObject({ commandId: 'chirp.stat', params: { stream: '5' } });
+    expect(cb.buildWCBValue(cb.parseWCBValue('STAT:5'))).toBe('STAT:5');
+  });
+
+  test('VOL:2,40 (stream volume) encodes, decodes, and round-trips', () => {
+    expect(cb.encode(cb.getCommand('chirp.vol.stream'), { stream: '2', volume: '40' }, {})).toBe('VOL:2,40');
+    expect(cb.match('VOL:2,40')).toMatchObject({ commandId: 'chirp.vol.stream', params: { stream: '2', volume: '40' } });
+    expect(cb.buildWCBValue(cb.parseWCBValue('VOL:2,40'))).toBe('VOL:2,40');
+  });
 });
