@@ -34,6 +34,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # This path holds live secrets while reviewing UNTRUSTED fork content, so do
+          # NOT persist the GITHUB_TOKEN into .git/config (default true) — otherwise a
+          # `cat .git/config` could surface a usable token.
+          persist-credentials: false
 
       - uses: anthropics/claude-code-action@v1
         with:
@@ -43,10 +48,17 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           # No `prompt`: the @claude comment body is the instruction, so a maintainer
           # can ask for a full review or a targeted question.
-          # Fork-safe tool set: read-only git + read utils for static inspection, and
-          # `gh pr comment` to post the reply. Deliberately NO `npm`/build execution —
-          # this path may target a fork, so it never runs the PR's code; it reviews
-          # statically and cites the existing `validate-and-test` CI check for pass/fail.
+          # SECURITY: this path holds live secrets (CLAUDE_CODE_OAUTH_TOKEN + a
+          # writable GITHUB_TOKEN) while reviewing UNTRUSTED fork content, so its Bash
+          # surface is deliberately minimal. It reads the PR via `gh pr diff/view`,
+          # cites the existing `validate-and-test` CI check for pass/fail (NO npm/build
+          # execution), and posts via `gh pr comment`. Excluded on purpose: `find`
+          # (`find -exec` is arbitrary code execution) and general file-read utils
+          # (`cat`/`grep`/`jq`/`ls`, which could read .git/config or /proc) — a prompt
+          # injection in the fork content must not be able to reach the tokens.
+          # NOTE: the OWNER/MEMBER/COLLABORATOR gate above trusts any collaborator,
+          # including read/triage-only ones — fine for a solo repo; tighten to a
+          # username allowlist or a repo-permission check if collaborators are added.
           claude_args: |
             --max-turns 30
-            --allowedTools "Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(git ls-tree:*),Bash(git cat-file:*),Bash(git rev-parse:*),Bash(git status:*),Bash(cat:*),Bash(ls:*),Bash(head:*),Bash(tail:*),Bash(grep:*),Bash(wc:*),Bash(find:*),Bash(jq:*),Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr checks:*),Bash(gh pr comment:*)"
+            --allowedTools "Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr checks:*),Bash(gh pr comment:*)"

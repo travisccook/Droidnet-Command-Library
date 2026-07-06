@@ -91,4 +91,4 @@ jobs:
             locations for any line-specific issues.
           claude_args: |
             --max-turns 40
-            --allowedTools "Bash(npm ci),Bash(npm run validate),Bash(npm test),Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(git ls-tree:*),Bash(git cat-file:*),Bash(git rev-parse:*),Bash(git status:*),Bash(cat:*),Bash(ls:*),Bash(head:*),Bash(tail:*),Bash(grep:*),Bash(wc:*),Bash(find:*),Bash(jq:*),Bash(gh pr comment:*)"
+            --allowedTools "Bash(npm ci),Bash(npm run validate),Bash(npm test),Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(git ls-tree:*),Bash(git cat-file:*),Bash(git rev-parse:*),Bash(git status:*),Bash(cat:*),Bash(ls:*),Bash(head:*),Bash(tail:*),Bash(grep:*),Bash(wc:*),Bash(jq:*),Bash(gh pr comment:*)"
