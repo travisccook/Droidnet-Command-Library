@@ -29,3 +29,38 @@ describe('hosted site — html wiring', () => {
     expect(html).not.toContain('droidnet-command-library-ui.js');
   });
 });
+
+const { readCatalog } = require('../src/load-node.js');
+function loadEngine() { jest.resetModules(); return require('../src/droidnet-command-library.js'); }
+
+describe('hosted site — reference data contract', () => {
+  let cb;
+  beforeEach(() => {
+    cb = loadEngine();
+    const { manifest, boards } = readCatalog();
+    cb.loadLibrary(boards.map(b => JSON.parse(JSON.stringify(b))), { libraryVersion: manifest.libraryVersion });
+  });
+
+  const isBounded = (cmd) => (cmd.params || []).every(p => p.enum || p.type === 'int');
+
+  test('every command exposes a first example (card + Try-in-composer seed)', () => {
+    const missing = [];
+    for (const comp of cb.getComponents())
+      for (const cmd of cb.getCommands(comp.id))
+        if (!(cmd.examples && cmd.examples[0])) missing.push(cmd.id);
+    expect(missing).toEqual([]);
+  });
+
+  test('examples for fully-bounded commands round-trip to a recognized step', () => {
+    const bad = [];
+    for (const comp of cb.getComponents())
+      for (const cmd of cb.getCommands(comp.id)) {
+        if (!isBounded(cmd)) continue;                 // free-text arg (e.g. chirp.pvoice) → editable raw step, skip
+        const ex = cmd.examples && cmd.examples[0];
+        if (!ex) continue;                              // presence covered above
+        const steps = cb.parseWCBValue(ex);
+        if (!steps.some(s => s.commandId && cb.getCommand(s.commandId))) bad.push(cmd.id + ' -> ' + ex);
+      }
+    expect(bad).toEqual([]);
+  });
+});
