@@ -64,3 +64,27 @@ describe('hosted site — reference data contract', () => {
     expect(bad).toEqual([]);
   });
 });
+
+describe('engine — negative-range int params round-trip (regression)', () => {
+  let cb;
+  beforeEach(() => {
+    cb = loadEngine();
+    const { manifest, boards } = readCatalog();
+    cb.loadLibrary(boards.map(b => JSON.parse(JSON.stringify(b))), { libraryVersion: manifest.libraryVersion });
+  });
+
+  // A non-enum int param whose range allows negatives (uppity.rotary.spin min -100,
+  // uppity.rotary.rel min -180). The matcher must accept a leading '-' so a pasted /
+  // reloaded value re-parses to a structured, editable step instead of a raw step.
+  test("match() accepts a leading '-' for int params", () => {
+    const spin = cb.match(':PR-80');
+    expect(spin).toBeTruthy();
+    expect(spin.commandId).toBe('uppity.rotary.spin');
+    expect(spin.params.speed).toBe('-80');
+
+    const rel = cb.match(':PD-90');
+    expect(rel).toBeTruthy();
+    expect(rel.commandId).toBe('uppity.rotary.rel');
+    expect(rel.params.degrees).toBe('-90');
+  });
+});
