@@ -8,8 +8,8 @@ schema-driven definitions. Anyone can add support for their board by editing a J
 library — **no code changes required** for the common case.
 
 This is a standalone project in the **DroidNet universe** — not part of any one
-product. [DroidNet Signal Booster](https://github.com/travisccook/droidnetsignalbooster-releases)
-is one consumer (it powers the Signal Booster's visual WCB command builder), but
+product. **[DroidNet Signal Booster](https://github.com/travisccook/DroidNetSignalBooster-releases)**
+is one consumer — it powers the Signal Booster's visual WCB command builder — but
 the library is independent and meant to be used by any app or droid, with the
 community growing a shared catalog of boards.
 
