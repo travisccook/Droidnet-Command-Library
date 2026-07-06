@@ -1,0 +1,47 @@
+name: Claude Mention
+
+# @claude-triggered review. Runs in the trusted base-repo context (so the token is
+# available) — which is why it is gated to trusted commenters. Handles fork PRs
+# WITHOUT executing their code: no npm scripts are granted here, so Claude reviews
+# statically and cites the existing `validate-and-test` CI check (which already ran
+# on the fork PR without secrets) as the source of truth for pass/fail.
+on:
+  issue_comment:
+    types: [created]
+  pull_request_review_comment:
+    types: [created]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  mention:
+    # Fire only when: the comment is on a PR, mentions @claude, and the commenter is
+    # a trusted actor (prevents anonymous users burning subscription quota).
+    if: >-
+      (
+        (github.event_name == 'issue_comment' && github.event.issue.pull_request != null) ||
+        github.event_name == 'pull_request_review_comment'
+      ) &&
+      contains(github.event.comment.body, '@claude') &&
+      (
+        github.event.comment.author_association == 'OWNER' ||
+        github.event.comment.author_association == 'MEMBER' ||
+        github.event.comment.author_association == 'COLLABORATOR'
+      )
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # No `prompt`: the @claude comment body is the instruction, so a maintainer
+          # can ask for a full review or a targeted question.
+          # No Bash(npm …) grant: this path may target a fork, so Claude reviews
+          # statically and refers to the existing CI check rather than executing the
+          # PR's code. Default tools = read/grep/glob + PR comments.
+          claude_args: |
+            --max-turns 15
