@@ -38,7 +38,6 @@ jobs:
           # `id-token: write` permission and no Claude GitHub App install are needed.
           # Trade-off: review comments post as github-actions[bot], not claude[bot].
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          show_full_output: true  # TEMP diagnostic — reverted after capturing the auth error
           prompt: |
             You are reviewing a pull request against the Droidnet Command Library —
             a schema-driven engine + composer that builds serial commands for
@@ -46,9 +45,11 @@ jobs:
             libraries/boards/. Read CLAUDE.md and CONTRIBUTING.md for the full rules
             before reviewing.
 
-            Do all of the following, then post ONE summary comment plus inline
-            comments on specific lines. You are advisory only: do NOT modify code,
-            approve, or merge.
+            Do all of the following, then post your review as exactly ONE PR
+            comment using: gh pr comment <PR_NUMBER> --repo <OWNER/REPO> --body "…".
+            Reference specific file:line locations inline in the summary text (you
+            do not have a GitHub inline-comment tool here). You are advisory only:
+            do NOT modify code, approve, or merge.
 
             1. Verify the checks. Run:
                  npm ci
@@ -79,8 +80,8 @@ jobs:
                and the UI going through buildWCBValue/parseWCBValue, and preserve the
                round-trip invariant buildWCBValue(parseWCBValue(v)) === v.
 
-            Keep the summary concise and actionable. Prefer inline comments for
-            line-specific issues.
+            Keep the summary concise and actionable. Reference specific file:line
+            locations for any line-specific issues.
           claude_args: |
             --max-turns 40
-            --allowedTools "Bash(npm ci),Bash(npm run validate),Bash(npm test),Bash(npm run lint),Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(git ls-tree:*),Bash(git cat-file:*),Bash(git rev-parse:*),Bash(git status:*),Bash(cat:*),Bash(ls:*),Bash(head:*),Bash(tail:*),Bash(grep:*),Bash(wc:*),Bash(find:*),Bash(jq:*)"
+            --allowedTools "Bash(npm ci),Bash(npm run validate),Bash(npm test),Bash(npm run lint),Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(git ls-tree:*),Bash(git cat-file:*),Bash(git rev-parse:*),Bash(git status:*),Bash(cat:*),Bash(ls:*),Bash(head:*),Bash(tail:*),Bash(grep:*),Bash(wc:*),Bash(find:*),Bash(jq:*),Bash(gh pr comment:*)"
