@@ -40,7 +40,7 @@ Structure: `D T ## [C] [S|P]` — Designator, Type (`0`=LED, `1`=Servo), 2-or-3-
 | `flthy.servoTwitch` *(new)* | `98` Disable, `99` Enable |
 | `flthy.special` *(new)* | `S1` Leia Mode, `S4` Clear+Disable (no off-color), `S5` Clear+Enable default (no off-color), `S6` Clear+Enable random (no off-color), `S7` Clear+Disable (off-color), `S8` Clear+Enable default (off-color), `S9` Clear+Enable random (off-color) |
 
-### Commands (15 total)
+### Commands (16 total)
 
 **Group "LED Effects"** — `safety: cosmetic`, `supportsDuration: true`
 
@@ -93,8 +93,8 @@ Conclusion: every valid wire string matches exactly one command.
 
 | File | Change |
 |---|---|
-| `libraries/boards/flthy-hps.json` | Rewrite: 6 enums, 15 commands |
-| `libraries/manifest.json` | `libraryVersion` `2.1.0` → `2.2.0` |
+| `libraries/boards/flthy-hps.json` | Rewrite: 6 enums, 16 commands |
+| `libraries/manifest.json` | `libraryVersion` `2.2.1` → `2.3.0` |
 | `releases.json` | Update `latest` to match the new `libraryVersion` |
 
 **Version rationale:** minor bump. The dominant change is net-new commands (minor); command **ids** are preserved. The solid/rainbow re-encode is a bugfix of a stub board, and the X/Y/Z removal only invalidates values that were never valid v1.8. No command id is renamed or removed, so this is not a major bump under the repo's convention.
