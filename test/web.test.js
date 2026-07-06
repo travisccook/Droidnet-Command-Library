@@ -56,10 +56,10 @@ describe('hosted site — reference data contract', () => {
     for (const comp of cb.getComponents())
       for (const cmd of cb.getCommands(comp.id)) {
         if (!isBounded(cmd)) continue;                 // free-text arg (e.g. chirp.pvoice) → editable raw step, skip
-        const ex = cmd.examples && cmd.examples[0];
-        if (!ex) continue;                              // presence covered above
-        const steps = cb.parseWCBValue(ex);
-        if (!steps.some(s => s.commandId && cb.getCommand(s.commandId))) bad.push(cmd.id + ' -> ' + ex);
+        for (const ex of (cmd.examples || [])) {        // EVERY example — a bad non-first example (e.g. an invalid enum code) hid here before
+          const steps = cb.parseWCBValue(ex);
+          if (!steps.some(s => s.commandId && cb.getCommand(s.commandId))) bad.push(cmd.id + ' -> ' + ex);
+        }
       }
     expect(bad).toEqual([]);
   });

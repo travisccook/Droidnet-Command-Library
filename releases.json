@@ -2,17 +2,17 @@
   "$schema": "droidnet-command-library/releases/v1",
   "_comment": "Update pointer for the 'Update Library' flow. A device fetches this file, compares latest.libraryVersion to its installed catalog, and (if newer) downloads latest.url (the catalog manifest), then fetches each board listed in manifest.boards in order, validates them, and loads them via loadLibrary(boards, { libraryVersion }).",
   "latest": {
-    "libraryVersion": "2.2.0",
+    "libraryVersion": "2.2.1",
     "schemaVersion": "v1",
     "releasedAt": "2026-07-06",
     "url": "https://raw.githubusercontent.com/travisccook/droidnet-command-library/main/libraries/manifest.json",
-    "notes": "Adds the R2 Uppity Spinner ALT (highfalutintodd fork) board: 41 commands covering lifter seek/home, rotary absolute/relative/spin, random move mode, light kit, timing, ESTOP, and full #P configuration. Community confidence; :PD range constrained to ±180° per firmware 3.5.3 clamp."
+    "notes": "Patch: corrects two invalid psi.mode examples in the PSIPro board (5T03 -> 5T3, 0T6 -> 0T1) that referenced enum codes not present in psi.mode, so they now round-trip in the composer."
   },
   "libraries": [
     {
       "id": "droidnet-astromech",
       "name": "DroidNet Astromech Boards",
-      "libraryVersion": "2.2.0",
+      "libraryVersion": "2.2.1",
       "schemaVersion": "v1",
       "url": "https://raw.githubusercontent.com/travisccook/droidnet-command-library/main/libraries/manifest.json"
     }
