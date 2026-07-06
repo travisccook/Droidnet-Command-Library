@@ -22,6 +22,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # full history so the reviewer can `git diff` against the base
 
       - uses: actions/setup-node@v4
         with:
@@ -80,5 +82,5 @@ jobs:
             Keep the summary concise and actionable. Prefer inline comments for
             line-specific issues.
           claude_args: |
-            --max-turns 20
-            --allowedTools "Bash(npm ci),Bash(npm run validate),Bash(npm test),Bash(npm run lint)"
+            --max-turns 40
+            --allowedTools "Bash(npm ci),Bash(npm run validate),Bash(npm test),Bash(npm run lint),Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(git ls-tree:*),Bash(git cat-file:*),Bash(git rev-parse:*),Bash(git status:*),Bash(cat:*),Bash(ls:*),Bash(head:*),Bash(tail:*),Bash(grep:*),Bash(wc:*),Bash(find:*),Bash(jq:*)"
