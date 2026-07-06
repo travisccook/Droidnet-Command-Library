@@ -1,0 +1,78 @@
+name: Claude PR Review
+
+# Auto-review for pull requests opened from a branch inside THIS repo
+# (maintainer/collaborators — trusted). Fork PRs fall through to a no-op via the
+# job `if` guard and are instead handled by claude-mention.yml on an @claude
+# comment. Uses the plain `pull_request` event (never pull_request_target).
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  review:
+    # Only run for non-draft PRs whose head branch lives in this repo (not a fork).
+    if: >-
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: |
+            You are reviewing a pull request against the Droidnet Command Library —
+            a schema-driven engine + composer that builds serial commands for
+            Astromech droid boards. Most PRs edit a JSON board file under
+            libraries/boards/. Read CLAUDE.md and CONTRIBUTING.md for the full rules
+            before reviewing.
+
+            Do all of the following, then post ONE summary comment plus inline
+            comments on specific lines. You are advisory only: do NOT modify code,
+            approve, or merge.
+
+            1. Verify the checks. Run:
+                 npm ci
+                 npm run validate
+                 npm test
+               Report pass/fail with the actual output. If validate or a test fails,
+               point at the offending file and line and explain the fix.
+
+            2. Enforce the board-contribution rules (see CONTRIBUTING.md "What the
+               validator enforces"):
+               - Every command has at least one `examples` string.
+               - Every {placeholder} in a template has a matching param, and every
+                 param maps to a placeholder (both directions).
+               - Every param.enum resolves to a defined enum.
+               - Command ids are unique across ALL board files.
+               - If any board changed, libraries/manifest.json `libraryVersion` is
+                 bumped per semver (patch=fix, minor=add, major=rename/remove), and
+                 releases.json is in sync if the released version changed.
+               - `confidence` is set honestly — unverified contributions use
+                 `community`, not `high`.
+
+            3. HIGH SEVERITY — flag any safety-class mislabeling. A command that moves
+               the droid or affects power must NOT be marked safety:"cosmetic". Per
+               the project's Code of Conduct, mislabeling can cause real hardware to
+               move unexpectedly. Call this out prominently.
+
+            4. For changes to src/*.js: check correctness, keep the engine DOM-free
+               and the UI going through buildWCBValue/parseWCBValue, and preserve the
+               round-trip invariant buildWCBValue(parseWCBValue(v)) === v.
+
+            Keep the summary concise and actionable. Prefer inline comments for
+            line-specific issues.
+          claude_args: |
+            --max-turns 20
+            --allowedTools "Bash(npm ci),Bash(npm run validate),Bash(npm test),Bash(npm run lint)"
