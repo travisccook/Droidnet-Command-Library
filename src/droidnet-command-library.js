@@ -230,7 +230,9 @@
           .sort((a, b) => b.length - a.length); // longest-first so multi-char codes win
         return '(' + codes.join('|') + ')';
       }
-      return '(\\d+)';
+      // Allow an optional leading '-' so int params with a negative range
+      // (e.g. a rotary speed of -80) re-parse to a structured step, not a raw one.
+      return '(-?\\d+)';
     });
     return { re: new RegExp('^' + pattern + '$'), groups };
   }
