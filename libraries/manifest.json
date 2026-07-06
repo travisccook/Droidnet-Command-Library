@@ -1,8 +1,8 @@
 {
   "$schema": "droidnet-command-library/catalog/v1",
-  "libraryVersion": "2.1.0",
+  "libraryVersion": "2.2.0",
   "schemaVersion": "v1",
-  "generatedFrom": "C2B5 firmware + WIPDocs (2026-06)",
+  "generatedFrom": "C2B5 firmware + WIPDocs (2026-06); R2UppitySpinnerV3 ALT fw 3.5.3 (2026-07)",
   "boards": [
     {
       "id": "flthy-hps",
@@ -50,6 +50,12 @@
       "id": "chirp",
       "file": "boards/chirp.json",
       "name": "CHiRP Audio Trigger",
+      "confidence": "community"
+    },
+    {
+      "id": "r2uppityspinner-alt",
+      "file": "boards/r2uppityspinner-alt.json",
+      "name": "R2 Uppity Spinner ALT (Periscope)",
       "confidence": "community"
     }
   ]
