@@ -64,6 +64,23 @@ DroidNetCommandLibrary.match('A0055'); // { commandId: 'flthy.led.solid', params
 
 See **[docs/INTEGRATION_GUIDE.md](docs/INTEGRATION_GUIDE.md)** for the full API.
 
+## Hosted composer
+
+A ready-to-use visual composer and board reference are served straight from this
+repo via GitHub Pages:
+
+- **Composer** — <https://travisccook.github.io/droidnet-command-library/index.html>
+- **Board reference** — <https://travisccook.github.io/droidnet-command-library/reference.html>
+
+Build a sequence of steps, copy the resulting serial string, and paste it into
+your WCB web config or a serial monitor. The pages load the engine and the
+`libraries/` catalog directly, so a merged board JSON shows up on the site with
+no separate deploy.
+
+**Enabling Pages (maintainers):** Settings → Pages → *Deploy from a branch* →
+`main` → `/` (root). The site is static (no build); a `.nojekyll` file keeps
+Pages from processing files.
+
 ## Adding or editing a board
 
 Edit or add a board file under `libraries/boards/<id>.json` (and list it in `libraries/manifest.json`), then validate:

@@ -103,6 +103,9 @@ firmware-equivalent canonical form).
 The optional UI renders an inline step editor into any element. It depends on the
 engine being loaded first.
 
+> A hosted, ready-to-use build of this composer + a searchable board reference is
+> published via GitHub Pages — see the "Hosted composer" section in the README.
+
 ```html
 <script src="src/droidnet-command-library.js"></script>
 <script src="src/droidnet-command-library-ui.js"></script>
