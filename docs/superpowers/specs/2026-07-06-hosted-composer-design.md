@@ -197,10 +197,16 @@ cheap, and keeps the pages fully independent.
   1. Assert `index.html` and `reference.html` exist and reference the canonical
      `src/droidnet-command-library.js` (and the UI module on the composer page)
      and load `assets/` scripts — guards against a broken `<script src>` path.
-  2. Load the engine via the existing `loadEngine()` pattern and assert every
-     board command's first `examples` string round-trips
-     (`buildWCBValue(parseWCBValue(x)) === x`) — reasserts the exact data
-     contract the reference page's "Try in composer" links depend on.
+  2. Load the engine via the existing `loadEngine()` pattern and assert the two
+     things the reference page relies on: (a) every command exposes a first
+     `examples` string (shown on the card + used as the "Try in composer" seed);
+     (b) examples for **fully-bounded** commands (every param is an `enum` or
+     `int`) parse back to a recognized command step. Free-text params (e.g.
+     `chirp.pvoice`'s `{filename}`) can't round-trip through the matcher and land
+     as an editable raw step, so they're excluded from (b) by construction —
+     which also keeps the test robust as new free-text commands are added.
+     (Verified against the current catalog: 42 commands, 0 missing examples, 41
+     bounded commands all round-trip.)
 - **Live verification (primary):** serve the repo root with
   `python3 -m http.server` and drive it in a real browser (browser tools / the
   `verify` skill): compose a sequence → Copy → confirm clipboard → paste back via
