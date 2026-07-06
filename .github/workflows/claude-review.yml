@@ -31,6 +31,11 @@ jobs:
       - uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # Use the built-in Actions token for GitHub API (post comments / read PR).
+          # Providing github_token makes the action SKIP the OIDC exchange, so no
+          # `id-token: write` permission and no Claude GitHub App install are needed.
+          # Trade-off: review comments post as github-actions[bot], not claude[bot].
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           prompt: |
             You are reviewing a pull request against the Droidnet Command Library —
             a schema-driven engine + composer that builds serial commands for

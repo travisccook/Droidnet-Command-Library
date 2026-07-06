@@ -208,10 +208,15 @@ Applied via `gh api PUT /repos/{owner}/{repo}/branches/main/protection`:
 4. Apply branch protection (implementation runs the `gh api` call, or hands the
    maintainer the exact command to run).
 
-The Claude GitHub App install (`/install-github-app`) is **not required** — the
-workflows post via the built-in `GITHUB_TOKEN` with the `pull-requests`/`issues`
-write permissions declared above. Installing the App is an optional later upgrade
-(nicer bot identity, ability to trigger downstream workflows).
+The Claude GitHub App install (`/install-github-app`) is **not required** — each
+workflow passes `github_token: ${{ secrets.GITHUB_TOKEN }}` to the action, which
+makes `claude-code-action@v1` **skip its GitHub OIDC exchange** (the OIDC path
+requires both `id-token: write` *and* the Claude GitHub App installed). With the
+built-in token, comments post via `github-actions[bot]` using the
+`pull-requests`/`issues` write permissions declared above. Installing the App is an
+optional later upgrade (branded `claude[bot]` identity, sticky-updating comments,
+ability to trigger downstream workflows) — it would swap `github_token` for
+`id-token: write`.
 
 ## Security considerations (explicit)
 

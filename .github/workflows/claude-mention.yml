@@ -38,6 +38,9 @@ jobs:
       - uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # Built-in Actions token for GitHub API; skips the OIDC exchange so no
+          # `id-token: write` and no Claude GitHub App install are required.
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           # No `prompt`: the @claude comment body is the instruction, so a maintainer
           # can ask for a full review or a targeted question.
           # No Bash(npm …) grant: this path may target a fork, so Claude reviews

@@ -14,6 +14,7 @@
 - Claude is **review-only** on the auto path — no code edits, no approve, no merge.
 - Fork PR code is **never executed** while the token is in the environment (mention path is static-review-only).
 - Auth is the subscription token secret `CLAUDE_CODE_OAUTH_TOKEN` — never an API key, never a hardcoded token.
+- GitHub API auth uses the built-in `github_token: ${{ secrets.GITHUB_TOKEN }}` input, which makes `claude-code-action@v1` skip the OIDC exchange — so **no `id-token: write` permission and no Claude GitHub App install** are required. Trade-off: review comments post as `github-actions[bot]` (not a branded `claude[bot]`) and don't sticky-update across pushes. (Discovered during execution: the default OIDC path failed without the App; `github_token` is the documented bypass — see the action's FAQ.)
 - Restricted tool allowlist on the auto path: only `Bash(npm ci)`, `Bash(npm run validate)`, `Bash(npm test)`, `Bash(npm run lint)`.
 - Existing CI job/check name is `validate-and-test` (from `.github/workflows/ci.yml`) — this exact string is the required status check.
 - Default branch is `main`; repo is `travisccook/Droidnet-Command-Library` (public).
@@ -110,6 +111,9 @@ jobs:
       - uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # github_token makes the action skip the GitHub OIDC exchange, so no
+          # `id-token: write` permission and no Claude GitHub App install are needed.
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           prompt: |
             You are reviewing a pull request against the Droidnet Command Library —
             a schema-driven engine + composer that builds serial commands for
@@ -230,6 +234,8 @@ jobs:
       - uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # github_token skips the GitHub OIDC exchange (no id-token / no App needed).
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           # No `prompt`: the @claude comment body is the instruction, so a maintainer
           # can ask for a full review or a targeted question.
           # No Bash(npm …) grant: this path may target a fork, so Claude reviews
