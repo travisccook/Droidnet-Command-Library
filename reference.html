@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DroidNet Board Reference</title>
+  <link rel="stylesheet" href="assets/app.css">
+</head>
+<body>
+  <header class="dn-nav">
+    <span class="dn-brand">DroidNet <b>Board Reference</b></span>
+    <span id="libver" class="dn-badge dn-ver"></span>
+    <nav class="dn-links">
+      <a href="index.html">Composer</a>
+      <a href="reference.html" class="active">Reference</a>
+    </nav>
+  </header>
+
+  <main class="dn-main">
+    <div id="errzone"></div>
+    <div class="dn-search">
+      <input id="search" class="form-control" type="search"
+             placeholder="Search boards, commands, templates…" aria-label="Search commands">
+    </div>
+    <div id="catalog" class="dn-catalog"></div>
+  </main>
+
+  <script src="src/droidnet-command-library.js"></script>
+  <script src="assets/boot.js"></script>
+  <script src="assets/reference.js"></script>
+</body>
+</html>
