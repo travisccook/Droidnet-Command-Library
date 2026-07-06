@@ -244,8 +244,18 @@ allowlist" is only as good as the *specific* commands allowed. Confirmed fixes:
   read-only `git diff/log/show`. The general file-read utils (`cat`/`grep`/`jq`/`ls`)
   were dropped there because prefix rules can't pin them to the repo tree, so they
   could read `/proc/self/environ` or `.git/config`.
-- **`persist-credentials: false`** on the mention checkout, so the `GITHUB_TOKEN` is
-  not written into `.git/config` where a read primitive could recover it.
+- **`persist-credentials: false`** on **both** checkouts, so the `GITHUB_TOKEN` is
+  not written into `.git/config` where a read primitive could recover it. (Critical
+  on the mention path; added to the auto path too for consistency — low risk there
+  since it only runs for trusted in-repo PRs.)
+- **Why `find` is special but command-substitution isn't a bypass:** `find -exec`
+  is a *single* command whose child process is an internal `find` argument, so the
+  allowlist never sees a second command to check. By contrast the matcher **does**
+  parse shell operators and command substitutions — `gh pr comment --body "$(cat …)"`
+  makes the matcher require `cat` to *also* be allowlisted, and chaining (`a; b`,
+  `a && b`, `a | b`) requires every segment to be allowed. So substitution/chaining
+  is not a `find -exec`-style hole; the fix was to drop the commands (like `find`)
+  that smuggle execution *inside a single command word-list*.
 - **Residual risk (documented, accepted):** the mention path still co-locates a
   subscription token with an agent reading untrusted content; the real defenses are
   the human-gated trigger, the trusted-actor gate, and the minimized (non-exec,

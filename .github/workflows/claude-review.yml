@@ -30,6 +30,12 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0  # full history so the reviewer can `git diff` against the base
+          # Don't persist GITHUB_TOKEN into .git/config. This path is trusted
+          # (in-repo PRs), so risk is low, but it keeps the "reviewed content must not
+          # reach tokens" invariant consistent with the mention path. Safe here: the
+          # fetch already happened at checkout; git diff/log/show are local and
+          # gh pr comment authenticates via GH_TOKEN, not the git credential helper.
+          persist-credentials: false
 
       - uses: actions/setup-node@v4
         with:
