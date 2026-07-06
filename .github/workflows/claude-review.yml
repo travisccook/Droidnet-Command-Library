@@ -36,6 +36,7 @@ jobs:
           # `id-token: write` permission and no Claude GitHub App install are needed.
           # Trade-off: review comments post as github-actions[bot], not claude[bot].
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          show_full_output: true  # TEMP diagnostic — reverted after capturing the auth error
           prompt: |
             You are reviewing a pull request against the Droidnet Command Library —
             a schema-driven engine + composer that builds serial commands for
