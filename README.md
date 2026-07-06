@@ -13,6 +13,13 @@ is one consumer (it powers the Signal Booster's visual WCB command builder), but
 the library is independent and meant to be used by any app or droid, with the
 community growing a shared catalog of boards.
 
+> ### ▶️ Try it live — no install
+>
+> - **[Open the Command Composer →](https://travisccook.github.io/Droidnet-Command-Library/index.html)** — build a serial command string in your browser, drag steps to reorder, and copy it straight into your WCB config or serial monitor.
+> - **[Browse the Board Reference →](https://travisccook.github.io/Droidnet-Command-Library/reference.html)** — search every board and command in the catalog, with copy-ready examples.
+>
+> Both run entirely in the browser off this repo — nothing to install.
+
 ```text
  Board library (JSON)            droidnet-command-library            droidnet-command-library-ui
  ─────────────────────           ───────────────────             ──────────────────
@@ -77,7 +84,7 @@ your WCB web config or a serial monitor. The pages load the engine and the
 `libraries/` catalog directly, so a merged board JSON shows up on the site with
 no separate deploy.
 
-**Enabling Pages (maintainers):** Settings → Pages → *Deploy from a branch* →
+**Pages setup (maintainers):** already enabled — *Deploy from a branch* →
 `main` → `/` (root). The site is static (no build); a `.nojekyll` file keeps
 Pages from processing files.
 

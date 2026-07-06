@@ -3,6 +3,11 @@
 Thanks for helping grow the shared board catalog! Most contributions are **new
 boards** or **fixes/additions to existing boards** — both are pure edits to a board file under `libraries/boards/`.
 
+Browse the **[live board reference](https://travisccook.github.io/Droidnet-Command-Library/reference.html)**
+to see every board and command already in the catalog (and try the
+**[composer](https://travisccook.github.io/Droidnet-Command-Library/index.html)**) —
+once your board merges to `main`, it shows up there automatically.
+
 ## Quick checklist
 
 1. Fork and create a branch.
