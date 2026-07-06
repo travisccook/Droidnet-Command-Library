@@ -69,8 +69,8 @@ See **[docs/INTEGRATION_GUIDE.md](docs/INTEGRATION_GUIDE.md)** for the full API.
 A ready-to-use visual composer and board reference are served straight from this
 repo via GitHub Pages:
 
-- **Composer** — <https://travisccook.github.io/droidnet-command-library/index.html>
-- **Board reference** — <https://travisccook.github.io/droidnet-command-library/reference.html>
+- **Composer** — <https://travisccook.github.io/Droidnet-Command-Library/index.html>
+- **Board reference** — <https://travisccook.github.io/Droidnet-Command-Library/reference.html>
 
 Build a sequence of steps, copy the resulting serial string, and paste it into
 your WCB web config or a serial monitor. The pages load the engine and the

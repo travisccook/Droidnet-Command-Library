@@ -61,12 +61,14 @@ body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--s
 .wcb-builder-head { display: flex; justify-content: space-between; align-items: center; color: var(--muted); font-size: .85rem; }
 .wcb-builder-head .lbl { text-transform: uppercase; letter-spacing: .06em; }
 .wcb-len { font-family: var(--mono); }
+.wcb-len.over { color: var(--danger); font-weight: 700; }
 .wcb-steps { display: flex; flex-direction: column; gap: 8px; }
 .wcb-empty { color: var(--muted); font-style: italic; padding: 10px; text-align: center;
   border: 1px dashed var(--edge); border-radius: 8px; }
 .wcb-step { display: flex; align-items: center; gap: 10px; padding: 8px 10px;
   background: var(--panel-2); border: 1px solid var(--edge); border-radius: 10px; }
 .wcb-step.editing { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(77,184,255,.18); }
+.wcb-step.dragging { opacity: .5; }
 .wcb-grip { cursor: grab; color: var(--muted); }
 .wcb-step-board { font-size: .7rem; text-transform: uppercase; letter-spacing: .04em;
   padding: 2px 8px; border-radius: 6px; background: var(--accent); color: #04121e; font-weight: 700; }

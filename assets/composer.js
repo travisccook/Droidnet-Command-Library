@@ -51,11 +51,10 @@
 
     copyBtn.addEventListener('click', function () {
       copyText(current).then(function (ok) {
-        var prev = copyBtn.textContent;
         copyBtn.textContent = ok ? 'Copied!' : 'Copy failed';
         copyBtn.classList.toggle('is-ok', !!ok);
         setTimeout(function () {
-          copyBtn.textContent = prev;
+          copyBtn.textContent = 'Copy';
           copyBtn.classList.remove('is-ok');
         }, 1200);
       });
