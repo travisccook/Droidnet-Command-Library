@@ -230,6 +230,31 @@ ability to trigger downstream workflows) — it would swap `github_token` for
 - The action sanitizes prompt-injection vectors (hidden HTML/attrs) in PR content;
   the actor gate is the primary defense on top of that.
 
+### Post-audit hardening (adversarial review of the workflows)
+
+A multi-agent adversarial audit of the two workflows surfaced that "restricted
+allowlist" is only as good as the *specific* commands allowed. Confirmed fixes:
+
+- **`Bash(find:*)` removed from both files.** `claude-code-action` matches Bash
+  permissions by command-string prefix, and `find . -exec sh -c '<anything>' \;` is
+  a *single* command (no shell operator to split on) — so `find:*` was a full
+  arbitrary-code-execution escape. On the secret-bearing mention path (which reviews
+  untrusted fork content) that was a real token-exfiltration vector, not hygiene.
+- **Mention path Bash surface minimized** to `gh pr view/diff/checks/comment` +
+  read-only `git diff/log/show`. The general file-read utils (`cat`/`grep`/`jq`/`ls`)
+  were dropped there because prefix rules can't pin them to the repo tree, so they
+  could read `/proc/self/environ` or `.git/config`.
+- **`persist-credentials: false`** on the mention checkout, so the `GITHUB_TOKEN` is
+  not written into `.git/config` where a read primitive could recover it.
+- **Residual risk (documented, accepted):** the mention path still co-locates a
+  subscription token with an agent reading untrusted content; the real defenses are
+  the human-gated trigger, the trusted-actor gate, and the minimized (non-exec,
+  non-arbitrary-read) toolset. A stronger future option is to run the fork static
+  pass without secrets at all.
+- **Nit:** the `OWNER/MEMBER/COLLABORATOR` gate trusts any collaborator tier
+  (incl. read/triage). Acceptable for a solo repo; tighten to a username allowlist or
+  an explicit repo-permission check before adding collaborators.
+
 ## Testing / verification plan
 
 1. **Workflow lint:** confirm both YAML files parse (e.g. `actionlint` if available,

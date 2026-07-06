@@ -8,6 +8,12 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
 
+# One in-flight review per PR; a new push cancels the previous run so rapid
+# pushes don't stack full Claude reviews and burn quota.
+concurrency:
+  group: claude-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
   pull-requests: write
@@ -46,7 +52,8 @@ jobs:
             before reviewing.
 
             Do all of the following, then post your review as exactly ONE PR
-            comment using: gh pr comment <PR_NUMBER> --repo <OWNER/REPO> --body "…".
+            comment by running:
+              gh pr comment ${{ github.event.pull_request.number }} --repo ${{ github.repository }} --body "…"
             Reference specific file:line locations inline in the summary text (you
             do not have a GitHub inline-comment tool here). You are advisory only:
             do NOT modify code, approve, or merge.
@@ -84,4 +91,4 @@ jobs:
             locations for any line-specific issues.
           claude_args: |
             --max-turns 40
-            --allowedTools "Bash(npm ci),Bash(npm run validate),Bash(npm test),Bash(npm run lint),Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(git ls-tree:*),Bash(git cat-file:*),Bash(git rev-parse:*),Bash(git status:*),Bash(cat:*),Bash(ls:*),Bash(head:*),Bash(tail:*),Bash(grep:*),Bash(wc:*),Bash(find:*),Bash(jq:*),Bash(gh pr comment:*)"
+            --allowedTools "Bash(npm ci),Bash(npm run validate),Bash(npm test),Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(git ls-tree:*),Bash(git cat-file:*),Bash(git rev-parse:*),Bash(git status:*),Bash(cat:*),Bash(ls:*),Bash(head:*),Bash(tail:*),Bash(grep:*),Bash(wc:*),Bash(jq:*),Bash(gh pr comment:*)"
