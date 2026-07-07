@@ -232,7 +232,6 @@
         {
           "id": "hcr.native.stimulus",
           "name": "Emotional Stimulus",
-          "group": "Stimuli",
           "safety": "cosmetic",
           "encoder": "template",
           "template": "<S{emotion}{intensity}>",
@@ -252,12 +251,12 @@
             "<SH1>",
             "<SM0>"
           ],
-          "commentLabel": "HCR stimulus"
+          "commentLabel": "HCR stimulus",
+          "category": "Sound"
         },
         {
           "id": "hcr.native.overload",
           "name": "Overload / Electrocution",
-          "group": "Stimuli",
           "safety": "cosmetic",
           "encoder": "template",
           "template": "<SE>",
@@ -265,12 +264,12 @@
           "examples": [
             "<SE>"
           ],
-          "commentLabel": "HCR overload"
+          "commentLabel": "HCR overload",
+          "category": "Sound"
         },
         {
           "id": "hcr.native.muse",
           "name": "Muse Enable/Disable/Toggle",
-          "group": "Muse",
           "safety": "cosmetic",
           "encoder": "template",
           "template": "<M{state}>",
@@ -286,12 +285,12 @@
             "<M0>",
             "<MT>"
           ],
-          "commentLabel": "HCR muse"
+          "commentLabel": "HCR muse",
+          "category": "Muse"
         },
         {
           "id": "hcr.native.museSingle",
           "name": "Trigger Single Musing",
-          "group": "Muse",
           "safety": "cosmetic",
           "encoder": "template",
           "template": "<MM>",
@@ -299,12 +298,12 @@
           "examples": [
             "<MM>"
           ],
-          "commentLabel": "HCR muse once"
+          "commentLabel": "HCR muse once",
+          "category": "Muse"
         },
         {
           "id": "hcr.native.museMinGap",
           "name": "Muse Min Gap (s)",
-          "group": "Muse",
           "safety": "cosmetic",
           "encoder": "template",
           "template": "<MN{seconds}>",
@@ -319,12 +318,12 @@
           "examples": [
             "<MN5>"
           ],
-          "commentLabel": "HCR muse min gap"
+          "commentLabel": "HCR muse min gap",
+          "category": "Muse"
         },
         {
           "id": "hcr.native.museMaxGap",
           "name": "Muse Max Gap (s)",
-          "group": "Muse",
           "safety": "cosmetic",
           "encoder": "template",
           "template": "<MX{seconds}>",
@@ -339,12 +338,12 @@
           "examples": [
             "<MX30>"
           ],
-          "commentLabel": "HCR muse max gap"
+          "commentLabel": "HCR muse max gap",
+          "category": "Muse"
         },
         {
           "id": "hcr.native.playWav",
           "name": "Play WAV File",
-          "group": "SD WAV",
           "safety": "cosmetic",
           "encoder": "template",
           "template": "<C{channel}{file}>",
@@ -367,12 +366,12 @@
             "<CA0025>",
             "<CB0009>"
           ],
-          "commentLabel": "HCR play WAV"
+          "commentLabel": "HCR play WAV",
+          "category": "Sound"
         },
         {
           "id": "hcr.native.playWavRandom",
           "name": "Play Random WAV (range)",
-          "group": "SD WAV",
           "safety": "cosmetic",
           "encoder": "template",
           "template": "<C{channel}{fileFrom}C{fileTo}>",
@@ -402,12 +401,12 @@
           "examples": [
             "<CB0003C0185>"
           ],
-          "commentLabel": "HCR play random WAV"
+          "commentLabel": "HCR play random WAV",
+          "category": "Sound"
         },
         {
           "id": "hcr.native.stop",
           "name": "Stop",
-          "group": "Stop",
           "safety": "cosmetic",
           "encoder": "template",
           "template": "<PS{target}>",
@@ -422,12 +421,12 @@
             "<PSV>",
             "<PSG>"
           ],
-          "commentLabel": "HCR stop"
+          "commentLabel": "HCR stop",
+          "category": "Sound"
         },
         {
           "id": "hcr.native.volume",
           "name": "Set Volume",
-          "group": "Volume",
           "safety": "cosmetic",
           "encoder": "template",
           "template": "<PV{target}{level}>",
@@ -449,12 +448,12 @@
             "<PVV100>",
             "<PVA50>"
           ],
-          "commentLabel": "HCR volume"
+          "commentLabel": "HCR volume",
+          "category": "Sound"
         },
         {
           "id": "hcr.native.canonMode",
           "name": "Canonical / Improvisational Mode",
-          "group": "Override",
           "safety": "config",
           "encoder": "template",
           "template": "<OA{mode}>",
@@ -469,12 +468,12 @@
             "<OA1>",
             "<OA0>"
           ],
-          "commentLabel": "HCR mode"
+          "commentLabel": "HCR mode",
+          "category": "Config"
         },
         {
           "id": "hcr.native.personalityOverride",
           "name": "Personality Chip Override",
-          "group": "Override",
           "safety": "config",
           "encoder": "template",
           "template": "<O{state}>",
@@ -489,12 +488,12 @@
             "<O1>",
             "<O0>"
           ],
-          "commentLabel": "HCR personality override"
+          "commentLabel": "HCR personality override",
+          "category": "Config"
         },
         {
           "id": "hcr.native.resetEmotions",
           "name": "Reset All Emotions",
-          "group": "Override",
           "safety": "config",
           "encoder": "template",
           "template": "<OR>",
@@ -502,12 +501,12 @@
           "examples": [
             "<OR>"
           ],
-          "commentLabel": "HCR reset emotions"
+          "commentLabel": "HCR reset emotions",
+          "category": "Config"
         },
         {
           "id": "hcr.native.setEmotion",
           "name": "Set Emotion Level",
-          "group": "Override",
           "safety": "config",
           "encoder": "template",
           "template": "<O{emotion}{value}>",
@@ -529,12 +528,12 @@
             "<OH50>",
             "<OM100>"
           ],
-          "commentLabel": "HCR set emotion"
+          "commentLabel": "HCR set emotion",
+          "category": "Config"
         },
         {
           "id": "hcr.native.memoryPlay",
           "name": "Play Memory Slot",
-          "group": "Record",
           "safety": "cosmetic",
           "encoder": "template",
           "template": "<RRP{slot}>",
@@ -550,12 +549,12 @@
           "examples": [
             "<RRP3>"
           ],
-          "commentLabel": "HCR memory play"
+          "commentLabel": "HCR memory play",
+          "category": "Record"
         },
         {
           "id": "hcr.native.memorySave",
           "name": "Save Memory Slot",
-          "group": "Record",
           "safety": "config",
           "encoder": "template",
           "template": "<RRS{slot}>",
@@ -571,12 +570,12 @@
           "examples": [
             "<RRS3>"
           ],
-          "commentLabel": "HCR memory save"
+          "commentLabel": "HCR memory save",
+          "category": "Record"
         },
         {
           "id": "hcr.native.memoryMode",
           "name": "Memory Playback Mode",
-          "group": "Record",
           "safety": "config",
           "encoder": "template",
           "template": "<R{mode}>",
@@ -591,12 +590,12 @@
             "<R0>",
             "<R1>"
           ],
-          "commentLabel": "HCR memory mode"
+          "commentLabel": "HCR memory mode",
+          "category": "Record"
         },
         {
           "id": "hcr.native.query",
           "name": "Query",
-          "group": "Query",
           "safety": "cosmetic",
           "encoder": "template",
           "template": "<Q{query}>",
@@ -612,8 +611,16 @@
             "<QE>",
             "<QD>"
           ],
-          "commentLabel": "HCR query"
+          "commentLabel": "HCR query",
+          "category": "Query"
         }
+      ],
+      "categories": [
+        "Sound",
+        "Muse",
+        "Config",
+        "Record",
+        "Query"
       ]
     }
   ]

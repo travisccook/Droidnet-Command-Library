@@ -215,7 +215,6 @@
         {
           "id": "rseries.effect",
           "name": "Logic Effect",
-          "group": "Effects",
           "safety": "cosmetic",
           "encoder": "rseries-le",
           "params": [
@@ -254,8 +253,12 @@
             "~RTLE213000",
             "~RTLE1051000"
           ],
-          "commentLabel": "Logics effect"
+          "commentLabel": "Logics effect",
+          "category": "Lighting"
         }
+      ],
+      "categories": [
+        "Lighting"
       ]
     }
   ]

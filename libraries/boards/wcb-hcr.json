@@ -63,7 +63,6 @@
         {
           "id": "hcr.stim",
           "name": "Emotional Stimulus",
-          "group": "Emotion",
           "safety": "cosmetic",
           "encoder": "template",
           "template": ";H,STIM,{emotion},{strength}",
@@ -82,12 +81,12 @@
           "examples": [
             ";H,STIM,H,STRONG"
           ],
-          "commentLabel": "HCR stimulus"
+          "commentLabel": "HCR stimulus",
+          "category": "Emotion"
         },
         {
           "id": "hcr.play",
           "name": "Play WAV",
-          "group": "Audio",
           "safety": "cosmetic",
           "encoder": "template",
           "template": ";H,PLAY,{channel},{file}",
@@ -108,8 +107,13 @@
           "examples": [
             ";H,PLAY,B,9"
           ],
-          "commentLabel": "HCR play"
+          "commentLabel": "HCR play",
+          "category": "Sound"
         }
+      ],
+      "categories": [
+        "Emotion",
+        "Sound"
       ]
     }
   ]

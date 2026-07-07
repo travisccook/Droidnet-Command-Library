@@ -65,7 +65,6 @@
         {
           "id": "mp.mode",
           "name": "Run Mode",
-          "group": "Patterns",
           "safety": "cosmetic",
           "encoder": "template",
           "template": "T{mode}",
@@ -80,8 +79,12 @@
             "T52",
             "T0"
           ],
-          "commentLabel": "MP mode"
+          "commentLabel": "MP mode",
+          "category": "Patterns"
         }
+      ],
+      "categories": [
+        "Patterns"
       ]
     }
   ]

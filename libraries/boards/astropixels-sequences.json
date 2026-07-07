@@ -5,24 +5,78 @@
     "ap.sequence": {
       "label": "Sequence",
       "values": [
-        { "code": "00", "label": "Stop / Cancel" },
-        { "code": "01", "label": "Scream" },
-        { "code": "02", "label": "Wave" },
-        { "code": "03", "label": "Smirk (fast wave)" },
-        { "code": "04", "label": "Open/Close Wave" },
-        { "code": "05", "label": "Beep Cantina" },
-        { "code": "06", "label": "Short Circuit" },
-        { "code": "07", "label": "Cantina Music" },
-        { "code": "08", "label": "Leia Message" },
-        { "code": "09", "label": "Disco" },
-        { "code": "50", "label": "Scream (no panels)" },
-        { "code": "51", "label": "Panel Open/Close" },
-        { "code": "52", "label": "Panel Wave" },
-        { "code": "53", "label": "Panel Fast Wave" },
-        { "code": "54", "label": "Sound + Open/Close Wave" },
-        { "code": "55", "label": "Marching Ants" },
-        { "code": "56", "label": "Faint" },
-        { "code": "57", "label": "Rhythmic" }
+        {
+          "code": "00",
+          "label": "Stop / Cancel"
+        },
+        {
+          "code": "01",
+          "label": "Scream"
+        },
+        {
+          "code": "02",
+          "label": "Wave"
+        },
+        {
+          "code": "03",
+          "label": "Smirk (fast wave)"
+        },
+        {
+          "code": "04",
+          "label": "Open/Close Wave"
+        },
+        {
+          "code": "05",
+          "label": "Beep Cantina"
+        },
+        {
+          "code": "06",
+          "label": "Short Circuit"
+        },
+        {
+          "code": "07",
+          "label": "Cantina Music"
+        },
+        {
+          "code": "08",
+          "label": "Leia Message"
+        },
+        {
+          "code": "09",
+          "label": "Disco"
+        },
+        {
+          "code": "50",
+          "label": "Scream (no panels)"
+        },
+        {
+          "code": "51",
+          "label": "Panel Open/Close"
+        },
+        {
+          "code": "52",
+          "label": "Panel Wave"
+        },
+        {
+          "code": "53",
+          "label": "Panel Fast Wave"
+        },
+        {
+          "code": "54",
+          "label": "Sound + Open/Close Wave"
+        },
+        {
+          "code": "55",
+          "label": "Marching Ants"
+        },
+        {
+          "code": "56",
+          "label": "Faint"
+        },
+        {
+          "code": "57",
+          "label": "Rhythmic"
+        }
       ]
     }
   },
@@ -33,20 +87,35 @@
       "kind": "device-native",
       "confidence": "high",
       "firmware": "AstroPixelsPlus",
-      "routing": { "class": "broadcast", "nativeWrapper": "none", "durationSuffix": { "supported": false } },
+      "routing": {
+        "class": "broadcast",
+        "nativeWrapper": "none",
+        "durationSuffix": {
+          "supported": false
+        }
+      },
       "commands": [
         {
           "id": "ap.seq.play",
           "name": "Play Sequence",
-          "group": "Sequences",
           "safety": "movement",
           "encoder": "template",
           "template": ":SE{seq}",
           "params": [
-            { "name": "seq", "enum": "ap.sequence", "required": true, "default": "01" }
+            {
+              "name": "seq",
+              "enum": "ap.sequence",
+              "required": true,
+              "default": "01"
+            }
           ],
-          "examples": [":SE01", ":SE00", ":SE57"],
-          "commentLabel": "AP sequence (drives panels/sound/logic/holo)"
+          "examples": [
+            ":SE01",
+            ":SE00",
+            ":SE57"
+          ],
+          "commentLabel": "AP sequence (drives panels/sound/logic/holo)",
+          "category": "Sequences"
         }
       ]
     }
