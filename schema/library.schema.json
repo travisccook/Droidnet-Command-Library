@@ -92,7 +92,7 @@
         "notes": { "type": "string" },
         "durationSuffix": {
           "type": "object",
-          "description": "If the board accepts a trailing duration (e.g. 'A006|60'), describe it here so the engine can append/strip it.",
+          "description": "If the board accepts a trailing duration (e.g. 'A007|60'), describe it here so the engine can append/strip it.",
           "required": ["supported"],
           "properties": {
             "supported": { "type": "boolean" },

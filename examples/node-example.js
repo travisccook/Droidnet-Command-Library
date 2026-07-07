@@ -19,7 +19,7 @@ const macro = DroidNetCommandLibrary.buildWCBValue([
   { type: 'command', commandId: 'mp.mode', params: { mode: '52' }, label: ' MP VU meter' },
 ]);
 console.log('built :', macro);
-// built : A006^*** Flthy rainbow^;t500^T52^*** MP VU meter
+// built : A007^*** Flthy rainbow^;t500^T52^*** MP VU meter
 
 // 2) Parse a wire string back into steps (round-trips byte-identically).
 const steps = DroidNetCommandLibrary.parseWCBValue(macro);
@@ -27,7 +27,7 @@ console.log('steps :', JSON.stringify(steps.map(s => ({ type: s.type, id: s.comm
 
 // 3) Encode a single command directly.
 const solid = DroidNetCommandLibrary.getCommand('flthy.led.solid');
-console.log('solid :', DroidNetCommandLibrary.encode(solid, { designator: 'F', color: '1' }, {})); // F0051
+console.log('solid :', DroidNetCommandLibrary.encode(solid, { designator: 'F', color: '1' }, {})); // F0061
 
 // 4) Recognize an unknown-but-well-formed token.
-console.log('match :', DroidNetCommandLibrary.match('A0055'));
+console.log('match :', DroidNetCommandLibrary.match('A0065'));

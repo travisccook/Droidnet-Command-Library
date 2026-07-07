@@ -73,9 +73,9 @@ exactly what an "Update Library" button does after downloading a newer set of fi
 
 ```js
 const cmd = DroidNetCommandLibrary.getCommand('flthy.led.solid');
-DroidNetCommandLibrary.encode(cmd, { designator: 'A', color: '5' }, {});       // 'A0055'
-DroidNetCommandLibrary.encode(cmd, { designator: 'A' }, { duration: 60 });     // 'A0055|60'  (default color, duration)
-DroidNetCommandLibrary.match('A0055');  // { commandId: 'flthy.led.solid', params: { designator:'A', color:'5' }, duration: undefined }
+DroidNetCommandLibrary.encode(cmd, { designator: 'A', color: '5' }, {});       // 'A0065'
+DroidNetCommandLibrary.encode(cmd, { designator: 'A' }, { duration: 60 });     // 'A0065|60'  (default color, duration)
+DroidNetCommandLibrary.match('A0065');  // { commandId: 'flthy.led.solid', params: { designator:'A', color:'5' }, duration: undefined }
 ```
 
 ## The wire format
@@ -90,7 +90,7 @@ DroidNetCommandLibrary.match('A0055');  // { commandId: 'flthy.led.solid', param
   so unknown tokens round-trip without loss.
 
 ```text
-A006^*** Flthy rainbow^;t500^T52
+A007^*** Flthy rainbow^;t500^T52
 └ cmd ┘└── label ──┘└delay┘└cmd┘
 ```
 
@@ -119,7 +119,7 @@ engine being loaded first.
         DroidNetCommandLibrary.loadLibrary(boards, { libraryVersion: m.libraryVersion });
         DroidNetCommandLibraryUI.renderComposer(
           document.getElementById('host'),
-          'A006^*** Flthy Rainbow',           // initial wire value (or '' for empty)
+          'A007^*** Flthy Rainbow',           // initial wire value (or '' for empty)
           {
             onChange: (wireValue) => {
               // fired on every edit — persist or mirror it

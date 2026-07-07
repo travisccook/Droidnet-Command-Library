@@ -51,7 +51,7 @@ validates — not a code change.
         DroidNetCommandLibrary.loadLibrary(boards, { libraryVersion: m.libraryVersion });
         DroidNetCommandLibraryUI.renderComposer(
           document.getElementById('host'),
-          'A006^*** Flthy Rainbow',
+          'A007^*** Flthy Rainbow',
           { onChange: (wire) => console.log(wire) }
         );
       }));
@@ -65,8 +65,8 @@ const DroidNetCommandLibrary = require('droidnet-command-library');
 require('droidnet-command-library/node-loader').loadCatalog(); // reads manifest + boards, merges, loads
 
 const solid = DroidNetCommandLibrary.getCommand('flthy.led.solid');
-DroidNetCommandLibrary.encode(solid, { designator: 'A', color: '5' }, {}); // 'A0055'
-DroidNetCommandLibrary.match('A0055'); // { commandId: 'flthy.led.solid', params: {...} }
+DroidNetCommandLibrary.encode(solid, { designator: 'A', color: '5' }, {}); // 'A0065'
+DroidNetCommandLibrary.match('A0065'); // { commandId: 'flthy.led.solid', params: {...} }
 ```
 
 See **[docs/INTEGRATION_GUIDE.md](docs/INTEGRATION_GUIDE.md)** for the full API.
