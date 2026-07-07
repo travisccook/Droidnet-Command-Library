@@ -19,7 +19,7 @@ describe('engine lookups', () => {
     expect(cb.getComponents().map(c => c.id)).toEqual(expect.arrayContaining(['flthy-hps', 'magic-panel']));
   });
   test('getLibraryVersion reports the loaded version', () => {
-    expect(cb.getLibraryVersion()).toBe('2.5.0');
+    expect(cb.getLibraryVersion()).toBe('2.6.0');
   });
   test('getCommand resolves and back-links its component', () => {
     const cmd = cb.getCommand('flthy.led.solid');
@@ -451,5 +451,24 @@ describe('chirp board', () => {
     expect(cb.encode(cb.getCommand('chirp.vol.stream'), { stream: '2', volume: '40' }, {})).toBe('VOL:2,40');
     expect(cb.match('VOL:2,40')).toMatchObject({ commandId: 'chirp.vol.stream', params: { stream: '2', volume: '40' } });
     expect(cb.buildWCBValue(cb.parseWCBValue('VOL:2,40'))).toBe('VOL:2,40');
+  });
+});
+
+describe('AstroPixelsPlus config', () => {
+  let cb;
+  beforeEach(() => { cb = loadEngine(); loadCatalog(cb); });
+
+  test('wifi/remote enum encode + match', () => {
+    expect(cb.encode(cb.getCommand('ap.cfg.wifi'), { state: '0' }, {})).toBe('#APWIFI0');
+    expect(cb.match('#APREMOTE1')).toMatchObject({ commandId: 'ap.cfg.remote', params: { state: '1' } });
+  });
+  test('no-arg actions decode', () => {
+    expect(cb.match('#APZERO')).toMatchObject({ commandId: 'ap.cfg.zero' });
+    expect(cb.match('#APPAIR')).toMatchObject({ commandId: 'ap.cfg.pair' });
+    expect(cb.match('#APUNPAIR')).toMatchObject({ commandId: 'ap.cfg.unpair' });
+  });
+  test('does not collide with roam-a-dome-config (#AP vs #DP)', () => {
+    expect(cb.match('#APRESTART')).toMatchObject({ commandId: 'ap.cfg.restart' });
+    expect(cb.match('#DPRESTART')).toMatchObject({ commandId: 'rad.cfg.restart' });
   });
 });
