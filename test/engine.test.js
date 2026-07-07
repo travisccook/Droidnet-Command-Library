@@ -19,7 +19,7 @@ describe('engine lookups', () => {
     expect(cb.getComponents().map(c => c.id)).toEqual(expect.arrayContaining(['flthy-hps', 'magic-panel']));
   });
   test('getLibraryVersion reports the loaded version', () => {
-    expect(cb.getLibraryVersion()).toBe('2.12.0');
+    expect(cb.getLibraryVersion()).toBe('2.13.0');
   });
   test('getCommand resolves and back-links its component', () => {
     const cmd = cb.getCommand('flthy.led.solid');
@@ -610,5 +610,32 @@ describe('AstroPixelsPlus panels', () => {
     expect(cb.match(':OP00')).toMatchObject({ commandId: 'ap.panel.macro' });
     expect(cb.match(':DPH')).toMatchObject({ commandId: 'rad.home' });
     expect(cb.match(':SE01')).toMatchObject({ commandId: 'ap.seq.play' });
+  });
+});
+
+describe('AstroPixelsPlus servo', () => {
+  let cb;
+  beforeEach(() => { cb = loadEngine(); loadCatalog(cb); });
+
+  test('SM variants disambiguate by argument count', () => {
+    expect(cb.match(':SM0,1500')).toMatchObject({ commandId: 'ap.servo.move', params: { index: '0', pulse: '1500' } });
+    expect(cb.match(':SM0,1000,1500')).toMatchObject({ commandId: 'ap.servo.moveTimed', params: { index: '0', moveTime: '1000', pulse: '1500' } });
+    expect(cb.match(':SM0,500,1000,1500')).toMatchObject({ commandId: 'ap.servo.moveDelayed' });
+    expect(cb.match(':SM0,500,1000,1000,2000')).toMatchObject({ commandId: 'ap.servo.moveFrom' });
+  });
+  test('SL variants disambiguate by argument count', () => {
+    expect(cb.match(':SL0,1000,2000')).toMatchObject({ commandId: 'ap.servo.limits3' });
+    expect(cb.match(':SL0,1000,2000,1500')).toMatchObject({ commandId: 'ap.servo.limits4' });
+    expect(cb.match(':SL0,1000,2000,1500,7')).toMatchObject({ commandId: 'ap.servo.limits5', params: { group: '7' } });
+  });
+  test('SQ quick move and SF easing', () => {
+    expect(cb.encode(cb.getCommand('ap.servo.quickMove'), { index: '0', pulse: '1500' }, {})).toBe(':SQ0,1500');
+    expect(cb.encode(cb.getCommand('ap.servo.easing'), { easingId: '26', group: '3F' }, {})).toBe(':SF26$3F');
+    expect(cb.match(':SF0$4000')).toMatchObject({ commandId: 'ap.servo.easing', params: { easingId: '0', group: '4000' } });
+  });
+  test('does not collide with :SE (sequences) or :OP (panels)', () => {
+    expect(cb.match(':SM0,1500')).toMatchObject({ commandId: 'ap.servo.move' });
+    expect(cb.match(':SE01')).toMatchObject({ commandId: 'ap.seq.play' });
+    expect(cb.match(':OP00')).toMatchObject({ commandId: 'ap.panel.macro' });
   });
 });
