@@ -154,6 +154,7 @@
       "required": ["name"],
       "properties": {
         "name": { "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9]*$", "description": "Placeholder name; must match a {name} in the template (for the template encoder)." },
+        "label": { "type": "string", "description": "Optional friendly caption shown above this field in the composer. Overrides the enum label / humanized name." },
         "enum": { "type": "string", "description": "Name of an entry under top-level 'enums'. Renders as a dropdown." },
         "type": { "type": "string", "enum": ["int"], "description": "Non-enum value type. 'int' renders a number input." },
         "min": { "type": "integer" },
