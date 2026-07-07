@@ -19,7 +19,7 @@ describe('engine lookups', () => {
     expect(cb.getComponents().map(c => c.id)).toEqual(expect.arrayContaining(['flthy-hps', 'magic-panel']));
   });
   test('getLibraryVersion reports the loaded version', () => {
-    expect(cb.getLibraryVersion()).toBe('2.7.0');
+    expect(cb.getLibraryVersion()).toBe('2.8.0');
   });
   test('getCommand resolves and back-links its component', () => {
     const cmd = cb.getCommand('flthy.led.solid');
@@ -493,5 +493,18 @@ describe('AstroPixelsPlus sound', () => {
   });
   test('a single-letter cue does not match the bank-play grammar', () => {
     expect(cb.match('$R')).toMatchObject({ commandId: 'ap.snd.random' });
+  });
+});
+
+describe('AstroPixelsPlus PSI', () => {
+  let cb;
+  beforeEach(() => { cb = loadEngine(); loadCatalog(cb); });
+
+  test('effect encodes with address + effect', () => {
+    expect(cb.encode(cb.getCommand('ap.psi.effect'), { addr: '1', effect: '6' }, {})).toBe('@1P6');
+  });
+  test('longest-code-first: P11 (March) vs P1 (Normal)', () => {
+    expect(cb.match('@0P11')).toMatchObject({ commandId: 'ap.psi.effect', params: { addr: '0', effect: '11' } });
+    expect(cb.match('@1P1')).toMatchObject({ commandId: 'ap.psi.effect', params: { addr: '1', effect: '1' } });
   });
 });
