@@ -98,6 +98,18 @@
         { "code": "98", "label": "Disable" },
         { "code": "99", "label": "Enable" }
       ]
+    },
+    "flthy.special": {
+      "label": "Special Sequence",
+      "values": [
+        { "code": "S1", "label": "Leia Mode" },
+        { "code": "S4", "label": "Clear + Disable (no Off-Color)" },
+        { "code": "S5", "label": "Clear + Enable Default (no Off-Color)" },
+        { "code": "S6", "label": "Clear + Enable Random (no Off-Color)" },
+        { "code": "S7", "label": "Clear + Disable (Off-Color)" },
+        { "code": "S8", "label": "Clear + Enable Default (Off-Color)" },
+        { "code": "S9", "label": "Clear + Enable Random (Off-Color)" }
+      ]
     }
   },
   "components": [
@@ -355,6 +367,20 @@
           "supportsDuration": false,
           "examples": ["T199", "A198"],
           "commentLabel": "Flthy servo auto twitch"
+        },
+        {
+          "id": "flthy.special.sequence",
+          "name": "Special Sequence",
+          "group": "Special",
+          "safety": "movement",
+          "encoder": "template",
+          "template": "{special}",
+          "params": [
+            { "name": "special", "enum": "flthy.special", "required": true }
+          ],
+          "supportsDuration": false,
+          "examples": ["S1", "S5", "S9"],
+          "commentLabel": "Flthy special"
         }
       ]
     }

@@ -132,6 +132,20 @@ describe('FlthyHPs servo', () => {
   });
 });
 
+describe('FlthyHPs special sequences', () => {
+  let cb;
+  beforeEach(() => { cb = loadEngine(); loadCatalog(cb); });
+
+  test('special sequence encodes the raw S-code', () => {
+    expect(cb.encode(cb.getCommand('flthy.special.sequence'), { special: 'S1' }, {})).toBe('S1');
+    expect(cb.encode(cb.getCommand('flthy.special.sequence'), { special: 'S5' }, {})).toBe('S5');
+  });
+  test('special sequence round-trips', () => {
+    expect(cb.match('S1')).toMatchObject({ commandId: 'flthy.special.sequence', params: { special: 'S1' } });
+    expect(cb.buildWCBValue(cb.parseWCBValue('S9'))).toBe('S9');
+  });
+});
+
 describe('build/parse + round-trip', () => {
   let cb;
   beforeEach(() => { cb = loadEngine(); loadCatalog(cb); });
