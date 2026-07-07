@@ -117,7 +117,6 @@
       "properties": {
         "id": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$", "description": "Unique, stable command id (unique across the whole library)." },
         "name": { "type": "string" },
-        "group": { "type": "string", "description": "Optional grouping label for the UI." },
         "category": {
           "type": "string",
           "description": "UI section this command appears under. Must be listed in the component's `categories` array."
