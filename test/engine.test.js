@@ -41,13 +41,13 @@ describe('encode (template)', () => {
   beforeEach(() => { cb = loadEngine(); loadCatalog(cb); });
 
   test('substitutes enum params', () => {
-    expect(cb.encode(cb.getCommand('flthy.led.solid'), { designator: 'A', color: '5' }, {})).toBe('A0055');
+    expect(cb.encode(cb.getCommand('flthy.led.solid'), { designator: 'A', color: '5' }, {})).toBe('A0065');
   });
   test('uses param default when value missing', () => {
-    expect(cb.encode(cb.getCommand('flthy.led.solid'), { designator: 'A' }, {})).toBe('A0055');
+    expect(cb.encode(cb.getCommand('flthy.led.solid'), { designator: 'A' }, {})).toBe('A0065');
   });
   test('appends duration with the component sep', () => {
-    expect(cb.encode(cb.getCommand('flthy.led.rainbow'), { designator: 'A' }, { duration: 240 })).toBe('A006|240');
+    expect(cb.encode(cb.getCommand('flthy.led.rainbow'), { designator: 'A' }, { duration: 240 })).toBe('A007|240');
   });
   test('ignores duration when command does not support it', () => {
     expect(cb.encode(cb.getCommand('mp.mode'), { mode: '52' }, { duration: 9 })).toBe('T52');
@@ -62,10 +62,10 @@ describe('match (template)', () => {
   beforeEach(() => { cb = loadEngine(); loadCatalog(cb); });
 
   test('recognizes a FlthyHPs solid token', () => {
-    expect(cb.match('A0055')).toEqual({ commandId: 'flthy.led.solid', params: { designator: 'A', color: '5' }, duration: undefined });
+    expect(cb.match('A0065')).toEqual({ commandId: 'flthy.led.solid', params: { designator: 'A', color: '5' }, duration: undefined });
   });
   test('recovers a duration suffix', () => {
-    expect(cb.match('A006|240')).toEqual({ commandId: 'flthy.led.rainbow', params: { designator: 'A' }, duration: 240 });
+    expect(cb.match('A007|240')).toEqual({ commandId: 'flthy.led.rainbow', params: { designator: 'A' }, duration: 240 });
   });
   test('recognizes a MagicPanel mode token', () => {
     expect(cb.match('T52')).toEqual({ commandId: 'mp.mode', params: { mode: '52' }, duration: undefined });
@@ -85,11 +85,11 @@ describe('build/parse + round-trip', () => {
       { type: 'delay', ms: 500 },
       { type: 'command', commandId: 'mp.mode', params: { mode: '52' } },
     ]);
-    expect(v).toBe('A006^*** Flthy rainbow^;t500^T52');
+    expect(v).toBe('A007^*** Flthy rainbow^;t500^T52');
   });
 
   test('parseWCBValue recognizes commands, raw, and labels', () => {
-    const steps = cb.parseWCBValue('A006^*** Flthy rainbow^<XYZ>^*** raw note');
+    const steps = cb.parseWCBValue('A007^*** Flthy rainbow^<XYZ>^*** raw note');
     expect(steps[0]).toMatchObject({ type: 'command', commandId: 'flthy.led.rainbow', label: ' Flthy rainbow' });
     expect(steps[1]).toMatchObject({ type: 'raw', text: '<XYZ>', label: ' raw note' });
   });
@@ -102,7 +102,7 @@ describe('build/parse + round-trip', () => {
   });
 
   test('round-trips a bare *** comment fragment (empty label) losslessly', () => {
-    const v = 'A006^***';
+    const v = 'A007^***';
     expect(cb.buildWCBValue(cb.parseWCBValue(v))).toBe(v);
   });
 });

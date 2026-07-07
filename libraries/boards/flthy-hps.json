@@ -19,18 +19,6 @@
         {
           "code": "A",
           "label": "All"
-        },
-        {
-          "code": "X",
-          "label": "Front+Rear"
-        },
-        {
-          "code": "Y",
-          "label": "Front+Top"
-        },
-        {
-          "code": "Z",
-          "label": "Rear+Top"
         }
       ]
     },
@@ -104,7 +92,7 @@
           "group": "LED Effects",
           "safety": "cosmetic",
           "encoder": "template",
-          "template": "{designator}005{color}",
+          "template": "{designator}006{color}",
           "params": [
             {
               "name": "designator",
@@ -119,8 +107,9 @@
           ],
           "supportsDuration": true,
           "examples": [
-            "A0055",
-            "A0055|60"
+            "A0065",
+            "R0063",
+            "A0065|60"
           ],
           "commentLabel": "Flthy solid"
         },
@@ -130,7 +119,7 @@
           "group": "LED Effects",
           "safety": "cosmetic",
           "encoder": "template",
-          "template": "{designator}006",
+          "template": "{designator}007",
           "params": [
             {
               "name": "designator",
@@ -140,8 +129,8 @@
           ],
           "supportsDuration": true,
           "examples": [
-            "A006",
-            "A006|240"
+            "T007",
+            "A007|45"
           ],
           "commentLabel": "Flthy rainbow"
         }
