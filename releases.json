@@ -2,17 +2,17 @@
   "$schema": "droidnet-command-library/releases/v1",
   "_comment": "Update pointer for the 'Update Library' flow. A device fetches this file, compares latest.libraryVersion to its installed catalog, and (if newer) downloads latest.url (the catalog manifest), then fetches each board listed in manifest.boards in order, validates them, and loads them via loadLibrary(boards, { libraryVersion }).",
   "latest": {
-    "libraryVersion": "2.14.0",
+    "libraryVersion": "3.0.0",
     "schemaVersion": "v1",
     "releasedAt": "2026-07-07",
     "url": "https://raw.githubusercontent.com/travisccook/droidnet-command-library/main/libraries/manifest.json",
-    "notes": "Minor: engine gains an optional param 'pattern' (regex fragment) so free-text values round-trip instead of degrading to raw steps. Applied to the hex-bitmask params (AstroPixels panels dynamic $group[,args] and servo :SF easing group) and the arbitrary-text params (AstroPixels/Roam-A-Dome remote name/secret, Roam-A-Dome stored-sequence body). No new board; backward-compatible (params without 'pattern' unchanged)."
+    "notes": "Major: introduces in-dropdown command categories (command.group renamed to command.category; new per-board ordered component.categories). Consolidates AstroPixelsPlus config/panels/sequences into a single astropixels-plus board and Roam-A-Dome motion/config into roam-a-dome. Board catalog 19 -> 16. Command ids are preserved, so stored command strings still round-trip; host apps referencing the removed board ids must migrate."
   },
   "libraries": [
     {
       "id": "droidnet-astromech",
       "name": "DroidNet Astromech Boards",
-      "libraryVersion": "2.14.0",
+      "libraryVersion": "3.0.0",
       "schemaVersion": "v1",
       "url": "https://raw.githubusercontent.com/travisccook/droidnet-command-library/main/libraries/manifest.json"
     }
