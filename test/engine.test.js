@@ -75,6 +75,37 @@ describe('match (template)', () => {
   });
 });
 
+describe('FlthyHPs LED effects', () => {
+  let cb;
+  beforeEach(() => { cb = loadEngine(); loadCatalog(cb); });
+
+  test('leia encodes and round-trips (color-free)', () => {
+    expect(cb.encode(cb.getCommand('flthy.led.leia'), { designator: 'F' }, {})).toBe('F001');
+    expect(cb.match('F001')).toMatchObject({ commandId: 'flthy.led.leia', params: { designator: 'F' } });
+  });
+  test('color projector carries a color', () => {
+    expect(cb.encode(cb.getCommand('flthy.led.colorproj'), { designator: 'F', color: '5' }, {})).toBe('F0025');
+    expect(cb.match('F0025')).toMatchObject({ commandId: 'flthy.led.colorproj', params: { designator: 'F', color: '5' } });
+  });
+  test('dim pulse always emits the required speed digit and round-trips', () => {
+    expect(cb.encode(cb.getCommand('flthy.led.dimpulse'), { designator: 'A', color: '6' }, {})).toBe('A00365'); // speed defaults to 5
+    expect(cb.encode(cb.getCommand('flthy.led.dimpulse'), { designator: 'A', color: '6', speed: '2' }, {})).toBe('A00362');
+    expect(cb.match('A00362')).toMatchObject({ commandId: 'flthy.led.dimpulse', params: { designator: 'A', color: '6', speed: '2' } });
+  });
+  test('short circuit defaults to orange (shortColor)', () => {
+    expect(cb.encode(cb.getCommand('flthy.led.shortcircuit'), { designator: 'A' }, {})).toBe('A0057');
+  });
+  test('clear/auto uses longest-code-first so 3-digit modes win', () => {
+    expect(cb.encode(cb.getCommand('flthy.led.clearauto'), { designator: 'A', mode: '96' }, {})).toBe('A096');
+    expect(cb.match('A0971')).toMatchObject({ commandId: 'flthy.led.clearauto', params: { designator: 'A', mode: '971' } });
+    expect(cb.match('A096')).toMatchObject({ commandId: 'flthy.led.clearauto', params: { designator: 'A', mode: '96' } });
+  });
+  test('clear/auto ignores a duration suffix (unsupported)', () => {
+    // supportsDuration:false -> a trailing |n is not consumed, token falls through to raw
+    expect(cb.match('A096|30')).toBeNull();
+  });
+});
+
 describe('build/parse + round-trip', () => {
   let cb;
   beforeEach(() => { cb = loadEngine(); loadCatalog(cb); });

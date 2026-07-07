@@ -66,6 +66,17 @@
           "label": "Random"
         }
       ]
+    },
+    "flthy.ledClearMode": {
+      "label": "Clear / Auto Mode",
+      "values": [
+        { "code": "96",  "label": "Clear · No Off-Color · Auto Off" },
+        { "code": "971", "label": "Clear · No Off-Color · Auto Default" },
+        { "code": "972", "label": "Clear · No Off-Color · Auto Random" },
+        { "code": "98",  "label": "Clear · Off-Color · Auto Off" },
+        { "code": "991", "label": "Clear · Off-Color · Auto Default" },
+        { "code": "992", "label": "Clear · Off-Color · Auto Random" }
+      ]
     }
   },
   "components": [
@@ -86,6 +97,96 @@
         }
       },
       "commands": [
+        {
+          "id": "flthy.led.leia",
+          "name": "Leia",
+          "group": "LED Effects",
+          "safety": "cosmetic",
+          "encoder": "template",
+          "template": "{designator}001",
+          "params": [
+            { "name": "designator", "enum": "flthy.designator", "required": true }
+          ],
+          "supportsDuration": true,
+          "examples": ["F001", "A001|30"],
+          "commentLabel": "Flthy Leia"
+        },
+        {
+          "id": "flthy.led.colorproj",
+          "name": "Color Projector",
+          "group": "LED Effects",
+          "safety": "cosmetic",
+          "encoder": "template",
+          "template": "{designator}002{color}",
+          "params": [
+            { "name": "designator", "enum": "flthy.designator", "required": true },
+            { "name": "color", "enum": "flthy.color", "default": "5" }
+          ],
+          "supportsDuration": true,
+          "examples": ["F0025", "A0023|20"],
+          "commentLabel": "Flthy color projector"
+        },
+        {
+          "id": "flthy.led.dimpulse",
+          "name": "Dim Pulse",
+          "group": "LED Effects",
+          "safety": "cosmetic",
+          "encoder": "template",
+          "template": "{designator}003{color}{speed}",
+          "params": [
+            { "name": "designator", "enum": "flthy.designator", "required": true },
+            { "name": "color", "enum": "flthy.color", "default": "5" },
+            { "name": "speed", "type": "int", "min": 0, "max": 9, "default": 5, "required": true }
+          ],
+          "supportsDuration": true,
+          "examples": ["A00365", "F00362|30"],
+          "commentLabel": "Flthy dim pulse"
+        },
+        {
+          "id": "flthy.led.cycle",
+          "name": "Cycle",
+          "group": "LED Effects",
+          "safety": "cosmetic",
+          "encoder": "template",
+          "template": "{designator}004{color}",
+          "params": [
+            { "name": "designator", "enum": "flthy.designator", "required": true },
+            { "name": "color", "enum": "flthy.color", "default": "5" }
+          ],
+          "supportsDuration": true,
+          "examples": ["F0043", "A0045|20"],
+          "commentLabel": "Flthy cycle"
+        },
+        {
+          "id": "flthy.led.shortcircuit",
+          "name": "Short Circuit",
+          "group": "LED Effects",
+          "safety": "cosmetic",
+          "encoder": "template",
+          "template": "{designator}005{color}",
+          "params": [
+            { "name": "designator", "enum": "flthy.designator", "required": true },
+            { "name": "color", "enum": "flthy.color", "default": "7" }
+          ],
+          "supportsDuration": true,
+          "examples": ["A0057", "F0055|10"],
+          "commentLabel": "Flthy short circuit"
+        },
+        {
+          "id": "flthy.led.clearauto",
+          "name": "Clear / Auto Mode",
+          "group": "LED Effects",
+          "safety": "cosmetic",
+          "encoder": "template",
+          "template": "{designator}0{mode}",
+          "params": [
+            { "name": "designator", "enum": "flthy.designator", "required": true },
+            { "name": "mode", "enum": "flthy.ledClearMode", "required": true }
+          ],
+          "supportsDuration": false,
+          "examples": ["A096", "A0971", "F0992"],
+          "commentLabel": "Flthy clear/auto"
+        },
         {
           "id": "flthy.led.solid",
           "name": "Solid Color",
