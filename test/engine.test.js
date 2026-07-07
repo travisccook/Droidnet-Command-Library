@@ -106,6 +106,32 @@ describe('FlthyHPs LED effects', () => {
   });
 });
 
+describe('FlthyHPs servo', () => {
+  let cb;
+  beforeEach(() => { cb = loadEngine(); loadCatalog(cb); });
+
+  test('preset position carries a position and round-trips', () => {
+    expect(cb.encode(cb.getCommand('flthy.servo.preset'), { designator: 'F', position: '1' }, {})).toBe('F1011');
+    expect(cb.match('F1011')).toMatchObject({ commandId: 'flthy.servo.preset', params: { designator: 'F', position: '1' } });
+  });
+  test('table semantics: 103 = RC Up/Down, 104 = Random (not the p.23 examples)', () => {
+    expect(cb.match('F103')).toMatchObject({ commandId: 'flthy.servo.rc-ud', params: { designator: 'F' } });
+    expect(cb.match('A104')).toMatchObject({ commandId: 'flthy.servo.random', params: { designator: 'A' } });
+  });
+  test('wag commands encode', () => {
+    expect(cb.encode(cb.getCommand('flthy.servo.wag-lr'), { designator: 'F' }, {})).toBe('F105');
+    expect(cb.encode(cb.getCommand('flthy.servo.wag-ud'), { designator: 'F' }, {})).toBe('F106');
+  });
+  test('auto twitch on/off and preset do not collide', () => {
+    expect(cb.match('T199')).toMatchObject({ commandId: 'flthy.servo.autotwitch', params: { designator: 'T', mode: '99' } });
+    expect(cb.match('A198')).toMatchObject({ commandId: 'flthy.servo.autotwitch', params: { designator: 'A', mode: '98' } });
+    expect(cb.match('F1011')).toMatchObject({ commandId: 'flthy.servo.preset' }); // still preset, not autotwitch
+  });
+  test('servo commands ignore a duration suffix', () => {
+    expect(cb.match('F104|30')).toBeNull();
+  });
+});
+
 describe('build/parse + round-trip', () => {
   let cb;
   beforeEach(() => { cb = loadEngine(); loadCatalog(cb); });

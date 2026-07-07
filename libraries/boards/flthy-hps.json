@@ -77,6 +77,27 @@
         { "code": "991", "label": "Clear · Off-Color · Auto Default" },
         { "code": "992", "label": "Clear · Off-Color · Auto Random" }
       ]
+    },
+    "flthy.position": {
+      "label": "Position",
+      "values": [
+        { "code": "0", "label": "Down" },
+        { "code": "1", "label": "Center" },
+        { "code": "2", "label": "Up" },
+        { "code": "3", "label": "Left" },
+        { "code": "4", "label": "Upper Left" },
+        { "code": "5", "label": "Lower Left" },
+        { "code": "6", "label": "Right" },
+        { "code": "7", "label": "Upper Right" },
+        { "code": "8", "label": "Lower Right" }
+      ]
+    },
+    "flthy.servoTwitch": {
+      "label": "Auto Twitch",
+      "values": [
+        { "code": "98", "label": "Disable" },
+        { "code": "99", "label": "Enable" }
+      ]
     }
   },
   "components": [
@@ -234,6 +255,106 @@
             "A007|45"
           ],
           "commentLabel": "Flthy rainbow"
+        },
+        {
+          "id": "flthy.servo.preset",
+          "name": "Preset Position",
+          "group": "Servo",
+          "safety": "movement",
+          "encoder": "template",
+          "template": "{designator}101{position}",
+          "params": [
+            { "name": "designator", "enum": "flthy.designator", "required": true },
+            { "name": "position", "enum": "flthy.position", "required": true }
+          ],
+          "supportsDuration": false,
+          "examples": ["F1011", "A1010"],
+          "commentLabel": "Flthy preset position"
+        },
+        {
+          "id": "flthy.servo.rc-lr",
+          "name": "RC Control L/R",
+          "group": "Servo",
+          "safety": "movement",
+          "encoder": "template",
+          "template": "{designator}102",
+          "params": [
+            { "name": "designator", "enum": "flthy.designator", "required": true }
+          ],
+          "supportsDuration": false,
+          "examples": ["F102"],
+          "commentLabel": "Flthy RC L/R"
+        },
+        {
+          "id": "flthy.servo.rc-ud",
+          "name": "RC Control U/D",
+          "group": "Servo",
+          "safety": "movement",
+          "encoder": "template",
+          "template": "{designator}103",
+          "params": [
+            { "name": "designator", "enum": "flthy.designator", "required": true }
+          ],
+          "supportsDuration": false,
+          "examples": ["F103"],
+          "commentLabel": "Flthy RC U/D"
+        },
+        {
+          "id": "flthy.servo.random",
+          "name": "Random Position",
+          "group": "Servo",
+          "safety": "movement",
+          "encoder": "template",
+          "template": "{designator}104",
+          "params": [
+            { "name": "designator", "enum": "flthy.designator", "required": true }
+          ],
+          "supportsDuration": false,
+          "examples": ["A104", "F104"],
+          "commentLabel": "Flthy random position"
+        },
+        {
+          "id": "flthy.servo.wag-lr",
+          "name": "Wag L/R",
+          "group": "Servo",
+          "safety": "movement",
+          "encoder": "template",
+          "template": "{designator}105",
+          "params": [
+            { "name": "designator", "enum": "flthy.designator", "required": true }
+          ],
+          "supportsDuration": false,
+          "examples": ["F105"],
+          "commentLabel": "Flthy wag L/R"
+        },
+        {
+          "id": "flthy.servo.wag-ud",
+          "name": "Wag U/D",
+          "group": "Servo",
+          "safety": "movement",
+          "encoder": "template",
+          "template": "{designator}106",
+          "params": [
+            { "name": "designator", "enum": "flthy.designator", "required": true }
+          ],
+          "supportsDuration": false,
+          "examples": ["F106"],
+          "commentLabel": "Flthy wag U/D"
+        },
+        {
+          "id": "flthy.servo.autotwitch",
+          "name": "Auto Twitch On/Off",
+          "group": "Servo",
+          "safety": "movement",
+          "encoder": "template",
+          "template": "{designator}1{mode}",
+          "params": [
+            { "name": "designator", "enum": "flthy.designator", "required": true },
+            { "name": "mode", "enum": "flthy.servoTwitch", "required": true }
+          ],
+          "supportsDuration": false,
+          "examples": ["T199", "A198"],
+          "commentLabel": "Flthy servo auto twitch"
         }
       ]
     }
