@@ -74,6 +74,15 @@ directions). `component.kind` is `device-native` (the board's own grammar) or
 (`cosmetic`/`movement`/`power`/`config`) drives a confirm-before-firing warning in
 the UI — anything non-`cosmetic` is treated as potentially dangerous.
 
+A command may declare a `category` (e.g. `"Lighting"`); the component declares an
+ordered `categories` array that lists every category it uses and fixes the
+command dropdown's `<optgroup>` order (uncategorized commands fall to a trailing
+"Other"). The standard vocabulary, in canonical order, is `Lighting, Movement,
+Sound, Sequences, Setup, Config, Power, System` — per-board outlier names are
+allowed when the standard set doesn't fit. Categories are **UI-only**: the engine
+never reads `category`/`categories`, so they have no effect on `encode`, `match`,
+or `parse`.
+
 ### Encoders
 
 `encode`/`match` dispatch through the `_encoders` registry keyed by
