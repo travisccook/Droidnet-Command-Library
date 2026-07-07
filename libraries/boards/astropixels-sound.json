@@ -1,0 +1,49 @@
+{
+  "$schema": "droidnet-command-library/library/v1",
+  "generatedFrom": "reeltwo AstroPixelsPlus MarcduinoSound.h — $ sound commands (MarcSound)",
+  "enums": {
+    "ap.soundBank": {
+      "label": "Sound Bank",
+      "values": [
+        { "code": "1", "label": "1 · General" },
+        { "code": "2", "label": "2 · Chat" },
+        { "code": "3", "label": "3 · Happy" },
+        { "code": "4", "label": "4 · Sad" },
+        { "code": "5", "label": "5 · Whistle" },
+        { "code": "6", "label": "6 · Scream" },
+        { "code": "7", "label": "7 · Leia" },
+        { "code": "8", "label": "8 · Sing" },
+        { "code": "9", "label": "9 · Music" }
+      ]
+    }
+  },
+  "components": [
+    {
+      "id": "astropixels-sound",
+      "name": "AstroPixelsPlus (Sound)",
+      "kind": "device-native",
+      "confidence": "high",
+      "firmware": "AstroPixelsPlus",
+      "routing": { "class": "broadcast", "nativeWrapper": "none", "durationSuffix": { "supported": false } },
+      "commands": [
+        { "id": "ap.snd.play", "name": "Play Sound", "group": "Playback", "safety": "cosmetic", "encoder": "template", "template": "${bank}{nn}", "params": [ { "name": "bank", "enum": "ap.soundBank", "required": true, "default": "1" }, { "name": "nn", "type": "int", "min": 0, "max": 99, "required": true, "default": 0 } ], "examples": ["$50", "$105", "$925"], "commentLabel": "AP play sound (bank+number)" },
+        { "id": "ap.snd.random", "name": "Random Ambient Loop", "group": "Ambient", "safety": "cosmetic", "encoder": "template", "template": "$R", "params": [], "examples": ["$R"], "commentLabel": "AP random sound" },
+        { "id": "ap.snd.off", "name": "Sound Off", "group": "Ambient", "safety": "cosmetic", "encoder": "template", "template": "$O", "params": [], "examples": ["$O"], "commentLabel": "AP sound off" },
+        { "id": "ap.snd.stop", "name": "Stop Sound", "group": "Ambient", "safety": "cosmetic", "encoder": "template", "template": "$s", "params": [], "examples": ["$s"], "commentLabel": "AP stop sound" },
+        { "id": "ap.snd.leia", "name": "Leia Message", "group": "Named", "safety": "cosmetic", "encoder": "template", "template": "$L", "params": [], "examples": ["$L"], "commentLabel": "AP Leia message" },
+        { "id": "ap.snd.cantinaMusic", "name": "Cantina Music", "group": "Named", "safety": "cosmetic", "encoder": "template", "template": "$C", "params": [], "examples": ["$C"], "commentLabel": "AP cantina music" },
+        { "id": "ap.snd.beepCantina", "name": "Beep Cantina", "group": "Named", "safety": "cosmetic", "encoder": "template", "template": "$c", "params": [], "examples": ["$c"], "commentLabel": "AP beep cantina" },
+        { "id": "ap.snd.scream", "name": "Scream", "group": "Named", "safety": "cosmetic", "encoder": "template", "template": "$S", "params": [], "examples": ["$S"], "commentLabel": "AP scream" },
+        { "id": "ap.snd.faint", "name": "Faint / Short Circuit", "group": "Named", "safety": "cosmetic", "encoder": "template", "template": "$F", "params": [], "examples": ["$F"], "commentLabel": "AP faint" },
+        { "id": "ap.snd.disco", "name": "Disco", "group": "Named", "safety": "cosmetic", "encoder": "template", "template": "$D", "params": [], "examples": ["$D"], "commentLabel": "AP disco" },
+        { "id": "ap.snd.starwars", "name": "Star Wars Theme", "group": "Named", "safety": "cosmetic", "encoder": "template", "template": "$W", "params": [], "examples": ["$W"], "commentLabel": "AP Star Wars theme" },
+        { "id": "ap.snd.march", "name": "Imperial March", "group": "Named", "safety": "cosmetic", "encoder": "template", "template": "$M", "params": [], "examples": ["$M"], "commentLabel": "AP Imperial March" },
+        { "id": "ap.snd.volUp", "name": "Volume Up", "group": "Volume", "safety": "cosmetic", "encoder": "template", "template": "$+", "params": [], "examples": ["$+"], "commentLabel": "AP volume up" },
+        { "id": "ap.snd.volDown", "name": "Volume Down", "group": "Volume", "safety": "cosmetic", "encoder": "template", "template": "$-", "params": [], "examples": ["$-"], "commentLabel": "AP volume down" },
+        { "id": "ap.snd.volMid", "name": "Volume Mid", "group": "Volume", "safety": "cosmetic", "encoder": "template", "template": "$m", "params": [], "examples": ["$m"], "commentLabel": "AP volume mid" },
+        { "id": "ap.snd.volMax", "name": "Volume Max", "group": "Volume", "safety": "cosmetic", "encoder": "template", "template": "$f", "params": [], "examples": ["$f"], "commentLabel": "AP volume max" },
+        { "id": "ap.snd.volMin", "name": "Volume Min", "group": "Volume", "safety": "cosmetic", "encoder": "template", "template": "$p", "params": [], "examples": ["$p"], "commentLabel": "AP volume min" }
+      ]
+    }
+  ]
+}

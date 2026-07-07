@@ -19,7 +19,7 @@ describe('engine lookups', () => {
     expect(cb.getComponents().map(c => c.id)).toEqual(expect.arrayContaining(['flthy-hps', 'magic-panel']));
   });
   test('getLibraryVersion reports the loaded version', () => {
-    expect(cb.getLibraryVersion()).toBe('2.6.0');
+    expect(cb.getLibraryVersion()).toBe('2.7.0');
   });
   test('getCommand resolves and back-links its component', () => {
     const cmd = cb.getCommand('flthy.led.solid');
@@ -470,5 +470,28 @@ describe('AstroPixelsPlus config', () => {
   test('does not collide with roam-a-dome-config (#AP vs #DP)', () => {
     expect(cb.match('#APRESTART')).toMatchObject({ commandId: 'ap.cfg.restart' });
     expect(cb.match('#DPRESTART')).toMatchObject({ commandId: 'rad.cfg.restart' });
+  });
+});
+
+describe('AstroPixelsPlus sound', () => {
+  let cb;
+  beforeEach(() => { cb = loadEngine(); loadCatalog(cb); });
+
+  test('play sound (bank + number) encode + match', () => {
+    expect(cb.encode(cb.getCommand('ap.snd.play'), { bank: '5', nn: '12' }, {})).toBe('$512');
+    expect(cb.match('$105')).toMatchObject({ commandId: 'ap.snd.play', params: { bank: '1', nn: '05' } });
+  });
+  test('single-char cues are case-sensitive and distinct', () => {
+    expect(cb.match('$C')).toMatchObject({ commandId: 'ap.snd.cantinaMusic' });
+    expect(cb.match('$c')).toMatchObject({ commandId: 'ap.snd.beepCantina' });
+    expect(cb.match('$M')).toMatchObject({ commandId: 'ap.snd.march' });
+    expect(cb.match('$m')).toMatchObject({ commandId: 'ap.snd.volMid' });
+  });
+  test('volume +/- symbols decode', () => {
+    expect(cb.match('$+')).toMatchObject({ commandId: 'ap.snd.volUp' });
+    expect(cb.match('$-')).toMatchObject({ commandId: 'ap.snd.volDown' });
+  });
+  test('a single-letter cue does not match the bank-play grammar', () => {
+    expect(cb.match('$R')).toMatchObject({ commandId: 'ap.snd.random' });
   });
 });
