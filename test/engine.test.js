@@ -467,7 +467,7 @@ describe('AstroPixelsPlus config', () => {
     expect(cb.match('#APPAIR')).toMatchObject({ commandId: 'ap.cfg.pair' });
     expect(cb.match('#APUNPAIR')).toMatchObject({ commandId: 'ap.cfg.unpair' });
   });
-  test('does not collide with roam-a-dome-config (#AP vs #DP)', () => {
+  test('does not collide with roam-a-dome config (#AP vs #DP)', () => {
     expect(cb.match('#APRESTART')).toMatchObject({ commandId: 'ap.cfg.restart' });
     expect(cb.match('#DPRESTART')).toMatchObject({ commandId: 'rad.cfg.restart' });
   });

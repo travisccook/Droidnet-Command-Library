@@ -11,7 +11,7 @@ test('readCatalog returns the manifest and every board, in order', () => {
 test('loadCatalog({ load: false }) returns the merged catalog object', () => {
   const lib = loadCatalog({ load: false });
   expect(lib.libraryVersion).toBe('2.14.0');
-  expect(lib.components.length).toBe(17);
+  expect(lib.components.length).toBe(16);
 });
 
 test('loadCatalog() loads the engine and resolves commands', () => {
