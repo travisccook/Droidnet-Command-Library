@@ -19,7 +19,7 @@ describe('engine lookups', () => {
     expect(cb.getComponents().map(c => c.id)).toEqual(expect.arrayContaining(['flthy-hps', 'magic-panel']));
   });
   test('getLibraryVersion reports the loaded version', () => {
-    expect(cb.getLibraryVersion()).toBe('2.11.0');
+    expect(cb.getLibraryVersion()).toBe('2.12.0');
   });
   test('getCommand resolves and back-links its component', () => {
     const cmd = cb.getCommand('flthy.led.solid');
@@ -586,5 +586,29 @@ describe('AstroPixelsPlus holo', () => {
     expect(cb.match('@6T1')).toMatchObject({ commandId: 'ap.hp.legacyOn', params: { ldev: '6' } });
     expect(cb.match('@1T1')).toMatchObject({ commandId: 'ap.logic.effect' });
     expect(cb.match('@1P1')).toMatchObject({ commandId: 'ap.psi.effect' });
+  });
+});
+
+describe('AstroPixelsPlus panels', () => {
+  let cb;
+  beforeEach(() => { cb = loadEngine(); loadCatalog(cb); });
+
+  test('fixed macro encode + match', () => {
+    expect(cb.encode(cb.getCommand('ap.panel.macro'), { action: 'OP', group: '00' }, {})).toBe(':OP00');
+    expect(cb.match(':CL12')).toMatchObject({ commandId: 'ap.panel.macro', params: { action: 'CL', group: '12' } });
+  });
+  test('dynamic ($hex) encodes and is distinct from a fixed macro', () => {
+    expect(cb.encode(cb.getCommand('ap.panel.dynamic'), { code: 'OP', rest: '4000' }, {})).toBe(':OP$4000');
+    expect(cb.match(':OP$4000')).toMatchObject({ commandId: 'ap.panel.dynamic', params: { code: 'OP', rest: '4000' } });
+    expect(cb.match(':OP00')).toMatchObject({ commandId: 'ap.panel.macro' });            // digit after code -> fixed
+  });
+  test('longer dynamic codes win (OCL/OWC before OC/OW)', () => {
+    expect(cb.match(':OCL$8')).toMatchObject({ commandId: 'ap.panel.dynamic', params: { code: 'OCL', rest: '8' } });
+    expect(cb.match(':OC$8')).toMatchObject({ commandId: 'ap.panel.dynamic', params: { code: 'OC', rest: '8' } });
+  });
+  test('does not collide with :DP (motion), :P (uppity), or :SE (sequences)', () => {
+    expect(cb.match(':OP00')).toMatchObject({ commandId: 'ap.panel.macro' });
+    expect(cb.match(':DPH')).toMatchObject({ commandId: 'rad.home' });
+    expect(cb.match(':SE01')).toMatchObject({ commandId: 'ap.seq.play' });
   });
 });
