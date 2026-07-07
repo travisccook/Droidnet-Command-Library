@@ -58,6 +58,36 @@
     return humanize(p.name);
   }
 
+  // Standard category display order (see spec 2026-07-07-command-categories-design).
+  const STANDARD_CATEGORY_ORDER = ['Lighting', 'Movement', 'Sound', 'Sequences', 'Setup', 'Config', 'Power', 'System'];
+
+  // Bucket commands into ordered { label, commands } sections for the command dropdown.
+  // - categories: the component's ordered category list (may be undefined/empty).
+  // - A command with no category, or a category not in a non-empty `categories`, goes to a trailing "Other".
+  // - With no `categories`, order = standard vocabulary first, then outliers in first-appearance order.
+  function groupCommandsForDropdown(cmds, categories) {
+    const declared = Array.isArray(categories) ? categories.filter((c) => typeof c === 'string') : [];
+    const OTHER = 'Other';
+    const buckets = new Map();
+    const put = (name, c) => { if (!buckets.has(name)) buckets.set(name, []); buckets.get(name).push(c); };
+    for (const c of (cmds || [])) {
+      const cat = (typeof c.category === 'string' && c.category) ? c.category : null;
+      if (cat && (declared.length === 0 || declared.indexOf(cat) !== -1)) put(cat, c);
+      else put(OTHER, c);
+    }
+    let order;
+    if (declared.length) {
+      order = declared.filter((n) => buckets.has(n));
+    } else {
+      const present = [...buckets.keys()].filter((n) => n !== OTHER);
+      const known = STANDARD_CATEGORY_ORDER.filter((n) => present.indexOf(n) !== -1);
+      const outliers = present.filter((n) => STANDARD_CATEGORY_ORDER.indexOf(n) === -1);
+      order = known.concat(outliers);
+    }
+    if (buckets.has(OTHER)) order.push(OTHER);
+    return order.map((name) => ({ label: name, commands: buckets.get(name) }));
+  }
+
   // Combined "Board ▸ Name" label — kept for back-compat / external callers.
   function stepLabel(step) {
     if (step.type === 'delay') return '⏲ delay ' + step.ms + 'ms';
@@ -309,8 +339,13 @@
       }
       function fillCommands(useSeed) {
         const cmds = E().getCommands(bookSel.value);
-        cmdSel.innerHTML = cmds.map(c => `<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('');
-        if (useSeed && s && s.commandId && cmds.some(c => c.id === s.commandId)) cmdSel.value = s.commandId;
+        const book = books.find((b) => b.id === bookSel.value);
+        const groups = groupCommandsForDropdown(cmds, book && book.categories);
+        cmdSel.innerHTML = groups.map((g) =>
+          `<optgroup label="${esc(g.label)}">`
+          + g.commands.map((c) => `<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('')
+          + `</optgroup>`).join('');
+        if (useSeed && s && s.commandId && cmds.some((c) => c.id === s.commandId)) cmdSel.value = s.commandId;
         renderParams(useSeed);
       }
       bookSel.addEventListener('change', () => fillCommands(false));
@@ -327,5 +362,5 @@
     renderAddBar();
   }
 
-  return { renderComposer, stepLabel, humanize, captionFor };
+  return { renderComposer, stepLabel, humanize, captionFor, groupCommandsForDropdown };
 });
