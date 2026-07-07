@@ -71,9 +71,9 @@
       "confidence": "high"
     },
     {
-      "id": "astropixels-config",
-      "file": "boards/astropixels-config.json",
-      "name": "AstroPixelsPlus (Config)",
+      "id": "astropixels-plus",
+      "file": "boards/astropixels-plus.json",
+      "name": "AstroPixelsPlus",
       "confidence": "high"
     },
     {
@@ -95,21 +95,9 @@
       "confidence": "high"
     },
     {
-      "id": "astropixels-sequences",
-      "file": "boards/astropixels-sequences.json",
-      "name": "AstroPixelsPlus (Sequences)",
-      "confidence": "high"
-    },
-    {
       "id": "astropixels-holo",
       "file": "boards/astropixels-holo.json",
       "name": "AstroPixelsPlus (Holo)",
-      "confidence": "high"
-    },
-    {
-      "id": "astropixels-panels",
-      "file": "boards/astropixels-panels.json",
-      "name": "AstroPixelsPlus (Panels)",
       "confidence": "high"
     },
     {
