@@ -79,7 +79,7 @@
           "template": ":{code}${rest}",
           "params": [
             { "name": "code", "enum": "ap.panelSeq", "required": true, "default": "OP" },
-            { "name": "rest", "required": true }
+            { "name": "rest", "pattern": "[0-9A-Fa-f]+(?:,[0-9]+)*", "required": true }
           ],
           "examples": [":OP$4000", ":OS$3F", ":OP$4000,10,50,0,0"],
           "commentLabel": "AP panel dynamic: <hexGroup>[,onMs,offMs,onEase,offEase] (free text)"

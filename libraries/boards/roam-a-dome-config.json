@@ -723,7 +723,7 @@
           "encoder": "template",
           "template": "#DPRNAME{name}",
           "params": [
-            { "name": "name", "required": true }
+            { "name": "name", "pattern": ".+", "required": true }
           ],
           "examples": ["#DPRNAMEMyDome"],
           "commentLabel": "RAD remote name (free text)"
@@ -736,7 +736,7 @@
           "encoder": "template",
           "template": "#DPRSECRET{secret}",
           "params": [
-            { "name": "secret", "required": true }
+            { "name": "secret", "pattern": ".+", "required": true }
           ],
           "examples": ["#DPRSECRETAstromech"],
           "commentLabel": "RAD remote secret (free text)"
@@ -796,7 +796,7 @@
           "template": "#DPS{slot}:{body}",
           "params": [
             { "name": "slot", "type": "int", "min": 0, "max": 100, "required": true, "default": 1 },
-            { "name": "body", "required": true }
+            { "name": "body", "pattern": ".+", "required": true }
           ],
           "examples": ["#DPS3:D50:W2:D-50"],
           "commentLabel": "RAD store sequence (body: Z/R/A/D/W/H steps, colon-separated)"

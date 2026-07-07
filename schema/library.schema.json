@@ -160,7 +160,8 @@
         "max": { "type": "integer" },
         "default": { "type": ["string", "number"], "description": "Default code/value used when the param is left blank. Strings for enum codes; numbers are accepted for int params." },
         "required": { "type": "boolean" },
-        "pad": { "type": "integer", "minimum": 1, "description": "Zero-pad a numeric value to this fixed width (e.g. 4 → '0025')." }
+        "pad": { "type": "integer", "minimum": 1, "description": "Zero-pad a numeric value to this fixed width (e.g. 4 → '0025')." },
+        "pattern": { "type": "string", "description": "Regex fragment this free-text param matches so its wire value round-trips (e.g. '[0-9A-Fa-f]+' for a hex bitmask, '.+' for arbitrary text). Use ONLY non-capturing groups '(?:...)' — a capturing group would break param↔capture-group indexing. Renders as a text input." }
       },
       "additionalProperties": true
     }

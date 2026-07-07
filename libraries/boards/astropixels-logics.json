@@ -70,7 +70,7 @@
           "template": "@{addr}M{text}",
           "params": [
             { "name": "addr", "enum": "ap.logicLineAddr", "required": true, "default": "1" },
-            { "name": "text", "required": true }
+            { "name": "text", "pattern": ".+", "required": true }
           ],
           "examples": ["@1MHELLO", "@3MR2-D2"],
           "commentLabel": "AP logic text (free text, scrolls left)"

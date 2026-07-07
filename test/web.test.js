@@ -41,7 +41,7 @@ describe('hosted site — reference data contract', () => {
     cb.loadLibrary(boards.map(b => JSON.parse(JSON.stringify(b))), { libraryVersion: manifest.libraryVersion });
   });
 
-  const isBounded = (cmd) => (cmd.params || []).every(p => p.enum || p.type === 'int');
+  const isBounded = (cmd) => (cmd.params || []).every(p => p.enum || p.type === 'int' || p.pattern);
 
   test('every command exposes a first example (card + Try-in-composer seed)', () => {
     const missing = [];

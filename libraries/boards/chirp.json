@@ -281,7 +281,7 @@
           "encoder": "template",
           "template": "PVOICE:{filename}",
           "params": [
-            { "name": "filename", "required": true }
+            { "name": "filename", "pattern": ".+", "required": true }
           ],
           "examples": [ "PVOICE:HELLO" ],
           "commentLabel": "CHiRP voice"

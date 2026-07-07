@@ -230,6 +230,12 @@
           .sort((a, b) => b.length - a.length); // longest-first so multi-char codes win
         return '(' + codes.join('|') + ')';
       }
+      if (p && p.pattern) {
+        // Board-supplied regex fragment (e.g. a hex bitmask '[0-9A-Fa-f]+') so
+        // non-numeric free-text values still round-trip. MUST use only non-capturing
+        // groups '(?:...)' — a capturing group would shift param↔capture-group indexing.
+        return '(' + p.pattern + ')';
+      }
       // Allow an optional leading '-' so int params with a negative range
       // (e.g. a rotary speed of -80) re-parse to a structured step, not a raw one.
       return '(-?\\d+)';

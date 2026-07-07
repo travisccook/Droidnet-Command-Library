@@ -19,7 +19,7 @@ describe('engine lookups', () => {
     expect(cb.getComponents().map(c => c.id)).toEqual(expect.arrayContaining(['flthy-hps', 'magic-panel']));
   });
   test('getLibraryVersion reports the loaded version', () => {
-    expect(cb.getLibraryVersion()).toBe('2.13.0');
+    expect(cb.getLibraryVersion()).toBe('2.14.0');
   });
   test('getCommand resolves and back-links its component', () => {
     const cmd = cb.getCommand('flthy.led.solid');
@@ -637,5 +637,28 @@ describe('AstroPixelsPlus servo', () => {
     expect(cb.match(':SM0,1500')).toMatchObject({ commandId: 'ap.servo.move' });
     expect(cb.match(':SE01')).toMatchObject({ commandId: 'ap.seq.play' });
     expect(cb.match(':OP00')).toMatchObject({ commandId: 'ap.panel.macro' });
+  });
+});
+
+describe('pattern params (hex / free-text round-trip)', () => {
+  let cb;
+  beforeEach(() => { cb = loadEngine(); loadCatalog(cb); });
+
+  test('hex bitmask round-trips (panels dynamic + servo easing)', () => {
+    expect(cb.match(':OP$3F')).toMatchObject({ commandId: 'ap.panel.dynamic', params: { code: 'OP', rest: '3F' } });
+    expect(cb.match(':OP$4000,10,50,0,0')).toMatchObject({ commandId: 'ap.panel.dynamic', params: { code: 'OP', rest: '4000,10,50,0,0' } });
+    expect(cb.match(':SF26$3F')).toMatchObject({ commandId: 'ap.servo.easing', params: { easingId: '26', group: '3F' } });
+    expect(cb.buildWCBValue(cb.parseWCBValue(':OP$4000,10,50,0,0'))).toBe(':OP$4000,10,50,0,0');
+    expect(cb.buildWCBValue(cb.parseWCBValue(':SF26$3F'))).toBe(':SF26$3F');
+  });
+  test('free-text (.+) round-trips (remote name + stored sequence)', () => {
+    expect(cb.match('#DPRNAMEMyDome')).toMatchObject({ commandId: 'rad.cfg.rname', params: { name: 'MyDome' } });
+    expect(cb.match('#APRNAMER2D2')).toMatchObject({ commandId: 'ap.cfg.rname', params: { name: 'R2D2' } });
+    expect(cb.match('#DPS3:D50:W2:D-50')).toMatchObject({ commandId: 'rad.cfg.storeSeq', params: { slot: '3', body: 'D50:W2:D-50' } });
+    expect(cb.buildWCBValue(cb.parseWCBValue('#DPRNAMEMyDome'))).toBe('#DPRNAMEMyDome');
+    expect(cb.buildWCBValue(cb.parseWCBValue('#DPS3:D50:W2:D-50'))).toBe('#DPS3:D50:W2:D-50');
+  });
+  test('plain-digit hex value still round-trips (backward compat)', () => {
+    expect(cb.match(':SF0$4000')).toMatchObject({ commandId: 'ap.servo.easing', params: { easingId: '0', group: '4000' } });
   });
 });

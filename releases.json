@@ -2,17 +2,17 @@
   "$schema": "droidnet-command-library/releases/v1",
   "_comment": "Update pointer for the 'Update Library' flow. A device fetches this file, compares latest.libraryVersion to its installed catalog, and (if newer) downloads latest.url (the catalog manifest), then fetches each board listed in manifest.boards in order, validates them, and loads them via loadLibrary(boards, { libraryVersion }).",
   "latest": {
-    "libraryVersion": "2.13.0",
+    "libraryVersion": "2.14.0",
     "schemaVersion": "v1",
     "releasedAt": "2026-07-07",
     "url": "https://raw.githubusercontent.com/travisccook/droidnet-command-library/main/libraries/manifest.json",
-    "notes": "Minor: adds the AstroPixelsPlus (Servo) board — the reeltwo AstroPixelsPlus :SQ/:SM/:SL/:SF per-servo commands (immediate + timed/delayed/from-start moves, start/end/neutral/group limit config, and a 32-method easing enum for :SF). Args modeled per-arg-count since :SM/:SL semantics change with argument count."
+    "notes": "Minor: engine gains an optional param 'pattern' (regex fragment) so free-text values round-trip instead of degrading to raw steps. Applied to the hex-bitmask params (AstroPixels panels dynamic $group[,args] and servo :SF easing group) and the arbitrary-text params (AstroPixels/Roam-A-Dome remote name/secret, Roam-A-Dome stored-sequence body). No new board; backward-compatible (params without 'pattern' unchanged)."
   },
   "libraries": [
     {
       "id": "droidnet-astromech",
       "name": "DroidNet Astromech Boards",
-      "libraryVersion": "2.13.0",
+      "libraryVersion": "2.14.0",
       "schemaVersion": "v1",
       "url": "https://raw.githubusercontent.com/travisccook/droidnet-command-library/main/libraries/manifest.json"
     }
