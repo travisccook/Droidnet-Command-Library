@@ -57,6 +57,12 @@
       "file": "boards/r2uppityspinner-alt.json",
       "name": "R2 Uppity Spinner ALT (Periscope)",
       "confidence": "community"
+    },
+    {
+      "id": "roam-a-dome-motion",
+      "file": "boards/roam-a-dome-motion.json",
+      "name": "Roam-A-Dome (Motion)",
+      "confidence": "high"
     }
   ]
 }

@@ -1,0 +1,161 @@
+{
+  "$schema": "droidnet-command-library/library/v1",
+  "generatedFrom": "reeltwo DomeControlFirmware (Roam-A-Dome) README — runtime :DP motion commands",
+  "enums": {},
+  "components": [
+    {
+      "id": "roam-a-dome-motion",
+      "name": "Roam-A-Dome (Motion)",
+      "kind": "device-native",
+      "confidence": "high",
+      "firmware": "RDH (DomeControlFirmware)",
+      "routing": {
+        "class": "broadcast",
+        "nativeWrapper": "none",
+        "durationSuffix": { "supported": false }
+      },
+      "commands": [
+        {
+          "id": "rad.rotate.abs",
+          "name": "Rotate to Absolute",
+          "group": "Rotate",
+          "safety": "movement",
+          "encoder": "template",
+          "template": ":DPA{deg}",
+          "params": [
+            { "name": "deg", "type": "int", "min": -359, "max": 359, "required": true, "default": 180 }
+          ],
+          "examples": [":DPA90", ":DPA270", ":DPA-90"],
+          "commentLabel": "RAD rotate absolute"
+        },
+        {
+          "id": "rad.rotate.absRamp",
+          "name": "Rotate to Absolute (speed ramp)",
+          "group": "Rotate",
+          "safety": "movement",
+          "encoder": "template",
+          "template": ":DPA{deg},{speed},{maxspeed}",
+          "params": [
+            { "name": "deg", "type": "int", "min": -359, "max": 359, "required": true, "default": 90 },
+            { "name": "speed", "type": "int", "min": 0, "max": 100, "required": true, "default": 20 },
+            { "name": "maxspeed", "type": "int", "min": 0, "max": 100, "required": true, "default": 100 }
+          ],
+          "examples": [":DPA90,20,100", ":DPA180,40,80"],
+          "commentLabel": "RAD rotate absolute + ramp"
+        },
+        {
+          "id": "rad.rotate.absRandom",
+          "name": "Rotate to Random Absolute",
+          "group": "Rotate",
+          "safety": "movement",
+          "encoder": "template",
+          "template": ":DPAR",
+          "params": [],
+          "examples": [":DPAR"],
+          "commentLabel": "RAD rotate random absolute"
+        },
+        {
+          "id": "rad.rotate.rel",
+          "name": "Rotate Relative",
+          "group": "Rotate",
+          "safety": "movement",
+          "encoder": "template",
+          "template": ":DPD{deg}",
+          "params": [
+            { "name": "deg", "type": "int", "min": -360, "max": 360, "required": true, "default": 90 }
+          ],
+          "examples": [":DPD90", ":DPD-90", ":DPD45"],
+          "commentLabel": "RAD rotate relative (+ CCW / - CW)"
+        },
+        {
+          "id": "rad.rotate.relRandom",
+          "name": "Rotate Random Relative",
+          "group": "Rotate",
+          "safety": "movement",
+          "encoder": "template",
+          "template": ":DPDR",
+          "params": [],
+          "examples": [":DPDR"],
+          "commentLabel": "RAD rotate random relative"
+        },
+        {
+          "id": "rad.spin",
+          "name": "Spin Continuous",
+          "group": "Spin",
+          "safety": "movement",
+          "encoder": "template",
+          "template": ":DPR{speed}",
+          "params": [
+            { "name": "speed", "type": "int", "min": -100, "max": 100, "required": true, "default": 30 }
+          ],
+          "examples": [":DPR30", ":DPR-30", ":DPR0"],
+          "commentLabel": "RAD spin (- CW, 0 = stop)"
+        },
+        {
+          "id": "rad.home",
+          "name": "Home",
+          "group": "Home",
+          "safety": "movement",
+          "encoder": "template",
+          "template": ":DPH",
+          "params": [],
+          "examples": [":DPH"],
+          "commentLabel": "RAD home"
+        },
+        {
+          "id": "rad.wait",
+          "name": "Wait Seconds",
+          "group": "Timing",
+          "safety": "cosmetic",
+          "encoder": "template",
+          "template": ":DPW{seconds}",
+          "params": [
+            { "name": "seconds", "type": "int", "min": 1, "max": 600, "required": true, "default": 2 }
+          ],
+          "examples": [":DPW2", ":DPW60"],
+          "commentLabel": "RAD wait"
+        },
+        {
+          "id": "rad.waitRandom",
+          "name": "Wait Random Range",
+          "group": "Timing",
+          "safety": "cosmetic",
+          "encoder": "template",
+          "template": ":DPWR{min},{max}",
+          "params": [
+            { "name": "min", "type": "int", "min": 1, "max": 600, "required": true, "default": 10 },
+            { "name": "max", "type": "int", "min": 1, "max": 600, "required": true, "default": 20 }
+          ],
+          "examples": [":DPWR10,20"],
+          "commentLabel": "RAD wait random range"
+        },
+        {
+          "id": "rad.playSeq",
+          "name": "Play Stored Sequence",
+          "group": "Playback",
+          "safety": "movement",
+          "encoder": "template",
+          "template": ":DPS{number}",
+          "params": [
+            { "name": "number", "type": "int", "min": 0, "max": 100, "required": true, "default": 1 }
+          ],
+          "examples": [":DPS1", ":DPS0"],
+          "commentLabel": "RAD play sequence"
+        },
+        {
+          "id": "rad.togglePin",
+          "name": "Toggle Pin",
+          "group": "Pins",
+          "safety": "power",
+          "encoder": "template",
+          "template": ":DPT{pin}",
+          "params": [
+            { "name": "pin", "type": "int", "min": 1, "max": 8, "required": true, "default": 1 }
+          ],
+          "examples": [":DPT3", ":DPT1"],
+          "commentLabel": "RAD toggle pin"
+        }
+      ]
+    }
+  ]
+}

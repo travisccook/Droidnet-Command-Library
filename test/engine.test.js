@@ -146,6 +146,32 @@ describe('FlthyHPs special sequences', () => {
   });
 });
 
+describe('Roam-A-Dome motion', () => {
+  let cb;
+  beforeEach(() => { cb = loadEngine(); loadCatalog(cb); });
+
+  test('encodes absolute rotate', () => {
+    expect(cb.encode(cb.getCommand('rad.rotate.abs'), { deg: '90' }, {})).toBe(':DPA90');
+  });
+  test('signed spin and relative round-trip', () => {
+    expect(cb.match(':DPR-30')).toMatchObject({ commandId: 'rad.spin', params: { speed: '-30' } });
+    expect(cb.match(':DPD-90')).toMatchObject({ commandId: 'rad.rotate.rel', params: { deg: '-90' } });
+  });
+  test('A-form disambiguation (abs / ramp / random)', () => {
+    expect(cb.match(':DPA90')).toMatchObject({ commandId: 'rad.rotate.abs', params: { deg: '90' } });
+    expect(cb.match(':DPA90,20,100')).toMatchObject({ commandId: 'rad.rotate.absRamp', params: { deg: '90', speed: '20', maxspeed: '100' } });
+    expect(cb.match(':DPAR')).toMatchObject({ commandId: 'rad.rotate.absRandom' });
+  });
+  test('wait vs wait-random split', () => {
+    expect(cb.match(':DPW2')).toMatchObject({ commandId: 'rad.wait', params: { seconds: '2' } });
+    expect(cb.match(':DPWR10,20')).toMatchObject({ commandId: 'rad.waitRandom', params: { min: '10', max: '20' } });
+  });
+  test('does not collide with r2uppityspinner-alt (:P vs :DP)', () => {
+    expect(cb.match(':PR-80')).toMatchObject({ commandId: 'uppity.rotary.spin', params: { speed: '-80' } });
+    expect(cb.match(':DPR-80')).toMatchObject({ commandId: 'rad.spin', params: { speed: '-80' } });
+  });
+});
+
 describe('build/parse + round-trip', () => {
   let cb;
   beforeEach(() => { cb = loadEngine(); loadCatalog(cb); });
