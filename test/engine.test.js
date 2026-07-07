@@ -19,7 +19,7 @@ describe('engine lookups', () => {
     expect(cb.getComponents().map(c => c.id)).toEqual(expect.arrayContaining(['flthy-hps', 'magic-panel']));
   });
   test('getLibraryVersion reports the loaded version', () => {
-    expect(cb.getLibraryVersion()).toBe('2.10.0');
+    expect(cb.getLibraryVersion()).toBe('2.11.0');
   });
   test('getCommand resolves and back-links its component', () => {
     const cmd = cb.getCommand('flthy.led.solid');
@@ -541,5 +541,50 @@ describe('AstroPixelsPlus sequences', () => {
     expect(cb.match(':SE01')).toMatchObject({ commandId: 'ap.seq.play' });
     expect(cb.match(':DPH')).toMatchObject({ commandId: 'rad.home' });
     expect(cb.match(':PH')).toMatchObject({ commandId: 'uppity.lifter.home' });
+  });
+});
+
+describe('AstroPixelsPlus holo', () => {
+  let cb;
+  beforeEach(() => { cb = loadEngine(); loadCatalog(cb); });
+
+  test('native LED effects encode with AstroPixels numbering (05=solid, 06=rainbow, 07=short)', () => {
+    expect(cb.encode(cb.getCommand('ap.hp.native.leia'), { dev: 'F' }, {})).toBe('@HPF001');
+    expect(cb.encode(cb.getCommand('ap.hp.native.solid'), { dev: 'F' }, {})).toBe('@HPF0051');       // color default 1
+    expect(cb.encode(cb.getCommand('ap.hp.native.rainbow'), { dev: 'F' }, {})).toBe('@HPF006');
+    expect(cb.encode(cb.getCommand('ap.hp.native.shortcircuit'), { dev: 'F' }, {})).toBe('@HPF0070'); // color default 0
+  });
+
+  test('clear/auto vs leia disambiguation', () => {
+    expect(cb.match('@HPA096')).toMatchObject({ commandId: 'ap.hp.native.clearauto', params: { dev: 'A', mode: '96' } });
+    expect(cb.match('@HPA001')).toMatchObject({ commandId: 'ap.hp.native.leia', params: { dev: 'A' } });
+  });
+
+  test('servo preset vs autotwitch disambiguation', () => {
+    expect(cb.match('@HPF1011')).toMatchObject({ commandId: 'ap.hp.native.preset', params: { dev: 'F', position: '1' } });
+    expect(cb.match('@HPF199')).toMatchObject({ commandId: 'ap.hp.native.autotwitch', params: { dev: 'F', mode: '99' } });
+  });
+
+  test('sequence mode encodes and round-trips', () => {
+    expect(cb.encode(cb.getCommand('ap.hp.native.sequence'), { seq: 'S1' }, {})).toBe('@HPS1');
+    expect(cb.match('@HPS1')).toMatchObject({ commandId: 'ap.hp.native.sequence', params: { seq: 'S1' } });
+  });
+
+  test('native LED duration round-trips (@HPA006|30)', () => {
+    expect(cb.match('@HPA006|30')).toMatchObject({ commandId: 'ap.hp.native.rainbow', params: { dev: 'A' }, duration: 30 });
+    expect(cb.buildWCBValue(cb.parseWCBValue('@HPA006|30'))).toBe('@HPA006|30');
+  });
+
+  test('friendly aliases encode and decode (*ON01, *HP401, *HRSR)', () => {
+    expect(cb.encode(cb.getCommand('ap.hp.on'), { dev: '01' }, {})).toBe('*ON01');
+    expect(cb.match('*ON01')).toMatchObject({ commandId: 'ap.hp.on', params: { dev: '01' } });
+    expect(cb.match('*HP401')).toMatchObject({ commandId: 'ap.hp.position', params: { pos: '4', dev: '01' } });
+    expect(cb.match('*HRSR')).toMatchObject({ commandId: 'ap.hp.radar', params: { mode: 'R' } });
+  });
+
+  test('legacy holo and cross-board non-collision (@6T1 vs @1T1/@1P1)', () => {
+    expect(cb.match('@6T1')).toMatchObject({ commandId: 'ap.hp.legacyOn', params: { ldev: '6' } });
+    expect(cb.match('@1T1')).toMatchObject({ commandId: 'ap.logic.effect' });
+    expect(cb.match('@1P1')).toMatchObject({ commandId: 'ap.psi.effect' });
   });
 });
