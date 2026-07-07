@@ -19,7 +19,7 @@ describe('engine lookups', () => {
     expect(cb.getComponents().map(c => c.id)).toEqual(expect.arrayContaining(['flthy-hps', 'magic-panel']));
   });
   test('getLibraryVersion reports the loaded version', () => {
-    expect(cb.getLibraryVersion()).toBe('2.8.0');
+    expect(cb.getLibraryVersion()).toBe('2.9.0');
   });
   test('getCommand resolves and back-links its component', () => {
     const cmd = cb.getCommand('flthy.led.solid');
@@ -506,5 +506,24 @@ describe('AstroPixelsPlus PSI', () => {
   test('longest-code-first: P11 (March) vs P1 (Normal)', () => {
     expect(cb.match('@0P11')).toMatchObject({ commandId: 'ap.psi.effect', params: { addr: '0', effect: '11' } });
     expect(cb.match('@1P1')).toMatchObject({ commandId: 'ap.psi.effect', params: { addr: '1', effect: '1' } });
+  });
+});
+
+describe('AstroPixelsPlus logics', () => {
+  let cb;
+  beforeEach(() => { cb = loadEngine(); loadCatalog(cb); });
+
+  test('effect + font encode', () => {
+    expect(cb.encode(cb.getCommand('ap.logic.effect'), { addr: '0', effect: '11' }, {})).toBe('@0T11');
+    expect(cb.encode(cb.getCommand('ap.logic.font'), { addr: '3', font: '61' }, {})).toBe('@3P61');
+  });
+  test('font (@xP60/61) does NOT collide with PSI (@xP1..P11)', () => {
+    expect(cb.match('@1P60')).toMatchObject({ commandId: 'ap.logic.font', params: { addr: '1', font: '60' } });
+    expect(cb.match('@1P1')).toMatchObject({ commandId: 'ap.psi.effect' });          // PSI, not logic font
+    expect(cb.match('@3P60')).toMatchObject({ commandId: 'ap.logic.font', params: { addr: '3', font: '60' } }); // addr 3 = logic-only
+    expect(cb.match('@0P11')).toMatchObject({ commandId: 'ap.psi.effect' });          // addr 0 = PSI-only
+  });
+  test('scroll-text is free-text (unbounded) and does not collide', () => {
+    expect(cb.encode(cb.getCommand('ap.logic.text'), { addr: '1', text: 'HELLO' }, {})).toBe('@1MHELLO');
   });
 });

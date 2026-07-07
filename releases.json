@@ -2,17 +2,17 @@
   "$schema": "droidnet-command-library/releases/v1",
   "_comment": "Update pointer for the 'Update Library' flow. A device fetches this file, compares latest.libraryVersion to its installed catalog, and (if newer) downloads latest.url (the catalog manifest), then fetches each board listed in manifest.boards in order, validates them, and loads them via loadLibrary(boards, { libraryVersion }).",
   "latest": {
-    "libraryVersion": "2.8.0",
+    "libraryVersion": "2.9.0",
     "schemaVersion": "v1",
     "releasedAt": "2026-07-07",
     "url": "https://raw.githubusercontent.com/travisccook/droidnet-command-library/main/libraries/manifest.json",
-    "notes": "Minor: adds the AstroPixelsPlus (PSI) board — the reeltwo AstroPixelsPlus @<addr>P<effect> PSI sequence commands (front/rear/both x Normal/Flashing/Alarm/Failure/Red-Alert/Leia/March), modeled as one command with address + effect dropdowns."
+    "notes": "Minor: adds the AstroPixelsPlus (Logics) board — the reeltwo AstroPixelsPlus @<addr>T/M/P logic-display commands (FLD/RLD): effect (front/rear/both x Normal/Flashing/Alarm/Failure/Red-Alert/Leia/March), scroll-text (free text per line), and font (Latin/Aurabesh)."
   },
   "libraries": [
     {
       "id": "droidnet-astromech",
       "name": "DroidNet Astromech Boards",
-      "libraryVersion": "2.8.0",
+      "libraryVersion": "2.9.0",
       "schemaVersion": "v1",
       "url": "https://raw.githubusercontent.com/travisccook/droidnet-command-library/main/libraries/manifest.json"
     }
