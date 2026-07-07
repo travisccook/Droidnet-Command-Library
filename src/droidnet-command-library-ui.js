@@ -37,6 +37,27 @@
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   const MAX_VALUE_LEN = 200; // stored-command value limit
 
+  // "speed" → "Speed", "scrollSpeed" → "Scroll Speed". Param names are limited to
+  // [A-Za-z][A-Za-z0-9]* by the schema, so this only needs camelCase handling.
+  function humanize(name) {
+    return String(name)
+      .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+      .replace(/[_-]+/g, ' ')
+      .replace(/\b\w/g, (c) => c.toUpperCase())
+      .trim();
+  }
+
+  // Friendly caption for a param control: explicit label → enum's label → humanized name.
+  // getEnum is a (name) => enumObject|undefined lookup (e.g. the engine's getEnum).
+  function captionFor(p, getEnum) {
+    if (p.label) return p.label;
+    if (p.enum && getEnum) {
+      const en = getEnum(p.enum);
+      if (en && en.label) return en.label;
+    }
+    return humanize(p.name);
+  }
+
   // Combined "Board ▸ Name" label — kept for back-compat / external callers.
   function stepLabel(step) {
     if (step.type === 'delay') return '⏲ delay ' + step.ms + 'ms';
@@ -203,18 +224,26 @@
     }
 
     // ---- inline add bar (the catalog folded into Board/Command dropdowns) ----
+    function fieldCell(caption, controlHtml) {
+      return `<label class="wcb-field"><span class="wcb-field-cap">${esc(caption)}</span>${controlHtml}</label>`;
+    }
+
     function paramControl(p, cur) {
       const val = cur[p.name] !== undefined ? cur[p.name] : (p.default !== undefined ? p.default : '');
       const name = esc(p.name);
+      const cap = captionFor(p, E().getEnum);
+      let control;
       if (p.enum) {
         const en = E().getEnum(p.enum);
         const opts = ((en && en.values) || [])
           .map(v => `<option value="${esc(v.code)}"${String(v.code) === String(val) ? ' selected' : ''}>${esc(v.label)}</option>`).join('');
-        return `<select class="form-control wcb-param" data-param="${name}" title="${name}" aria-label="${name}">${opts}</select>`;
+        control = `<select class="form-control wcb-param" data-param="${name}" aria-label="${esc(cap)}">${opts}</select>`;
+      } else {
+        const min = p.min !== undefined ? ` min="${p.min}"` : '';
+        const max = p.max !== undefined ? ` max="${p.max}"` : '';
+        control = `<input class="form-control wcb-param" data-param="${name}" aria-label="${esc(cap)}" type="number"${min}${max} value="${esc(val)}">`;
       }
-      const min = p.min !== undefined ? ` min="${p.min}"` : '';
-      const max = p.max !== undefined ? ` max="${p.max}"` : '';
-      return `<input class="form-control wcb-param" data-param="${name}" title="${name}" aria-label="${name}" type="number"${min}${max} value="${esc(val)}" placeholder="${name}">`;
+      return fieldCell(cap, control);
     }
 
     function loadStepIntoAddBar(i) {
@@ -298,5 +327,5 @@
     renderAddBar();
   }
 
-  return { renderComposer, stepLabel };
+  return { renderComposer, stepLabel, humanize, captionFor };
 });
