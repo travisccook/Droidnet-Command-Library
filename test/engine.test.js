@@ -19,7 +19,7 @@ describe('engine lookups', () => {
     expect(cb.getComponents().map(c => c.id)).toEqual(expect.arrayContaining(['flthy-hps', 'magic-panel']));
   });
   test('getLibraryVersion reports the loaded version', () => {
-    expect(cb.getLibraryVersion()).toBe('2.9.0');
+    expect(cb.getLibraryVersion()).toBe('2.10.0');
   });
   test('getCommand resolves and back-links its component', () => {
     const cmd = cb.getCommand('flthy.led.solid');
@@ -525,5 +525,21 @@ describe('AstroPixelsPlus logics', () => {
   });
   test('scroll-text is free-text (unbounded) and does not collide', () => {
     expect(cb.encode(cb.getCommand('ap.logic.text'), { addr: '1', text: 'HELLO' }, {})).toBe('@1MHELLO');
+  });
+});
+
+describe('AstroPixelsPlus sequences', () => {
+  let cb;
+  beforeEach(() => { cb = loadEngine(); loadCatalog(cb); });
+
+  test('sequence encode + match across both ranges', () => {
+    expect(cb.encode(cb.getCommand('ap.seq.play'), { seq: '01' }, {})).toBe(':SE01');
+    expect(cb.match(':SE57')).toMatchObject({ commandId: 'ap.seq.play', params: { seq: '57' } });
+    expect(cb.match(':SE00')).toMatchObject({ commandId: 'ap.seq.play', params: { seq: '00' } });
+  });
+  test('does not collide with :DP (motion) or :P (uppity)', () => {
+    expect(cb.match(':SE01')).toMatchObject({ commandId: 'ap.seq.play' });
+    expect(cb.match(':DPH')).toMatchObject({ commandId: 'rad.home' });
+    expect(cb.match(':PH')).toMatchObject({ commandId: 'uppity.lifter.home' });
   });
 });
