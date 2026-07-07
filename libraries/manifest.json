@@ -63,6 +63,12 @@
       "file": "boards/roam-a-dome-motion.json",
       "name": "Roam-A-Dome (Motion)",
       "confidence": "high"
+    },
+    {
+      "id": "roam-a-dome-config",
+      "file": "boards/roam-a-dome-config.json",
+      "name": "Roam-A-Dome (Config)",
+      "confidence": "high"
     }
   ]
 }

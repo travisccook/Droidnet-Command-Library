@@ -172,6 +172,43 @@ describe('Roam-A-Dome motion', () => {
   });
 });
 
+describe('Roam-A-Dome config', () => {
+  let cb;
+  beforeEach(() => { cb = loadEngine(); loadCatalog(cb); });
+
+  test('no-arg and numeric encode', () => {
+    expect(cb.encode(cb.getCommand('rad.cfg.zero'), {}, {})).toBe('#DPZERO');
+    expect(cb.encode(cb.getCommand('rad.cfg.maxspeed'), { value: '50' }, {})).toBe('#DPMAXSPEED50');
+  });
+  test('on/off enum and baud enum', () => {
+    expect(cb.match('#DPINVERT1')).toMatchObject({ commandId: 'rad.cfg.invert', params: { state: '1' } });
+    expect(cb.match('#DPSERIALBAUD9600')).toMatchObject({ commandId: 'rad.cfg.serialbaud', params: { baud: '9600' } });
+  });
+  test('packed pin digits', () => {
+    expect(cb.encode(cb.getCommand('rad.cfg.pin'), { pin: '1', value: '0' }, {})).toBe('#DPPIN10');
+    expect(cb.match('#DPPIN10')).toMatchObject({ commandId: 'rad.cfg.pin', params: { pin: '1', value: '0' } });
+  });
+  test('shared-prefix disambiguation: D / DEBUG / DSCALE', () => {
+    expect(cb.match('#DPD0')).toMatchObject({ commandId: 'rad.cfg.deleteSeq', params: { slot: '0' } });
+    expect(cb.match('#DPDEBUG1')).toMatchObject({ commandId: 'rad.cfg.debug', params: { state: '1' } });
+    expect(cb.match('#DPDSCALE100')).toMatchObject({ commandId: 'rad.cfg.dscale', params: { value: '100' } });
+  });
+  test('shared-prefix disambiguation: SYRENADDR vs SYRENADDRIN', () => {
+    expect(cb.match('#DPSYRENADDR129')).toMatchObject({ commandId: 'rad.cfg.syrenaddr', params: { value: '129' } });
+    expect(cb.match('#DPSYRENADDRIN129')).toMatchObject({ commandId: 'rad.cfg.syrenaddrin', params: { value: '129' } });
+  });
+  test('shared-prefix disambiguation: HOME family + HOMEPOS split', () => {
+    expect(cb.match('#DPHOME1')).toMatchObject({ commandId: 'rad.cfg.home', params: { state: '1' } });
+    expect(cb.match('#DPHOMESPEED40')).toMatchObject({ commandId: 'rad.cfg.homespeed', params: { value: '40' } });
+    expect(cb.match('#DPHOMEPOS')).toMatchObject({ commandId: 'rad.cfg.homePosHere' });
+    expect(cb.match('#DPHOMEPOS90')).toMatchObject({ commandId: 'rad.cfg.homePos', params: { deg: '90' } });
+  });
+  test('does not collide with uppity (#DP vs #P)', () => {
+    expect(cb.match('#PD0')).toMatchObject({ commandId: 'uppity.cfg.deleteSeq' });
+    expect(cb.match('#DPD0')).toMatchObject({ commandId: 'rad.cfg.deleteSeq' });
+  });
+});
+
 describe('build/parse + round-trip', () => {
   let cb;
   beforeEach(() => { cb = loadEngine(); loadCatalog(cb); });
