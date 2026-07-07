@@ -2,17 +2,17 @@
   "$schema": "droidnet-command-library/releases/v1",
   "_comment": "Update pointer for the 'Update Library' flow. A device fetches this file, compares latest.libraryVersion to its installed catalog, and (if newer) downloads latest.url (the catalog manifest), then fetches each board listed in manifest.boards in order, validates them, and loads them via loadLibrary(boards, { libraryVersion }).",
   "latest": {
-    "libraryVersion": "2.3.0",
+    "libraryVersion": "2.4.0",
     "schemaVersion": "v1",
     "releasedAt": "2026-07-06",
     "url": "https://raw.githubusercontent.com/travisccook/droidnet-command-library/main/libraries/manifest.json",
-    "notes": "Minor: FlthyHPs board expanded to the full v1.8 command reference (Leia, Color Projector, Dim Pulse, Cycle, Short Circuit, Rainbow, Clear/Auto, servo preset/RC/random/wag/auto-twitch, and S1/S4-S9 special sequences). Corrects the previous Solid (now 006) and Rainbow (now 007) sequence codes and drops the non-v1.8 X/Y/Z designators."
+    "notes": "Minor: adds the Roam-A-Dome (Motion) board — the reeltwo DomeControlFirmware runtime :DP motion verbs (rotate absolute/relative + random, continuous spin, home, wait, play stored sequence, toggle pin)."
   },
   "libraries": [
     {
       "id": "droidnet-astromech",
       "name": "DroidNet Astromech Boards",
-      "libraryVersion": "2.3.0",
+      "libraryVersion": "2.4.0",
       "schemaVersion": "v1",
       "url": "https://raw.githubusercontent.com/travisccook/droidnet-command-library/main/libraries/manifest.json"
     }
