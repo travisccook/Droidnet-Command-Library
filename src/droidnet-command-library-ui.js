@@ -286,9 +286,9 @@
       const bookId = (s && s.bookId) || (books[0] && books[0].id);
       addbarEl.innerHTML = `
         <span class="add-lbl">${editing ? 'Edit:' : 'Add:'}</span>
-        <select class="form-control wcb-book" aria-label="Board">${books
-          .map(b => `<option value="${esc(b.id)}"${b.id === bookId ? ' selected' : ''}>${esc(b.name)}</option>`).join('')}</select>
-        <select class="form-control wcb-cmd" aria-label="Command"></select>
+        ${fieldCell('Board', `<select class="form-control wcb-book" aria-label="Board">${books
+          .map(b => `<option value="${esc(b.id)}"${b.id === bookId ? ' selected' : ''}>${esc(b.name)}</option>`).join('')}</select>`)}
+        ${fieldCell('Command', `<select class="form-control wcb-cmd" aria-label="Command"></select>`)}
         <span class="wcb-params"></span>
         <button class="wcb-insert btn btn-sm btn-primary" type="button">${editing ? 'Update' : 'Insert'}</button>
         ${editing ? '<button class="wcb-cancel btn btn-sm btn-secondary" type="button">Cancel</button>' : ''}`;
@@ -303,7 +303,7 @@
         let html = (cmd.params || []).map(p => paramControl(p, cur)).join('');
         if (cmd.supportsDuration) {
           const dv = (useSeed && s && s.commandId === cmd.id && s.duration != null) ? esc(s.duration) : '';
-          html += `<input class="form-control wcb-duration" type="number" min="0" placeholder="secs" title="duration (s)" aria-label="duration in seconds" value="${dv}">`;
+          html += fieldCell('Duration', `<input class="form-control wcb-duration" type="number" min="0" aria-label="duration in seconds" value="${dv}">`);
         }
         paramsEl.innerHTML = html;
       }

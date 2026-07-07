@@ -19,7 +19,7 @@ body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--s
 .dn-links a.active { color: var(--bg); background: var(--accent); font-weight: 600; }
 
 /* ---- layout ---- */
-.dn-main { max-width: 920px; margin: 0 auto; padding: 22px 20px 60px; }
+.dn-main { max-width: 1200px; margin: 0 auto; padding: 22px 20px 60px; }
 .dn-pane, .dn-out, .dn-board { background: var(--panel); border: 1px solid var(--edge); border-radius: 12px; }
 .dn-pane { padding: 16px; }
 .dn-out { margin-top: 18px; padding: 16px; }
@@ -83,10 +83,15 @@ body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--s
 .wcb-icon-btn.danger:hover { color: var(--danger); border-color: var(--danger); }
 .wcb-delay-ms, .wcb-note-text { width: auto; }
 .wcb-delay-ms { width: 90px; }
-.wcb-addbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 12px;
+.wcb-addbar { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 8px 10px; padding: 12px;
   background: #0b0f14; border: 1px dashed var(--edge); border-radius: 10px; }
-.wcb-addbar .add-lbl { color: var(--muted); font-size: .85rem; }
-.wcb-params { display: inline-flex; flex-wrap: wrap; gap: 8px; }
+.wcb-addbar .add-lbl { color: var(--muted); font-size: .85rem; padding-bottom: 8px; }
+/* let the param cells sit directly in the addbar flow so every field bottom-aligns */
+.wcb-params { display: contents; }
+.wcb-field { display: flex; flex-direction: column; gap: 3px; }
+.wcb-field-cap { color: var(--muted); font-size: .72rem; letter-spacing: .02em; white-space: nowrap; }
+.wcb-addbar .wcb-param[type="number"], .wcb-addbar .wcb-duration { width: 5rem; }
+.wcb-book, .wcb-cmd { max-width: 16rem; }
 .wcb-foot { display: flex; align-items: center; gap: 8px; }
 .wcb-foot .spacer { flex: 1; }
 .wcb-safety { color: var(--warn); font-size: .8rem; }
@@ -117,4 +122,6 @@ body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--s
   .dn-nav { flex-wrap: wrap; }
   .dn-links { margin-left: 0; }
   .wcb-step { flex-wrap: wrap; }
+  .wcb-field { flex: 1 1 100%; }
+  .wcb-addbar .wcb-param, .wcb-addbar .wcb-duration, .wcb-book, .wcb-cmd { width: 100%; max-width: none; }
 }
