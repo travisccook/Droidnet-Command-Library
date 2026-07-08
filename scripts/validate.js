@@ -65,9 +65,6 @@ function boardSemanticErrors(lib) {
         if (declaredCats && !declaredCats.includes(cmd.category)) {
           errors.push(`${where}: category '${cmd.category}' is not listed in the component's categories array`);
         }
-        if (!STANDARD_CATEGORIES.has(cmd.category)) {
-          warnings.push(`${where}: category '${cmd.category}' is not a standard category name (intentional outlier? check for typos)`);
-        }
       }
       const encoder = cmd.encoder || 'template';
       if (!KNOWN_BUILTIN_ENCODERS.has(encoder)) {
@@ -97,6 +94,9 @@ function boardSemanticErrors(lib) {
       for (const c of declaredCats) {
         if (!usedCats.has(c)) warnings.push(`${comp.id}: declared category '${c}' has no commands`);
       }
+    }
+    for (const cat of usedCats) {
+      if (!STANDARD_CATEGORIES.has(cat)) warnings.push(`${comp.id}: category '${cat}' is not a standard category name (intentional outlier? check for typos)`);
     }
   }
   return { errors, warnings };

@@ -84,6 +84,13 @@ describe('boardSemanticErrors — categories', () => {
     const lib = comp(['Friendly'], [{ id: 'a.x', name: 'X', template: 'X', category: 'Friendly' }]);
     expect(v.boardSemanticErrors(lib).warnings.join(' ')).toMatch(/not a standard category/i);
   });
+  test('dedupes the outlier warning to one per (component, category)', () => {
+    const lib = comp(['Friendly'], [
+      { id: 'a.x', name: 'X', template: 'X', category: 'Friendly' },
+      { id: 'a.y', name: 'Y', template: 'Y', category: 'Friendly' },
+    ]);
+    expect(v.boardSemanticErrors(lib).warnings.filter(w => /not a standard category/.test(w)).length).toBe(1);
+  });
   test('warns on a dangling declared category', () => {
     const lib = comp(['Movement', 'Config'], [{ id: 'a.x', name: 'X', template: 'X', category: 'Movement' }]);
     expect(v.boardSemanticErrors(lib).warnings.join(' ')).toMatch(/has no commands/i);

@@ -146,7 +146,7 @@ describe('FlthyHPs special sequences', () => {
   });
 });
 
-describe('Roam-A-Dome motion', () => {
+describe('Roam-A-Dome (:DP motion)', () => {
   let cb;
   beforeEach(() => { cb = loadEngine(); loadCatalog(cb); });
 
@@ -172,7 +172,7 @@ describe('Roam-A-Dome motion', () => {
   });
 });
 
-describe('Roam-A-Dome config', () => {
+describe('Roam-A-Dome (#DP config)', () => {
   let cb;
   beforeEach(() => { cb = loadEngine(); loadCatalog(cb); });
 
