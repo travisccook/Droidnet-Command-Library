@@ -19,7 +19,7 @@ describe('engine lookups', () => {
     expect(cb.getComponents().map(c => c.id)).toEqual(expect.arrayContaining(['flthy-hps', 'magic-panel']));
   });
   test('getLibraryVersion reports the loaded version', () => {
-    expect(cb.getLibraryVersion()).toBe('3.0.0');
+    expect(cb.getLibraryVersion()).toBe('3.1.0');
   });
   test('getCommand resolves and back-links its component', () => {
     const cmd = cb.getCommand('flthy.led.solid');
@@ -518,9 +518,15 @@ describe('AstroPixelsPlus logics', () => {
     expect(cb.encode(cb.getCommand('ap.logic.font'), { addr: '3', font: '61' }, {})).toBe('@3P61');
   });
   test('font (@xP60/61) does NOT collide with PSI (@xP1..P11)', () => {
-    expect(cb.match('@1P60')).toMatchObject({ commandId: 'ap.logic.font', params: { addr: '1', font: '60' } });
+    // @nP font is a Marcduino command shared by every logic board (ap.logic.font AND
+    // rseries.font); manifest order picks which one claims the token. What matters
+    // here is that a font code is recognized as a FONT, and a PSI effect code isn't.
+    const FONT = ['ap.logic.font', 'rseries.font'];
+    expect(cb.match('@1P60')).toMatchObject({ params: { font: '60' } });
+    expect(FONT).toContain(cb.match('@1P60').commandId);
     expect(cb.match('@1P1')).toMatchObject({ commandId: 'ap.psi.effect' });          // PSI, not logic font
-    expect(cb.match('@3P60')).toMatchObject({ commandId: 'ap.logic.font', params: { addr: '3', font: '60' } }); // addr 3 = logic-only
+    expect(cb.match('@3P60')).toMatchObject({ params: { font: '60' } });             // addr 3 = logic-only
+    expect(FONT).toContain(cb.match('@3P60').commandId);
     expect(cb.match('@0P11')).toMatchObject({ commandId: 'ap.psi.effect' });          // addr 0 = PSI-only
   });
   test('scroll-text is free-text (unbounded) and does not collide', () => {
@@ -660,5 +666,66 @@ describe('pattern params (hex / free-text round-trip)', () => {
   });
   test('plain-digit hex value still round-trips (backward compat)', () => {
     expect(cb.match(':SF0$4000')).toMatchObject({ commandId: 'ap.servo.easing', params: { easingId: '0', group: '4000' } });
+  });
+});
+
+describe('renderCommentLabel', () => {
+  let cb;
+  const LIB = {
+    libraryVersion: 'test',
+    enums: {
+      addr: { label: 'Addr', values: [{ code: '0', label: 'All' }, { code: '4', label: 'Front' }] },
+      mode: { label: 'Mode', values: [{ code: '1', label: 'Reset' }, { code: '18', label: 'Solid Green' }, { code: '99', label: 'A^B' }] },
+      color: { label: 'Color', values: [{ code: '0', label: 'Default' }, { code: '4', label: 'Green' }] },
+      effect: { label: 'Effect', values: [{ code: '5', label: 'Solid Color' }, { code: '10', label: 'Rainbow' }] },
+      target: { label: 'Target', values: [{ code: '', label: 'All' }, { code: '1', label: 'Front' }] },
+    },
+    components: [{
+      id: 'test', name: 'Test Board', kind: 'device-native',
+      routing: { class: 'broadcast', nativeWrapper: 'none', durationSuffix: { supported: false } },
+      commands: [
+        { id: 'c.static', name: 'Static', encoder: 'template', template: 'X', params: [], commentLabel: 'PSI effect', examples: ['X'] },
+        { id: 'c.none', name: 'None', encoder: 'template', template: 'Y', params: [], examples: ['Y'] },
+        { id: 'c.psi', name: 'PSI', encoder: 'template', template: '{address}T{mode}',
+          params: [{ name: 'address', enum: 'addr', required: true }, { name: 'mode', enum: 'mode', required: true }],
+          commentLabel: 'PSI {address} — {mode}', examples: ['0T1'] },
+        { id: 'c.int', name: 'Int', encoder: 'template', template: 'N{n}',
+          params: [{ name: 'n', type: 'int', min: 0, max: 9 }], commentLabel: 'Count {n}', examples: ['N3'] },
+        { id: 'c.default', name: 'Def', encoder: 'template', template: 'D{mode}',
+          params: [{ name: 'mode', enum: 'mode', default: '1' }], commentLabel: 'Mode {mode}', examples: ['D1'] },
+        { id: 'c.seg', name: 'Seg', encoder: 'template', template: '{target}L{effect}{color}',
+          params: [{ name: 'target', enum: 'target', default: '' }, { name: 'effect', enum: 'effect' }, { name: 'color', enum: 'color', default: '0' }],
+          commentLabel: 'Logics {target} — {effect}[ · {color}]', examples: ['L50'] },
+      ],
+    }],
+  };
+  beforeEach(() => { cb = loadEngine(); cb.loadLibrary(LIB, { libraryVersion: 'test' }); });
+
+  test('returns empty string when the command has no commentLabel', () => {
+    expect(cb.renderCommentLabel(cb.getCommand('c.none'), {})).toBe('');
+  });
+  test('passes a static (placeholder-free) label through verbatim', () => {
+    expect(cb.renderCommentLabel(cb.getCommand('c.static'), {})).toBe('PSI effect');
+  });
+  test('substitutes enum placeholders with their value labels', () => {
+    expect(cb.renderCommentLabel(cb.getCommand('c.psi'), { address: '0', mode: '18' })).toBe('PSI All — Solid Green');
+  });
+  test('substitutes an int placeholder with its raw value', () => {
+    expect(cb.renderCommentLabel(cb.getCommand('c.int'), { n: '3' })).toBe('Count 3');
+  });
+  test('falls back to the param default label when a value is missing', () => {
+    expect(cb.renderCommentLabel(cb.getCommand('c.default'), {})).toBe('Mode Reset');
+  });
+  test('includes an optional [segment] when its value is non-default', () => {
+    expect(cb.renderCommentLabel(cb.getCommand('c.seg'), { target: '', effect: '5', color: '4' })).toBe('Logics All — Solid Color · Green');
+  });
+  test('omits an optional [segment] when its value equals the param default', () => {
+    expect(cb.renderCommentLabel(cb.getCommand('c.seg'), { target: '', effect: '5', color: '0' })).toBe('Logics All — Solid Color');
+  });
+  test('keeps a bare placeholder even when it equals its default (All still shown)', () => {
+    expect(cb.renderCommentLabel(cb.getCommand('c.seg'), { target: '', effect: '10', color: '0' })).toBe('Logics All — Rainbow');
+  });
+  test('strips the wire-reserved ^ from a resolved label', () => {
+    expect(cb.renderCommentLabel(cb.getCommand('c.psi'), { address: '0', mode: '99' })).toBe('PSI All — AB');
   });
 });

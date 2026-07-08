@@ -24,6 +24,19 @@ describe('boardSemanticErrors', () => {
     const lib = board('a', {}, [{ id: 'a.x', name: 'X', template: '{missing}' }]);
     expect(v.boardSemanticErrors(lib).errors.join(' ')).toMatch(/placeholder/i);
   });
+  test('errors when a commentLabel placeholder has no matching param', () => {
+    const lib = board('a', {}, [{ id: 'a.x', name: 'X', template: 'X', commentLabel: 'note {bogus}' }]);
+    expect(v.boardSemanticErrors(lib).errors.join(' ')).toMatch(/commentLabel placeholder \{bogus\}/i);
+  });
+  test('errors when a commentLabel has unbalanced optional-segment brackets', () => {
+    const lib = board('a', {}, [{ id: 'a.x', name: 'X', template: 'X', commentLabel: 'note [ · oops' }]);
+    expect(v.boardSemanticErrors(lib).errors.join(' ')).toMatch(/unbalanced \[ \]/i);
+  });
+  test('accepts a commentLabel that interpolates real params with an optional segment', () => {
+    const lib = board('a', { c: { values: [{ code: '0', label: 'Def' }] } },
+      [{ id: 'a.x', name: 'X', template: 'X{color}', params: [{ name: 'color', enum: 'c' }], commentLabel: 'X[ · {color}]' }]);
+    expect(v.boardSemanticErrors(lib).errors).toEqual([]);
+  });
 });
 
 describe('crossFileErrors', () => {

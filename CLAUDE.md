@@ -47,7 +47,7 @@ libraries/manifest.json             ──fetch+merge──▶  loadLibrary  ─
 
 - **`src/droidnet-command-library.js`** — the engine (pure, no DOM). Holds the
   loaded library in module-level state (`_lib`, `_commandsById`), so there is **one
-  global loaded library per module instance**. Public API: `loadLibrary(obj|array, opts?)` (load/replace; pass an array of board objects + `{ libraryVersion }` for the per-board catalog; board order is authoritative for `match()`), `mergeLibrary(lib)` (additive single-board merge), `merge(obj|array, opts?)` (return merged result without loading), `getComponents`/`getCommands`/`getCommand`/`getEnum`, `encode`, `match`, `buildWCBValue`/`parseWCBValue`, `registerEncoder`. Exposed as
+  global loaded library per module instance**. Public API: `loadLibrary(obj|array, opts?)` (load/replace; pass an array of board objects + `{ libraryVersion }` for the per-board catalog; board order is authoritative for `match()`), `mergeLibrary(lib)` (additive single-board merge), `merge(obj|array, opts?)` (return merged result without loading), `getComponents`/`getCommands`/`getCommand`/`getEnum`, `encode`, `match`, `renderCommentLabel` (render a command's `commentLabel` for a selection), `buildWCBValue`/`parseWCBValue`, `registerEncoder`. Exposed as
   `window.DroidNetCommandLibrary` (browser) and `module.exports` (CommonJS/AMD).
 - **`src/droidnet-command-library-ui.js`** — the visual composer. Depends only on
   the engine (resolved lazily off the global in the browser, `require`d under

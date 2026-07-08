@@ -133,6 +133,7 @@
     let dragFrom = null;
     let editIndex = null;   // index of the command step currently loaded into the add bar (or null)
     let editLabel;          // original label of the step being edited (preserved across update)
+    let editWasAuto = false; // the edited step's label was engine-generated (regenerate) vs hand-typed (preserve)
     let seed = null;        // pre-fill for the add bar after an edit: {bookId, commandId, params, duration}
 
     function compiled() { return E().buildWCBValue(steps); }
@@ -268,6 +269,9 @@
         const opts = ((en && en.values) || [])
           .map(v => `<option value="${esc(v.code)}"${String(v.code) === String(val) ? ' selected' : ''}>${esc(v.label)}</option>`).join('');
         control = `<select class="form-control wcb-param" data-param="${name}" aria-label="${esc(cap)}">${opts}</select>`;
+      } else if (p.pattern) {
+        // free-text param (e.g. a display string or hex bitmask) → text input, not a number spinner
+        control = `<input class="form-control wcb-param" data-param="${name}" aria-label="${esc(cap)}" type="text" value="${esc(val)}">`;
       } else {
         const min = p.min !== undefined ? ` min="${p.min}"` : '';
         const max = p.max !== undefined ? ` max="${p.max}"` : '';
@@ -283,6 +287,11 @@
       if (!cmd) return;
       editIndex = i;
       editLabel = s.label;
+      // A label that still matches this step's auto-generated comment is "auto" and
+      // should refresh when the selection changes; anything else is a hand-typed note
+      // (or a deliberately label-less step) and is preserved untouched.
+      const auto = E().renderCommentLabel(cmd, s.params);
+      editWasAuto = s.label !== undefined && auto !== '' && s.label === ' ' + auto;
       seed = { bookId: cmd._component.id, commandId: cmd.id, params: Object.assign({}, s.params), duration: s.duration };
       renderAddBar();
       renderSteps(); // refresh the .editing highlight
@@ -297,13 +306,20 @@
       const durEl = addbarEl.querySelector('.wcb-duration');
       if (cmd.supportsDuration && durEl && durEl.value !== '') step.duration = parseInt(durEl.value, 10);
       if (editIndex !== null) {
-        // editing preserves the step's original label exactly (a label-less step stays label-less)
-        if (editLabel !== undefined) step.label = editLabel;
+        // an auto-generated label refreshes from the new selection; a hand-typed note
+        // (or a deliberately label-less step) is preserved exactly
+        if (editWasAuto) {
+          const auto = E().renderCommentLabel(cmd, params);
+          if (auto) step.label = ' ' + auto;
+        } else if (editLabel !== undefined) {
+          step.label = editLabel;
+        }
         steps[editIndex] = step;
-        editIndex = null; editLabel = undefined; seed = null;
+        editIndex = null; editLabel = undefined; editWasAuto = false; seed = null;
       } else {
-        // a fresh insert gets the command's default comment label (matches the prior catalog/modal insert)
-        if (cmd.commentLabel) step.label = ' ' + cmd.commentLabel;
+        // a fresh insert gets the command's default comment label, rendered from the selection
+        const auto = E().renderCommentLabel(cmd, params);
+        if (auto) step.label = ' ' + auto;
         steps.push(step);
       }
       recompile(); renderSteps(); renderAddBar();
@@ -353,7 +369,7 @@
       addbarEl.querySelector('.wcb-insert').addEventListener('click', insertOrUpdate);
       const cancelBtn = addbarEl.querySelector('.wcb-cancel');
       if (cancelBtn) cancelBtn.addEventListener('click', () => {
-        editIndex = null; editLabel = undefined; seed = null; renderAddBar(); renderSteps();
+        editIndex = null; editLabel = undefined; editWasAuto = false; seed = null; renderAddBar(); renderSteps();
       });
       fillCommands(true); // honor the edit pre-fill on first paint
     }

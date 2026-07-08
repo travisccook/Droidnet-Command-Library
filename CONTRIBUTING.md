@@ -34,6 +34,8 @@ once your board merges to `main`, it shows up there automatically.
 - Each board file matches `schema/library.schema.json` (structural).
 - Every `param.enum` resolves to a defined enum.
 - Every `{placeholder}` in a `template` has a matching param (and vice-versa).
+- Every `{placeholder}` in a `commentLabel` has a matching param, and its `[ … ]`
+  optional-segment brackets are balanced.
 - Command ids are unique across **all** board files.
 - A duplicated enum id must be byte-identical across files.
 - The manifest and `boards/` agree (no missing or orphaned files); manifest version

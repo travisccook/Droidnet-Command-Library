@@ -2,17 +2,17 @@
   "$schema": "droidnet-command-library/releases/v1",
   "_comment": "Update pointer for the 'Update Library' flow. A device fetches this file, compares latest.libraryVersion to its installed catalog, and (if newer) downloads latest.url (the catalog manifest), then fetches each board listed in manifest.boards in order, validates them, and loads them via loadLibrary(boards, { libraryVersion }).",
   "latest": {
-    "libraryVersion": "3.0.0",
+    "libraryVersion": "3.1.0",
     "schemaVersion": "v1",
     "releasedAt": "2026-07-07",
     "url": "https://raw.githubusercontent.com/travisccook/droidnet-command-library/main/libraries/manifest.json",
-    "notes": "Major: introduces in-dropdown command categories (command.group renamed to command.category; new per-board ordered component.categories). Consolidates AstroPixelsPlus config/panels/sequences into a single astropixels-plus board and Roam-A-Dome motion/config into roam-a-dome. Board catalog 19 -> 16. Command ids are preserved, so stored command strings still round-trip; host apps referencing the removed board ids must migrate."
+    "notes": "Minor: descriptive auto-comments (commentLabel now interpolates {param} value labels + [optional] segments) and fuller PSIPro / RSeries Logic command sets. PSIPro gains the full 23-mode T list (corrected labels), Standard Swipe (A) / Default Pattern (D), and Always-On + brightness config (P). RSeries Logic gains Set Logic Text / Font (shared Marcduino @nM/@nP) plus its Reeltwo-unique #LE config/system commands (WiFi, Remote, Restart, Factory Reset). Existing command ids and wire codes are preserved, so stored strings still round-trip."
   },
   "libraries": [
     {
       "id": "droidnet-astromech",
       "name": "DroidNet Astromech Boards",
-      "libraryVersion": "3.0.0",
+      "libraryVersion": "3.1.0",
       "schemaVersion": "v1",
       "url": "https://raw.githubusercontent.com/travisccook/droidnet-command-library/main/libraries/manifest.json"
     }

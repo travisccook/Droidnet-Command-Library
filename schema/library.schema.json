@@ -141,7 +141,7 @@
         },
         "supportsDuration": { "type": "boolean", "description": "Whether this command honors the component's routing.durationSuffix." },
         "examples": { "type": "array", "items": { "type": "string" }, "description": "Canonical encoded examples, used by tests and docs." },
-        "commentLabel": { "type": "string", "description": "Default *** comment label applied when a fresh step is inserted." }
+        "commentLabel": { "type": "string", "description": "Default *** comment label applied when a step is inserted. May interpolate {param} placeholders (→ the selected value's label) and [ ... ] optional segments (dropped when a placeholder inside is blank/default); a placeholder-free string is used verbatim." }
       },
       "additionalProperties": true,
       "allOf": [

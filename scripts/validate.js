@@ -89,6 +89,17 @@ function boardSemanticErrors(lib) {
           if (!placeholders.includes(name)) warnings.push(`${where}: param '${name}' is never used in the template`);
         }
       }
+      // commentLabel may interpolate {param} placeholders (→ selected value labels) and
+      // [ ... ] optional segments; every placeholder must reference a real param.
+      if (typeof cmd.commentLabel === 'string') {
+        const cparams = new Set((cmd.params || []).map(p => p.name));
+        for (const ph of [...cmd.commentLabel.matchAll(/\{(\w+)\}/g)].map(m => m[1])) {
+          if (!cparams.has(ph)) errors.push(`${where}: commentLabel placeholder {${ph}} has no matching param`);
+        }
+        const opens = (cmd.commentLabel.match(/\[/g) || []).length;
+        const closes = (cmd.commentLabel.match(/\]/g) || []).length;
+        if (opens !== closes) errors.push(`${where}: commentLabel has unbalanced [ ] optional-segment brackets`);
+      }
     }
     if (declaredCats) {
       for (const c of declaredCats) {

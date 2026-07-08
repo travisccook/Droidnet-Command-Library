@@ -93,7 +93,7 @@ Required: `id` (unique across the whole library) and `name`.
   "template": "C{color}",
   "params": [ { "name": "color", "enum": "myboard.color", "default": "1" } ],
   "examples": ["C1", "C2"],         // exercised by tests — include at least one
-  "commentLabel": "MyBoard solid"   // default inline note on insert
+  "commentLabel": "MyBoard {color}" // default inline note on insert (see below)
 }
 ```
 
@@ -101,6 +101,26 @@ Required: `id` (unique across the whole library) and `name`.
 confirm-before-firing warning in the UI. Use `movement` for anything that moves
 hardware, `power` for power switching, `config` for settings that change state.
 When unsure, pick the more cautious class.
+
+**`commentLabel` — the auto-note on insert.** When a step is added, the composer
+attaches this string as the step's `*** …` comment (its human label in the wire
+string). It supports two bits of grammar, so the note can describe the actual
+selection instead of a generic name:
+
+- **`{param}` placeholders** interpolate the *selected value's label* (an enum
+  value's `label`, or an int's raw value) — not the wire code. So
+  `"commentLabel": "PSI {address} — {mode}"` renders `PSI All — Solid Green`.
+- **`[ … ]` optional segments** are dropped entirely when a placeholder inside
+  resolves to a blank or default value. Use this to hide a param that doesn't
+  apply. `"Logics {target} — {effect}[ · {color}]"` gives
+  `Logics All — Solid Color · Green`, but just `Logics All — Rainbow` when color
+  is left at its default. A *bare* placeholder (not wrapped in `[ ]`) always
+  renders, even at its default — so `{target}` still shows `All`.
+
+A placeholder-free label (e.g. `"MyBoard solid"`) is used verbatim, so existing
+boards need no change. Every `{param}` must reference a real param of the command
+(the validator enforces this). Editing a step re-renders an auto-generated note
+from the new selection; a note you hand-type is preserved.
 
 ## Params
 

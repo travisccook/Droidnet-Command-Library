@@ -141,6 +141,56 @@
     return p && p.default !== undefined ? p.default : '';
   }
 
+  function _paramByName(cmd, name) { return (cmd.params || []).find(x => x.name === name); }
+
+  // The effective value of a param for display: the given value, or (when absent
+  // /blank) the param's declared default, or ''.
+  function _effectiveParamValue(cmd, name, params) {
+    const raw = params ? params[name] : undefined;
+    if (raw !== undefined && raw !== '') return String(raw);
+    const p = _paramByName(cmd, name);
+    return p && p.default !== undefined ? String(p.default) : '';
+  }
+
+  // Human display of a param's selected value: an enum value's label, else the raw value.
+  function _paramDisplay(cmd, name, params) {
+    const ev = _effectiveParamValue(cmd, name, params);
+    const p = _paramByName(cmd, name);
+    if (p && p.enum) {
+      const en = getEnum(p.enum);
+      const hit = en && (en.values || []).find(v => String(v.code) === ev);
+      if (hit) return hit.label;
+    }
+    return ev;
+  }
+
+  // A param value is "suppressible" (drops an optional [segment]) when it is blank
+  // or equal to the param's declared default — i.e. the user made no meaningful choice.
+  function _paramSuppressible(cmd, name, params) {
+    const p = _paramByName(cmd, name);
+    const ev = _effectiveParamValue(cmd, name, params);
+    if (ev === '') return true;
+    return !!(p && p.default !== undefined && ev === String(p.default));
+  }
+
+  // Render a command's `commentLabel` into the human note shown after a step.
+  // Grammar: literal text, `{param}` placeholders (→ the selected value's enum
+  // label, or raw value), and `[ ... {param} ... ]` OPTIONAL segments that are
+  // dropped entirely when a placeholder inside is suppressible (blank/default).
+  // A placeholder-free label passes through verbatim (backward compatible).
+  // Returns '' when the command declares no commentLabel.
+  function renderCommentLabel(cmd, params) {
+    if (!cmd || !cmd.commentLabel) return '';
+    let s = String(cmd.commentLabel).replace(/\[([^\][]*)\]/g, (_, inner) => {
+      const names = [];
+      inner.replace(/\{(\w+)\}/g, (__, n) => { names.push(n); return ''; });
+      return names.some(n => _paramSuppressible(cmd, n, params)) ? '' : inner;
+    });
+    s = s.replace(/\{(\w+)\}/g, (_, name) => _paramDisplay(cmd, name, params));
+    // wire-safety: '^' separates steps and would corrupt the round-trip; tidy stray gaps.
+    return s.replace(/\^/g, '').replace(/\s{2,}/g, ' ').replace(/\s+$/, '');
+  }
+
   const _encoders = {
     'rseries-le': {
       encode(cmd, params) {
@@ -329,7 +379,7 @@
   return {
     loadLibrary, mergeLibrary, merge, deepEqual, getLibraryVersion,
     getComponents, getCommands, getCommand, getEnum,
-    encode, registerEncoder, match,
+    encode, registerEncoder, match, renderCommentLabel,
     buildWCBValue, parseWCBValue,
   };
 });

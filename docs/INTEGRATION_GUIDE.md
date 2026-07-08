@@ -67,6 +67,7 @@ exactly what an "Update Library" button does after downloading a newer set of fi
 | `getEnum(enumId)` | `Enum\|null` | A named value set. |
 | `encode(cmd, params, opts)` | `string` | Encode one command. `opts`: `{ duration, targetPrefix }`. |
 | `match(token)` | `{commandId, params, duration}\|null` | Recognize a single wire token. |
+| `renderCommentLabel(cmd, params)` | `string` | Render a command's `commentLabel` for the given selection (`{param}` → value label, `[ … ]` optional segments); `''` if none. Used by the composer for a step's `*** …` note. |
 | `buildWCBValue(steps)` | `string` | Compile steps → wire value. |
 | `parseWCBValue(value)` | `Step[]` | Parse wire value → steps. |
 | `registerEncoder(name, impl)` | — | Add a custom encoder (see authoring guide). |
