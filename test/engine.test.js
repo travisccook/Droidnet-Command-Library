@@ -16,10 +16,10 @@ describe('engine lookups', () => {
   beforeEach(() => { cb = loadEngine(); loadCatalog(cb); });
 
   test('getComponents returns the seed books', () => {
-    expect(cb.getComponents().map(c => c.id)).toEqual(expect.arrayContaining(['flthy-hps', 'magic-panel']));
+    expect(cb.getComponents().map(c => c.id)).toEqual(expect.arrayContaining(['flthy-hps', 'ia-magic-panel']));
   });
   test('getLibraryVersion reports the loaded version', () => {
-    expect(cb.getLibraryVersion()).toBe('3.1.0');
+    expect(cb.getLibraryVersion()).toBe('4.0.0');
   });
   test('getCommand resolves and back-links its component', () => {
     const cmd = cb.getCommand('flthy.led.solid');
@@ -50,10 +50,10 @@ describe('encode (template)', () => {
     expect(cb.encode(cb.getCommand('flthy.led.rainbow'), { designator: 'A' }, { duration: 240 })).toBe('A007|240');
   });
   test('ignores duration when command does not support it', () => {
-    expect(cb.encode(cb.getCommand('mp.mode'), { mode: '52' }, { duration: 9 })).toBe('T52');
+    expect(cb.encode(cb.getCommand('iamp.mode'), { mode: '52' }, { duration: 9 })).toBe('T52');
   });
   test('prepends a manual target prefix', () => {
-    expect(cb.encode(cb.getCommand('mp.mode'), { mode: '52' }, { targetPrefix: ';S3' })).toBe(';S3T52');
+    expect(cb.encode(cb.getCommand('iamp.mode'), { mode: '52' }, { targetPrefix: ';S3' })).toBe(';S3T52');
   });
 });
 
@@ -67,8 +67,8 @@ describe('match (template)', () => {
   test('recovers a duration suffix', () => {
     expect(cb.match('A007|240')).toEqual({ commandId: 'flthy.led.rainbow', params: { designator: 'A' }, duration: 240 });
   });
-  test('recognizes a MagicPanel mode token', () => {
-    expect(cb.match('T52')).toEqual({ commandId: 'mp.mode', params: { mode: '52' }, duration: undefined });
+  test('recognizes an IA MagicPanel mode token', () => {
+    expect(cb.match('T52')).toEqual({ commandId: 'iamp.mode', params: { mode: '52' }, duration: undefined });
   });
   test('returns null for an unknown token', () => {
     expect(cb.match('%ZZ')).toBeNull();
@@ -217,7 +217,7 @@ describe('build/parse + round-trip', () => {
     const v = cb.buildWCBValue([
       { type: 'command', commandId: 'flthy.led.rainbow', params: { designator: 'A' }, label: ' Flthy rainbow' },
       { type: 'delay', ms: 500 },
-      { type: 'command', commandId: 'mp.mode', params: { mode: '52' } },
+      { type: 'command', commandId: 'iamp.mode', params: { mode: '52' } },
     ]);
     expect(v).toBe('A007^*** Flthy rainbow^;t500^T52');
   });
@@ -300,12 +300,12 @@ describe('PSIPro book', () => {
   test('PSI mode round-trips with duration', () => {
     expect(cb.buildWCBValue(cb.parseWCBValue('4T17|3'))).toBe('4T17|3');
   });
-  test('PSI mode decodes (disambiguated from MagicPanel)', () => {
+  test('PSI mode decodes (disambiguated from IA MagicPanel)', () => {
     expect(cb.match('4T92')).toMatchObject({ commandId: 'psi.mode', params: { address: '4', mode: '92' } });
     expect(cb.match('4T17|3')).toMatchObject({ commandId: 'psi.mode', params: { address: '4', mode: '17' }, duration: 3 });
   });
-  test('MagicPanel T{mode} is NOT mis-recognized as PSI', () => {
-    expect(cb.match('T52')).toMatchObject({ commandId: 'mp.mode', params: { mode: '52' } });
+  test('IA MagicPanel T{mode} is NOT mis-recognized as PSI', () => {
+    expect(cb.match('T52')).toMatchObject({ commandId: 'iamp.mode', params: { mode: '52' } });
   });
 });
 

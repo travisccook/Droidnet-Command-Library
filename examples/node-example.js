@@ -16,7 +16,7 @@ DroidNetCommandLibrary.loadLibrary(boards, { libraryVersion: manifest.libraryVer
 const macro = DroidNetCommandLibrary.buildWCBValue([
   { type: 'command', commandId: 'flthy.led.rainbow', params: { designator: 'A' }, label: ' Flthy rainbow' },
   { type: 'delay', ms: 500 },
-  { type: 'command', commandId: 'mp.mode', params: { mode: '52' }, label: ' MP VU meter' },
+  { type: 'command', commandId: 'iamp.mode', params: { mode: '52' }, label: ' MP VU meter' },
 ]);
 console.log('built :', macro);
 // built : A007^*** Flthy rainbow^;t500^T52^*** MP VU meter

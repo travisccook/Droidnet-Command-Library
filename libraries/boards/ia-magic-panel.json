@@ -1,7 +1,7 @@
 {
   "$schema": "droidnet-command-library/library/v1",
   "enums": {
-    "mp.mode": {
+    "iamp.mode": {
       "label": "Mode",
       "values": [
         {
@@ -49,8 +49,8 @@
   },
   "components": [
     {
-      "id": "magic-panel",
-      "name": "MagicPanel",
+      "id": "ia-magic-panel",
+      "name": "IA MagicPanel",
       "kind": "device-native",
       "confidence": "high",
       "firmware": "C2B5",
@@ -63,7 +63,7 @@
       },
       "commands": [
         {
-          "id": "mp.mode",
+          "id": "iamp.mode",
           "name": "Run Mode",
           "safety": "cosmetic",
           "encoder": "template",
@@ -71,7 +71,7 @@
           "params": [
             {
               "name": "mode",
-              "enum": "mp.mode",
+              "enum": "iamp.mode",
               "required": true
             }
           ],
@@ -79,7 +79,7 @@
             "T52",
             "T0"
           ],
-          "commentLabel": "MP mode",
+          "commentLabel": "IA MP mode",
           "category": "Patterns"
         }
       ],

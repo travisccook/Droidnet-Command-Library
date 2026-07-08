@@ -1,8 +1,8 @@
 {
   "$schema": "droidnet-command-library/catalog/v1",
-  "libraryVersion": "3.1.0",
+  "libraryVersion": "4.0.0",
   "schemaVersion": "v1",
-  "generatedFrom": "C2B5 firmware + WIPDocs (2026-06); R2UppitySpinnerV3 ALT fw 3.5.3 (2026-07)",
+  "generatedFrom": "C2B5 firmware + WIPDocs (2026-06); R2UppitySpinnerV3 ALT fw 3.5.3 (2026-07); Printed Droid Magic Panel 32 Wireless KB (2026-07)",
   "boards": [
     {
       "id": "flthy-hps",
@@ -11,10 +11,16 @@
       "confidence": "high"
     },
     {
-      "id": "magic-panel",
-      "file": "boards/magic-panel.json",
-      "name": "MagicPanel",
+      "id": "ia-magic-panel",
+      "file": "boards/ia-magic-panel.json",
+      "name": "IA MagicPanel",
       "confidence": "high"
+    },
+    {
+      "id": "pd-magic-panel",
+      "file": "boards/pd-magic-panel.json",
+      "name": "PD MagicPanel",
+      "confidence": "community"
     },
     {
       "id": "rseries-logic",
