@@ -1,6 +1,6 @@
 {
   "$schema": "droidnet-command-library/catalog/v1",
-  "libraryVersion": "2.14.0",
+  "libraryVersion": "3.0.0",
   "schemaVersion": "v1",
   "generatedFrom": "C2B5 firmware + WIPDocs (2026-06); R2UppitySpinnerV3 ALT fw 3.5.3 (2026-07)",
   "boards": [
@@ -59,21 +59,15 @@
       "confidence": "community"
     },
     {
-      "id": "roam-a-dome-motion",
-      "file": "boards/roam-a-dome-motion.json",
-      "name": "Roam-A-Dome (Motion)",
+      "id": "roam-a-dome",
+      "file": "boards/roam-a-dome.json",
+      "name": "Roam-A-Dome",
       "confidence": "high"
     },
     {
-      "id": "roam-a-dome-config",
-      "file": "boards/roam-a-dome-config.json",
-      "name": "Roam-A-Dome (Config)",
-      "confidence": "high"
-    },
-    {
-      "id": "astropixels-config",
-      "file": "boards/astropixels-config.json",
-      "name": "AstroPixelsPlus (Config)",
+      "id": "astropixels-plus",
+      "file": "boards/astropixels-plus.json",
+      "name": "AstroPixelsPlus",
       "confidence": "high"
     },
     {
@@ -95,21 +89,9 @@
       "confidence": "high"
     },
     {
-      "id": "astropixels-sequences",
-      "file": "boards/astropixels-sequences.json",
-      "name": "AstroPixelsPlus (Sequences)",
-      "confidence": "high"
-    },
-    {
       "id": "astropixels-holo",
       "file": "boards/astropixels-holo.json",
       "name": "AstroPixelsPlus (Holo)",
-      "confidence": "high"
-    },
-    {
-      "id": "astropixels-panels",
-      "file": "boards/astropixels-panels.json",
-      "name": "AstroPixelsPlus (Panels)",
       "confidence": "high"
     },
     {

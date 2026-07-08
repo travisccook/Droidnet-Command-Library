@@ -32,7 +32,6 @@
         {
           "id": "maestro.trigger",
           "name": "Run Sequence",
-          "group": "Sequences",
           "safety": "movement",
           "encoder": "template",
           "template": ";M{id}{seq}",
@@ -53,8 +52,12 @@
           "examples": [
             ";M11"
           ],
-          "commentLabel": "Maestro seq"
+          "commentLabel": "Maestro seq",
+          "category": "Sequences"
         }
+      ],
+      "categories": [
+        "Sequences"
       ]
     }
   ]

@@ -16,6 +16,19 @@ test('a board file without libraryVersion validates', () => {
   expect(validate(board)).toBe(true);
 });
 
+test('a board with component.categories and command.category validates', () => {
+  const validate = ajv.compile(libSchema);
+  const board = {
+    enums: {},
+    components: [{
+      id: 'x', name: 'X', kind: 'device-native',
+      categories: ['Movement', 'Config'],
+      commands: [{ id: 'x.a', name: 'A', template: 'A', category: 'Movement' }],
+    }],
+  };
+  expect(validate(board)).toBe(true);
+});
+
 test('manifest schema accepts a valid manifest', () => {
   const schema = JSON.parse(fs.readFileSync(manifestSchemaPath, 'utf8'));
   const manifestAjv = new Ajv({ allErrors: true, strict: false });

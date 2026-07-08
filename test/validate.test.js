@@ -66,6 +66,37 @@ describe('versionSyncErrors', () => {
   });
 });
 
+describe('boardSemanticErrors — categories', () => {
+  const comp = (categories, commands) => ({ enums: {}, components: [{ id: 'a', name: 'A', kind: 'device-native', categories, commands }] });
+  test('errors when a command category is not in the categories array', () => {
+    const lib = comp(['Movement'], [{ id: 'a.x', name: 'X', template: 'X', category: 'Config' }]);
+    expect(v.boardSemanticErrors(lib).errors.join(' ')).toMatch(/not listed in the component's categories/i);
+  });
+  test('no error when the category is listed and standard', () => {
+    const lib = comp(['Movement'], [{ id: 'a.x', name: 'X', template: 'X', category: 'Movement' }]);
+    expect(v.boardSemanticErrors(lib).errors).toEqual([]);
+  });
+  test('warns on a missing category', () => {
+    const lib = comp(['Movement'], [{ id: 'a.x', name: 'X', template: 'X' }]);
+    expect(v.boardSemanticErrors(lib).warnings.join(' ')).toMatch(/no category/i);
+  });
+  test('warns on a non-standard (outlier) category name', () => {
+    const lib = comp(['Friendly'], [{ id: 'a.x', name: 'X', template: 'X', category: 'Friendly' }]);
+    expect(v.boardSemanticErrors(lib).warnings.join(' ')).toMatch(/not a standard category/i);
+  });
+  test('dedupes the outlier warning to one per (component, category)', () => {
+    const lib = comp(['Friendly'], [
+      { id: 'a.x', name: 'X', template: 'X', category: 'Friendly' },
+      { id: 'a.y', name: 'Y', template: 'Y', category: 'Friendly' },
+    ]);
+    expect(v.boardSemanticErrors(lib).warnings.filter(w => /not a standard category/.test(w)).length).toBe(1);
+  });
+  test('warns on a dangling declared category', () => {
+    const lib = comp(['Movement', 'Config'], [{ id: 'a.x', name: 'X', template: 'X', category: 'Movement' }]);
+    expect(v.boardSemanticErrors(lib).warnings.join(' ')).toMatch(/has no commands/i);
+  });
+});
+
 describe('legacySemanticErrors', () => {
   test('errors when two components share a duplicate command id', () => {
     const lib = {

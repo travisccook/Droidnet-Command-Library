@@ -26,6 +26,7 @@ const RELEASES_PATH = path.join(ROOT, 'releases.json');
 const LIB_SCHEMA_PATH = path.join(ROOT, 'schema', 'library.schema.json');
 const MANIFEST_SCHEMA_PATH = path.join(ROOT, 'schema', 'manifest.schema.json');
 const KNOWN_BUILTIN_ENCODERS = new Set(['template', 'rseries-le']);
+const STANDARD_CATEGORIES = new Set(['Lighting', 'Movement', 'Sound', 'Sequences', 'Setup', 'Config', 'Power', 'System']);
 
 function loadJson(file) { return JSON.parse(fs.readFileSync(file, 'utf8')); }
 
@@ -53,8 +54,18 @@ function boardSemanticErrors(lib) {
     errors.push(`a board file must contain exactly one component (found ${comps.length})`);
   }
   for (const comp of comps) {
+    const declaredCats = Array.isArray(comp.categories) ? comp.categories : null;
+    const usedCats = new Set();
     for (const cmd of comp.commands || []) {
       const where = `${comp.id}/${cmd.id}`;
+      if (cmd.category === undefined || cmd.category === '') {
+        warnings.push(`${where}: command has no category (will render under 'Other')`);
+      } else {
+        usedCats.add(cmd.category);
+        if (declaredCats && !declaredCats.includes(cmd.category)) {
+          errors.push(`${where}: category '${cmd.category}' is not listed in the component's categories array`);
+        }
+      }
       const encoder = cmd.encoder || 'template';
       if (!KNOWN_BUILTIN_ENCODERS.has(encoder)) {
         warnings.push(`${where}: uses custom encoder '${encoder}' — it must be registered via DroidNetCommandLibrary.registerEncoder() at runtime.`);
@@ -78,6 +89,14 @@ function boardSemanticErrors(lib) {
           if (!placeholders.includes(name)) warnings.push(`${where}: param '${name}' is never used in the template`);
         }
       }
+    }
+    if (declaredCats) {
+      for (const c of declaredCats) {
+        if (!usedCats.has(c)) warnings.push(`${comp.id}: declared category '${c}' has no commands`);
+      }
+    }
+    for (const cat of usedCats) {
+      if (!STANDARD_CATEGORIES.has(cat)) warnings.push(`${comp.id}: category '${cat}' is not a standard category name (intentional outlier? check for typos)`);
     }
   }
   return { errors, warnings };

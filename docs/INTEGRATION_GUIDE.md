@@ -143,6 +143,12 @@ engine being loaded first.
 The composer handles add/edit/remove, drag-reorder, inline delays and notes, a
 length counter, and a safety warning when any non-`cosmetic` command is present.
 
+The command dropdown in the add bar renders as ordered `<optgroup>` sections
+following the selected board's `component.categories` array (uncategorized
+commands land in a trailing "Other" group). Categories are a presentation
+concern only — they don't affect `encode`, `match`, or `parse`, so a board with
+no `categories` still works exactly the same, just as one flat list.
+
 ## Styling
 
 The UI emits semantic `wcb-*` and Bootstrap-ish `btn`/`form-control` class names

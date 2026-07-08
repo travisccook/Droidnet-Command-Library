@@ -19,7 +19,7 @@ describe('engine lookups', () => {
     expect(cb.getComponents().map(c => c.id)).toEqual(expect.arrayContaining(['flthy-hps', 'magic-panel']));
   });
   test('getLibraryVersion reports the loaded version', () => {
-    expect(cb.getLibraryVersion()).toBe('2.14.0');
+    expect(cb.getLibraryVersion()).toBe('3.0.0');
   });
   test('getCommand resolves and back-links its component', () => {
     const cmd = cb.getCommand('flthy.led.solid');
@@ -146,7 +146,7 @@ describe('FlthyHPs special sequences', () => {
   });
 });
 
-describe('Roam-A-Dome motion', () => {
+describe('Roam-A-Dome (:DP motion)', () => {
   let cb;
   beforeEach(() => { cb = loadEngine(); loadCatalog(cb); });
 
@@ -172,7 +172,7 @@ describe('Roam-A-Dome motion', () => {
   });
 });
 
-describe('Roam-A-Dome config', () => {
+describe('Roam-A-Dome (#DP config)', () => {
   let cb;
   beforeEach(() => { cb = loadEngine(); loadCatalog(cb); });
 
@@ -467,7 +467,7 @@ describe('AstroPixelsPlus config', () => {
     expect(cb.match('#APPAIR')).toMatchObject({ commandId: 'ap.cfg.pair' });
     expect(cb.match('#APUNPAIR')).toMatchObject({ commandId: 'ap.cfg.unpair' });
   });
-  test('does not collide with roam-a-dome-config (#AP vs #DP)', () => {
+  test('does not collide with roam-a-dome config (#AP vs #DP)', () => {
     expect(cb.match('#APRESTART')).toMatchObject({ commandId: 'ap.cfg.restart' });
     expect(cb.match('#DPRESTART')).toMatchObject({ commandId: 'rad.cfg.restart' });
   });

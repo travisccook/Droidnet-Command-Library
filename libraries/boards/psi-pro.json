@@ -84,7 +84,6 @@
         {
           "id": "psi.mode",
           "name": "Run Effect",
-          "group": "Effects",
           "safety": "cosmetic",
           "encoder": "template",
           "template": "{address}T{mode}",
@@ -106,8 +105,12 @@
             "5T3",
             "0T1"
           ],
-          "commentLabel": "PSI effect"
+          "commentLabel": "PSI effect",
+          "category": "Lighting"
         }
+      ],
+      "categories": [
+        "Lighting"
       ]
     }
   ]

@@ -10,6 +10,7 @@ friendly version.
 - [Components (boards)](#components-boards)
 - [Commands](#commands)
 - [Params](#params)
+- [Categories](#categories)
 - [The template encoder](#the-template-encoder)
 - [Duration suffixes](#duration-suffixes)
 - [A worked example: adding a board](#a-worked-example-adding-a-board)
@@ -86,7 +87,7 @@ Required: `id` (unique across the whole library) and `name`.
 {
   "id": "myboard.solid",           // globally unique
   "name": "Solid Color",
-  "group": "Lighting",              // optional UI grouping
+  "category": "Lighting",           // dropdown section — must be in the component's `categories`
   "safety": "cosmetic",             // cosmetic | movement | power | config
   "encoder": "template",            // default; can omit
   "template": "C{color}",
@@ -115,6 +116,37 @@ Each param fills one `{placeholder}` in the template.
 | `pad` | Zero-pad a numeric value to a fixed width (e.g. `4` → `0025`). |
 
 A param is either enum-backed **or** numeric (`type: "int"`), not both.
+
+## Categories
+
+Every command should declare a `category` — the `<optgroup>` section it appears
+under in the command dropdown. The component declares an ordered `categories`
+array listing every category name it uses; section order in the UI follows that
+array. A command with no `category` (or a component with no `categories` at all)
+falls to a trailing "Other" group.
+
+Prefer the standard vocabulary, in canonical order:
+`Lighting, Movement, Sound, Sequences, Setup, Config, Power, System`. Per-board
+outlier names (e.g. `"WiFi/Remote"`) are allowed when none of the standard names
+fit — just list them in `categories` too.
+
+The validator **errors** if a command's `category` isn't listed in the
+component's `categories`, and **warns** if a category name isn't from the
+standard vocabulary (typo check) or if a declared category has no commands.
+Categories are UI-only — they never affect `encode`/`match`/`parse`.
+
+```json
+{
+  "id": "myboard",
+  "name": "MyBoard Lighting",
+  "kind": "device-native",
+  "categories": ["Lighting", "Config"],
+  "commands": [
+    { "id": "myboard.solid", "name": "Solid Color", "category": "Lighting", "template": "C{color}", "params": [ /* ... */ ] },
+    { "id": "myboard.reset", "name": "Factory Reset", "category": "Config", "template": "R" }
+  ]
+}
+```
 
 ## The template encoder
 
@@ -163,11 +195,12 @@ speed is 0–9.
      "kind": "wcb-verb",
      "confidence": "community",
      "routing": { "class": "wcb-verb" },
+     "categories": ["Movement"],
      "commands": [
        {
          "id": "dome.spin",
          "name": "Spin",
-         "group": "Motion",
+         "category": "Movement",
          "safety": "movement",
          "encoder": "template",
          "template": ";DS{speed}",
