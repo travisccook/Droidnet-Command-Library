@@ -111,6 +111,12 @@
       "file": "boards/astropixels-servo.json",
       "name": "AstroPixelsPlus (Servo)",
       "confidence": "high"
+    },
+    {
+      "id": "wcb-native",
+      "file": "boards/wcb-native.json",
+      "name": "WCB (native config)",
+      "confidence": "high"
     }
   ]
 }
