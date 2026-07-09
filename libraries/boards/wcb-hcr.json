@@ -47,6 +47,23 @@
           "label": "B"
         }
       ]
+    },
+    "hcr.volTarget": {
+      "label": "Channel",
+      "values": [
+        {
+          "code": "V",
+          "label": "Vocalizer"
+        },
+        {
+          "code": "A",
+          "label": "WAV A"
+        },
+        {
+          "code": "B",
+          "label": "WAV B"
+        }
+      ]
     }
   },
   "components": [
@@ -109,11 +126,203 @@
           ],
           "commentLabel": "HCR play",
           "category": "Sound"
+        },
+        {
+          "id": "hcr.vol",
+          "name": "Set Channel Volume",
+          "safety": "cosmetic",
+          "encoder": "template",
+          "template": ";H,VOL,{channel},{level}",
+          "params": [
+            {
+              "name": "channel",
+              "enum": "hcr.volTarget",
+              "required": true
+            },
+            {
+              "name": "level",
+              "type": "int",
+              "min": 0,
+              "max": 100,
+              "required": true
+            }
+          ],
+          "examples": [
+            ";H,VOL,A,80"
+          ],
+          "commentLabel": "HCR volume",
+          "category": "Volume"
+        },
+        {
+          "id": "hcr.volUp",
+          "name": "Volume Up (channel)",
+          "safety": "cosmetic",
+          "encoder": "template",
+          "template": ";H,VOLUP,{channel},{step}",
+          "params": [
+            {
+              "name": "channel",
+              "enum": "hcr.volTarget",
+              "required": true
+            },
+            {
+              "name": "step",
+              "type": "int",
+              "min": 1,
+              "max": 100,
+              "default": 5,
+              "required": false
+            }
+          ],
+          "examples": [
+            ";H,VOLUP,A,5"
+          ],
+          "commentLabel": "HCR vol up",
+          "category": "Volume"
+        },
+        {
+          "id": "hcr.volUpAll",
+          "name": "Volume Up (all channels)",
+          "safety": "cosmetic",
+          "encoder": "template",
+          "template": ";H,VOLUP",
+          "params": [],
+          "examples": [
+            ";H,VOLUP"
+          ],
+          "commentLabel": "HCR vol up all",
+          "category": "Volume"
+        },
+        {
+          "id": "hcr.volDown",
+          "name": "Volume Down (channel)",
+          "safety": "cosmetic",
+          "encoder": "template",
+          "template": ";H,VOLDN,{channel},{step}",
+          "params": [
+            {
+              "name": "channel",
+              "enum": "hcr.volTarget",
+              "required": true
+            },
+            {
+              "name": "step",
+              "type": "int",
+              "min": 1,
+              "max": 100,
+              "default": 5,
+              "required": false
+            }
+          ],
+          "examples": [
+            ";H,VOLDN,B,10"
+          ],
+          "commentLabel": "HCR vol down",
+          "category": "Volume"
+        },
+        {
+          "id": "hcr.volDownAll",
+          "name": "Volume Down (all channels)",
+          "safety": "cosmetic",
+          "encoder": "template",
+          "template": ";H,VOLDN",
+          "params": [],
+          "examples": [
+            ";H,VOLDN"
+          ],
+          "commentLabel": "HCR vol down all",
+          "category": "Volume"
+        },
+        {
+          "id": "hcr.fadeIn",
+          "name": "Fade In",
+          "safety": "cosmetic",
+          "encoder": "template",
+          "template": ";H,FADEIN,{channel},{sec}",
+          "params": [
+            {
+              "name": "channel",
+              "enum": "hcr.channel",
+              "required": true
+            },
+            {
+              "name": "sec",
+              "type": "int",
+              "min": 0,
+              "max": 600,
+              "required": true
+            }
+          ],
+          "examples": [
+            ";H,FADEIN,A,3"
+          ],
+          "commentLabel": "HCR fade in",
+          "category": "Volume"
+        },
+        {
+          "id": "hcr.fadeOut",
+          "name": "Fade Out",
+          "safety": "cosmetic",
+          "encoder": "template",
+          "template": ";H,FADEOUT,{channel},{sec}",
+          "params": [
+            {
+              "name": "channel",
+              "enum": "hcr.channel",
+              "required": true
+            },
+            {
+              "name": "sec",
+              "type": "int",
+              "min": 0,
+              "max": 600,
+              "required": true
+            }
+          ],
+          "examples": [
+            ";H,FADEOUT,B,2"
+          ],
+          "commentLabel": "HCR fade out",
+          "category": "Volume"
+        },
+        {
+          "id": "hcr.playFade",
+          "name": "Play WAV with Fade-In",
+          "safety": "cosmetic",
+          "encoder": "template",
+          "template": ";H,PLAY,{channel},{file},FADEIN,{sec}",
+          "params": [
+            {
+              "name": "channel",
+              "enum": "hcr.channel",
+              "required": true
+            },
+            {
+              "name": "file",
+              "type": "int",
+              "min": 0,
+              "max": 9999,
+              "required": true
+            },
+            {
+              "name": "sec",
+              "type": "int",
+              "min": 0,
+              "max": 600,
+              "required": true
+            }
+          ],
+          "examples": [
+            ";H,PLAY,A,9,FADEIN,3"
+          ],
+          "commentLabel": "HCR play+fade",
+          "category": "Sound"
         }
       ],
       "categories": [
         "Emotion",
-        "Sound"
+        "Sound",
+        "Volume"
       ]
     }
   ]
