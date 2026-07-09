@@ -64,6 +64,21 @@
           "label": "WAV B"
         }
       ]
+    },
+    "hcr.onoff": {
+      "label": "State",
+      "values": [
+        { "code": "1", "label": "Enable" },
+        { "code": "0", "label": "Disable" }
+      ]
+    },
+    "hcr.museMode": {
+      "label": "Muse",
+      "values": [
+        { "code": "ON", "label": "On" },
+        { "code": "OFF", "label": "Off" },
+        { "code": "TOGGLE", "label": "Toggle" }
+      ]
     }
   },
   "components": [
@@ -317,12 +332,55 @@
           ],
           "commentLabel": "HCR play+fade",
           "category": "Sound"
-        }
+        },
+        { "id": "hcr.overload", "name": "Overload", "safety": "cosmetic", "encoder": "template",
+          "template": ";H,OVERLOAD", "params": [], "examples": [";H,OVERLOAD"], "commentLabel": "HCR overload", "category": "Emotion" },
+        { "id": "hcr.setEmotion", "name": "Set Emotion Level", "safety": "cosmetic", "encoder": "template",
+          "template": ";H,SETEMOTION,{emotion},{value}",
+          "params": [ { "name": "emotion", "enum": "hcr.emotion", "required": true },
+                      { "name": "value", "type": "int", "min": 0, "max": 100, "required": true } ],
+          "examples": [";H,SETEMOTION,H,80"], "commentLabel": "HCR set emotion", "category": "Emotion" },
+        { "id": "hcr.override", "name": "Override Emotions", "safety": "cosmetic", "encoder": "template",
+          "template": ";H,OVERRIDE,{state}",
+          "params": [ { "name": "state", "enum": "hcr.onoff", "required": true } ],
+          "examples": [";H,OVERRIDE,1"], "commentLabel": "HCR override", "category": "Emotion" },
+        { "id": "hcr.muse", "name": "Muse (once)", "safety": "cosmetic", "encoder": "template",
+          "template": ";H,MUSE", "params": [], "examples": [";H,MUSE"], "commentLabel": "HCR muse", "category": "Emotion" },
+        { "id": "hcr.museSet", "name": "Muse On/Off/Toggle", "safety": "cosmetic", "encoder": "template",
+          "template": ";H,MUSE,{mode}",
+          "params": [ { "name": "mode", "enum": "hcr.museMode", "required": true } ],
+          "examples": [";H,MUSE,TOGGLE"], "commentLabel": "HCR muse set", "category": "Emotion" },
+        { "id": "hcr.museGap", "name": "Muse Gap Range", "safety": "cosmetic", "encoder": "template",
+          "template": ";H,MUSE,GAP,{min},{max}",
+          "params": [ { "name": "min", "type": "int", "min": 0, "max": 3600, "required": true },
+                      { "name": "max", "type": "int", "min": 0, "max": 3600, "required": true } ],
+          "examples": [";H,MUSE,GAP,10,30"], "commentLabel": "HCR muse gap", "category": "Emotion" },
+        { "id": "hcr.stopEmote", "name": "Stop Emote", "safety": "cosmetic", "encoder": "template",
+          "template": ";H,STOPEMOTE", "params": [], "examples": [";H,STOPEMOTE"], "commentLabel": "HCR stop emote", "category": "Emotion" },
+        { "id": "hcr.resetEmotions", "name": "Reset Emotions", "safety": "cosmetic", "encoder": "template",
+          "template": ";H,RESETEMOTIONS", "params": [], "examples": [";H,RESETEMOTIONS"], "commentLabel": "HCR reset emotions", "category": "Emotion" },
+        { "id": "hcr.stop", "name": "Stop All", "safety": "cosmetic", "encoder": "template",
+          "template": ";H,STOP", "params": [], "examples": [";H,STOP"], "commentLabel": "HCR stop", "category": "Sound" },
+        { "id": "hcr.stopWav", "name": "Stop WAV Channel", "safety": "cosmetic", "encoder": "template",
+          "template": ";H,STOPWAV,{channel}",
+          "params": [ { "name": "channel", "enum": "hcr.channel", "required": true } ],
+          "examples": [";H,STOPWAV,A"], "commentLabel": "HCR stop wav", "category": "Sound" },
+        { "id": "hcr.fn", "name": "Function (numeric)", "safety": "cosmetic", "encoder": "template",
+          "template": ";H,FN,{fn},{chan},{track}",
+          "params": [ { "name": "fn", "type": "int", "min": 0, "max": 99, "required": true },
+                      { "name": "chan", "type": "int", "min": 0, "max": 9, "required": true },
+                      { "name": "track", "type": "int", "min": 0, "max": 9999, "required": true } ],
+          "examples": [";H,FN,14,1,5"], "commentLabel": "HCR fn", "category": "System" },
+        { "id": "hcr.raw", "name": "Raw Passthrough", "safety": "cosmetic", "encoder": "template",
+          "template": ";H,RAW,{payload}",
+          "params": [ { "name": "payload", "pattern": ".+", "required": true } ],
+          "examples": [";H,RAW,<CA0>"], "commentLabel": "HCR raw", "category": "System" }
       ],
       "categories": [
         "Emotion",
         "Sound",
-        "Volume"
+        "Volume",
+        "System"
       ]
     }
   ]
