@@ -97,6 +97,11 @@ Required: `id` (unique across the whole library) and `name`.
 }
 ```
 
+**`examples` (and template literals) can't contain `^`.** `parseWCBValue` splits
+the wire string on `^` before matching, so that character can never appear inside
+a command's wire form — pick a different example value if you need to represent
+one.
+
 **`safety` matters.** Anything other than `cosmetic` triggers a
 confirm-before-firing warning in the UI. Use `movement` for anything that moves
 hardware, `power` for power switching, `config` for settings that change state.
