@@ -529,25 +529,6 @@
           "category": "Config"
         },
         {
-          "id": "wcb.maestro",
-          "name": "Configure Maestro",
-          "safety": "config",
-          "encoder": "template",
-          "template": "?MAESTRO,{spec}",
-          "params": [
-            {
-              "name": "spec",
-              "pattern": ".+",
-              "required": true
-            }
-          ],
-          "examples": [
-            "?MAESTRO,M1:W2S1:57600"
-          ],
-          "commentLabel": "WCB maestro",
-          "category": "Config"
-        },
-        {
           "id": "wcb.maestroList",
           "name": "List Maestro Config",
           "safety": "config",
@@ -595,6 +576,25 @@
           "category": "Config"
         },
         {
+          "id": "wcb.maestro",
+          "name": "Configure Maestro",
+          "safety": "config",
+          "encoder": "template",
+          "template": "?MAESTRO,{spec}",
+          "params": [
+            {
+              "name": "spec",
+              "pattern": ".+",
+              "required": true
+            }
+          ],
+          "examples": [
+            "?MAESTRO,M1:W2S1:57600"
+          ],
+          "commentLabel": "WCB maestro",
+          "category": "Config"
+        },
+        {
           "id": "wcb.mp3Cfg",
           "name": "Configure MP3 Trigger",
           "safety": "config",
@@ -627,6 +627,19 @@
           "category": "Config"
         },
         {
+          "id": "wcb.mp3OnErrClear",
+          "name": "Clear MP3 On-Error Sequence",
+          "safety": "config",
+          "encoder": "template",
+          "template": "?MP3,ONERR,CLEAR",
+          "params": [],
+          "examples": [
+            "?MP3,ONERR,CLEAR"
+          ],
+          "commentLabel": "WCB mp3 onerr clear",
+          "category": "Config"
+        },
+        {
           "id": "wcb.mp3OnErr",
           "name": "Set MP3 On-Error Sequence",
           "safety": "config",
@@ -643,19 +656,6 @@
             "?MP3,ONERR,errseq"
           ],
           "commentLabel": "WCB mp3 onerr",
-          "category": "Config"
-        },
-        {
-          "id": "wcb.mp3OnErrClear",
-          "name": "Clear MP3 On-Error Sequence",
-          "safety": "config",
-          "encoder": "template",
-          "template": "?MP3,ONERR,CLEAR",
-          "params": [],
-          "examples": [
-            "?MP3,ONERR,CLEAR"
-          ],
-          "commentLabel": "WCB mp3 onerr clear",
           "category": "Config"
         },
         {
@@ -901,6 +901,19 @@
           "category": "Sequences"
         },
         {
+          "id": "wcb.seqClearAll",
+          "name": "Clear All Sequences",
+          "safety": "config",
+          "encoder": "template",
+          "template": "?SEQ,CLEAR,ALL",
+          "params": [],
+          "examples": [
+            "?SEQ,CLEAR,ALL"
+          ],
+          "commentLabel": "WCB seq clear all",
+          "category": "Sequences"
+        },
+        {
           "id": "wcb.seqClear",
           "name": "Clear Sequence",
           "safety": "config",
@@ -917,19 +930,6 @@
             "?SEQ,CLEAR,wave"
           ],
           "commentLabel": "WCB seq clear",
-          "category": "Sequences"
-        },
-        {
-          "id": "wcb.seqClearAll",
-          "name": "Clear All Sequences",
-          "safety": "config",
-          "encoder": "template",
-          "template": "?SEQ,CLEAR,ALL",
-          "params": [],
-          "examples": [
-            "?SEQ,CLEAR,ALL"
-          ],
-          "commentLabel": "WCB seq clear all",
           "category": "Sequences"
         },
         {
