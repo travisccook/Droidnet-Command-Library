@@ -1,0 +1,445 @@
+{
+  "$schema": "droidnet-command-library/library/v1",
+  "enums": {
+    "md.panel": {
+      "label": "Panel",
+      "values": [
+        { "code": "00", "label": "All" },
+        { "code": "01", "label": "#1" },
+        { "code": "02", "label": "#2" },
+        { "code": "03", "label": "#3" },
+        { "code": "04", "label": "#4" },
+        { "code": "05", "label": "#5" },
+        { "code": "06", "label": "#6" },
+        { "code": "07", "label": "#7" },
+        { "code": "08", "label": "#8" },
+        { "code": "09", "label": "#9" },
+        { "code": "10", "label": "#10" },
+        { "code": "11", "label": "Top panels" },
+        { "code": "12", "label": "Bottom panels" }
+      ]
+    },
+    "md.holoTarget": {
+      "label": "Holo",
+      "values": [
+        { "code": "00", "label": "All" },
+        { "code": "01", "label": "Front" },
+        { "code": "02", "label": "Rear" },
+        { "code": "03", "label": "Top" }
+      ]
+    },
+    "md.hpTarget": {
+      "label": "HP",
+      "values": [
+        { "code": "0", "label": "All" },
+        { "code": "1", "label": "#1" },
+        { "code": "2", "label": "#2" },
+        { "code": "3", "label": "#3" }
+      ]
+    },
+    "md.soundBank": {
+      "label": "Bank",
+      "values": [
+        { "code": "1", "label": "Bank 1" },
+        { "code": "2", "label": "Bank 2" },
+        { "code": "3", "label": "Bank 3" },
+        { "code": "4", "label": "Bank 4" },
+        { "code": "5", "label": "Bank 5" },
+        { "code": "6", "label": "Bank 6" },
+        { "code": "7", "label": "Bank 7" },
+        { "code": "8", "label": "Bank 8" },
+        { "code": "9", "label": "Bank 9" }
+      ]
+    },
+    "md.soundMacro": {
+      "label": "Command",
+      "values": [
+        { "code": "R", "label": "Random on (banks 1-5)" },
+        { "code": "O", "label": "Random off" },
+        { "code": "s", "label": "Stop / cancel random" },
+        { "code": "+", "label": "Volume up" },
+        { "code": "-", "label": "Volume down" },
+        { "code": "m", "label": "Volume mid" },
+        { "code": "f", "label": "Volume max" },
+        { "code": "S", "label": "Scream (6-1)" },
+        { "code": "F", "label": "Faint / short circuit (6-3)" },
+        { "code": "L", "label": "Leia (7-1)" },
+        { "code": "c", "label": "Short Cantina (8-1)" },
+        { "code": "W", "label": "Star Wars theme (8-2)" },
+        { "code": "M", "label": "Imperial March (8-3)" },
+        { "code": "C", "label": "Long Cantina (8-5)" },
+        { "code": "D", "label": "Disco Star Wars (8-6)" }
+      ]
+    },
+    "md.logicAddr": {
+      "label": "Display",
+      "values": [
+        { "code": "0", "label": "All displays" },
+        { "code": "1", "label": "Top Front Logic" },
+        { "code": "2", "label": "Bottom Front Logic" },
+        { "code": "3", "label": "Rear Logic" },
+        { "code": "4", "label": "Front PSI" },
+        { "code": "5", "label": "Rear PSI" }
+      ]
+    },
+    "md.logicMode": {
+      "label": "Effect",
+      "values": [
+        { "code": "0", "label": "Test (all on)" },
+        { "code": "1", "label": "Normal random" },
+        { "code": "2", "label": "Flash / alarm" },
+        { "code": "3", "label": "Alarm 4s" },
+        { "code": "4", "label": "Short circuit 10s" },
+        { "code": "5", "label": "Scream" },
+        { "code": "6", "label": "Leia 34s" },
+        { "code": "10", "label": "Star Wars" },
+        { "code": "11", "label": "March 47s" },
+        { "code": "20", "label": "Off" },
+        { "code": "92", "label": "Spectrum bargraph" },
+        { "code": "100", "label": "Text (set via M)" }
+      ]
+    },
+    "md.psiState": {
+      "label": "State",
+      "values": [
+        { "code": "0", "label": "All on" },
+        { "code": "1", "label": "Normal" },
+        { "code": "2", "label": "First color" },
+        { "code": "3", "label": "Second color" },
+        { "code": "4", "label": "Off" }
+      ]
+    },
+    "md.charset": {
+      "label": "Character set",
+      "values": [
+        { "code": "60", "label": "Latin (English)" },
+        { "code": "61", "label": "Aurabesh" }
+      ]
+    }
+  },
+  "components": [
+    {
+      "id": "marcduino",
+      "name": "MarcDuino (dome/body master)",
+      "kind": "device-native",
+      "confidence": "high",
+      "vendor": "Marc Verdiell (CuriousMarc)",
+      "firmware": "MarcDuino command reference (curiousmarc.com)",
+      "routing": {
+        "class": "broadcast",
+        "nativeWrapper": "none",
+        "durationSuffix": { "supported": false },
+        "notes": "Prefix-dispatched ASCII, each command CR-terminated (\\r) on the wire; chain back-to-back separated by CR. Prefixes: ':' panel/servo, '*' holo/magic panel, '$' sound, '@' logic display (JawaLite, forwarded to Teeces), '#' setup, '&' I2C. Master forwards to slave/body boards. Composer fragments omit the trailing CR (added by the transport), matching the hcr-native convention."
+      },
+      "categories": ["Lighting", "Movement", "Sound", "Sequences", "Config", "System"],
+      "commands": [
+        {
+          "id": "md.seq",
+          "name": "Run Sequence",
+          "safety": "movement",
+          "encoder": "template",
+          "template": ":SE{seq}",
+          "params": [
+            { "name": "seq", "type": "int", "min": 0, "max": 57, "pad": 2, "required": true }
+          ],
+          "examples": [":SE01", ":SE08", ":SE11"],
+          "commentLabel": "MarcDuino sequence",
+          "category": "Sequences"
+        },
+        {
+          "id": "md.panel.open",
+          "name": "Open Panel(s)",
+          "safety": "movement",
+          "encoder": "template",
+          "template": ":OP{panel}",
+          "params": [
+            { "name": "panel", "enum": "md.panel", "default": "00", "required": true }
+          ],
+          "examples": [":OP00", ":OP01"],
+          "commentLabel": "Open panel {panel}",
+          "category": "Movement"
+        },
+        {
+          "id": "md.panel.close",
+          "name": "Close Panel(s)",
+          "safety": "movement",
+          "encoder": "template",
+          "template": ":CL{panel}",
+          "params": [
+            { "name": "panel", "enum": "md.panel", "default": "00", "required": true }
+          ],
+          "examples": [":CL00", ":CL01"],
+          "commentLabel": "Close panel {panel}",
+          "category": "Movement"
+        },
+        {
+          "id": "md.panel.rc",
+          "name": "Panel(s) to RC Control",
+          "safety": "movement",
+          "encoder": "template",
+          "template": ":RC{panel}",
+          "params": [
+            { "name": "panel", "enum": "md.panel", "default": "00", "required": true }
+          ],
+          "examples": [":RC00", ":RC01"],
+          "commentLabel": "Panel {panel} to RC",
+          "category": "Movement"
+        },
+        {
+          "id": "md.panel.stop",
+          "name": "Panel(s) Soft Hold (servo off)",
+          "safety": "movement",
+          "encoder": "template",
+          "template": ":ST{panel}",
+          "params": [
+            { "name": "panel", "enum": "md.panel", "default": "00", "required": true }
+          ],
+          "examples": [":ST00", ":ST01"],
+          "commentLabel": "Panel {panel} soft hold",
+          "category": "Movement"
+        },
+        {
+          "id": "md.panel.hold",
+          "name": "Panel(s) Hold (servo on)",
+          "safety": "movement",
+          "encoder": "template",
+          "template": ":HD{panel}",
+          "params": [
+            { "name": "panel", "enum": "md.panel", "default": "00", "required": true }
+          ],
+          "examples": [":HD00", ":HD01"],
+          "commentLabel": "Panel {panel} hold",
+          "category": "Movement"
+        },
+        {
+          "id": "md.holo.on",
+          "name": "Holo Light On",
+          "safety": "cosmetic",
+          "encoder": "template",
+          "template": "*ON{target}",
+          "params": [
+            { "name": "target", "enum": "md.holoTarget", "default": "00", "required": true }
+          ],
+          "examples": ["*ON00", "*ON01"],
+          "commentLabel": "Holo {target} light on",
+          "category": "Lighting"
+        },
+        {
+          "id": "md.holo.off",
+          "name": "Holo Light Off",
+          "safety": "cosmetic",
+          "encoder": "template",
+          "template": "*OF{target}",
+          "params": [
+            { "name": "target", "enum": "md.holoTarget", "default": "00", "required": true }
+          ],
+          "examples": ["*OF00", "*OF01"],
+          "commentLabel": "Holo {target} light off",
+          "category": "Lighting"
+        },
+        {
+          "id": "md.holo.random",
+          "name": "Holo Random Movement",
+          "safety": "movement",
+          "encoder": "template",
+          "template": "*RD{target}",
+          "params": [
+            { "name": "target", "enum": "md.holoTarget", "default": "00", "required": true }
+          ],
+          "examples": ["*RD00", "*RD01"],
+          "commentLabel": "Holo {target} random move",
+          "category": "Lighting"
+        },
+        {
+          "id": "md.holo.rc",
+          "name": "Holo to RC Control",
+          "safety": "movement",
+          "encoder": "template",
+          "template": "*RC{target}",
+          "params": [
+            { "name": "target", "enum": "md.holoTarget", "default": "00", "required": true }
+          ],
+          "examples": ["*RC00", "*RC01"],
+          "commentLabel": "Holo {target} to RC",
+          "category": "Lighting"
+        },
+        {
+          "id": "md.holo.reset",
+          "name": "Holo Reset (stop, off)",
+          "safety": "movement",
+          "encoder": "template",
+          "template": "*ST{target}",
+          "params": [
+            { "name": "target", "enum": "md.holoTarget", "default": "00", "required": true }
+          ],
+          "examples": ["*ST00", "*ST01"],
+          "commentLabel": "Holo {target} reset",
+          "category": "Lighting"
+        },
+        {
+          "id": "md.holo.hold",
+          "name": "Holo Hold (stop, keep light)",
+          "safety": "movement",
+          "encoder": "template",
+          "template": "*HD{target}",
+          "params": [
+            { "name": "target", "enum": "md.holoTarget", "default": "00", "required": true }
+          ],
+          "examples": ["*HD00", "*HD01"],
+          "commentLabel": "Holo {target} hold",
+          "category": "Lighting"
+        },
+        {
+          "id": "md.hp.light",
+          "name": "On-board HP Light (seconds)",
+          "safety": "cosmetic",
+          "encoder": "template",
+          "template": "*H{target}{seconds}",
+          "params": [
+            { "name": "target", "enum": "md.hpTarget", "default": "0", "required": true },
+            { "name": "seconds", "type": "int", "min": 0, "max": 99, "pad": 2, "required": true }
+          ],
+          "examples": ["*H005", "*H199"],
+          "commentLabel": "HP {target} light {seconds}s",
+          "category": "Lighting"
+        },
+        {
+          "id": "md.hp.flicker",
+          "name": "On-board HP Flicker (seconds)",
+          "safety": "cosmetic",
+          "encoder": "template",
+          "template": "*F{target}{seconds}",
+          "params": [
+            { "name": "target", "enum": "md.hpTarget", "default": "0", "required": true },
+            { "name": "seconds", "type": "int", "min": 0, "max": 99, "pad": 2, "required": true }
+          ],
+          "examples": ["*F005", "*F199"],
+          "commentLabel": "HP {target} flicker {seconds}s",
+          "category": "Lighting"
+        },
+        {
+          "id": "md.magic.on",
+          "name": "Magic Panel On (seconds)",
+          "safety": "cosmetic",
+          "encoder": "template",
+          "template": "*MO{seconds}",
+          "params": [
+            { "name": "seconds", "type": "int", "min": 0, "max": 99, "pad": 2, "required": true }
+          ],
+          "examples": ["*MO05", "*MO99"],
+          "commentLabel": "Magic panel on {seconds}s",
+          "category": "Lighting"
+        },
+        {
+          "id": "md.magic.flicker",
+          "name": "Magic Panel Flicker (seconds)",
+          "safety": "cosmetic",
+          "encoder": "template",
+          "template": "*MF{seconds}",
+          "params": [
+            { "name": "seconds", "type": "int", "min": 0, "max": 99, "pad": 2, "required": true }
+          ],
+          "examples": ["*MF05", "*MF10"],
+          "commentLabel": "Magic panel flicker {seconds}s",
+          "category": "Lighting"
+        },
+        {
+          "id": "md.sound.playTrack",
+          "name": "Play Sound (bank + track)",
+          "safety": "cosmetic",
+          "encoder": "template",
+          "template": "${bank}{track}",
+          "params": [
+            { "name": "bank", "enum": "md.soundBank", "default": "1", "required": true },
+            { "name": "track", "type": "int", "min": 1, "max": 99, "required": true }
+          ],
+          "examples": ["$52", "$18"],
+          "commentLabel": "Play sound {bank} · {track}",
+          "category": "Sound"
+        },
+        {
+          "id": "md.sound.playBank",
+          "name": "Play Bank (first/next)",
+          "safety": "cosmetic",
+          "encoder": "template",
+          "template": "${bank}",
+          "params": [
+            { "name": "bank", "enum": "md.soundBank", "default": "1", "required": true }
+          ],
+          "examples": ["$1", "$5"],
+          "commentLabel": "Play bank {bank}",
+          "category": "Sound"
+        },
+        {
+          "id": "md.sound.macro",
+          "name": "Sound Control / Preset",
+          "safety": "cosmetic",
+          "encoder": "template",
+          "template": "${macro}",
+          "params": [
+            { "name": "macro", "enum": "md.soundMacro", "required": true }
+          ],
+          "examples": ["$R", "$S", "$L", "$c"],
+          "commentLabel": "Sound {macro}",
+          "category": "Sound"
+        },
+        {
+          "id": "md.logic.effect",
+          "name": "Logic Display Effect",
+          "safety": "cosmetic",
+          "encoder": "template",
+          "template": "@{address}T{mode}",
+          "params": [
+            { "name": "address", "enum": "md.logicAddr", "default": "0", "required": true },
+            { "name": "mode", "enum": "md.logicMode", "default": "1", "required": true }
+          ],
+          "examples": ["@0T1", "@0T6"],
+          "commentLabel": "Logic {address} — {mode}",
+          "category": "Lighting"
+        },
+        {
+          "id": "md.logic.text",
+          "name": "Logic Display Text",
+          "safety": "cosmetic",
+          "encoder": "template",
+          "template": "@{address}M{text}",
+          "params": [
+            { "name": "address", "enum": "md.logicAddr", "default": "0", "required": true },
+            { "name": "text", "pattern": ".+", "required": true }
+          ],
+          "examples": ["@3MHELLO", "@0MR2-D2"],
+          "commentLabel": "Logic {address} text",
+          "category": "System"
+        },
+        {
+          "id": "md.logic.charset",
+          "name": "Logic Character Set",
+          "safety": "config",
+          "encoder": "template",
+          "template": "@{address}P{charset}",
+          "params": [
+            { "name": "address", "enum": "md.logicAddr", "default": "0", "required": true },
+            { "name": "charset", "enum": "md.charset", "default": "60", "required": true }
+          ],
+          "examples": ["@0P60", "@0P61"],
+          "commentLabel": "Logic {address} charset {charset}",
+          "category": "Config"
+        },
+        {
+          "id": "md.psi.state",
+          "name": "PSI State",
+          "safety": "cosmetic",
+          "encoder": "template",
+          "template": "@{address}S{state}",
+          "params": [
+            { "name": "address", "enum": "md.logicAddr", "default": "0", "required": true },
+            { "name": "state", "enum": "md.psiState", "default": "1", "required": true }
+          ],
+          "examples": ["@4S2", "@5S1"],
+          "commentLabel": "PSI {address} — {state}",
+          "category": "Lighting"
+        }
+      ]
+    }
+  ]
+}

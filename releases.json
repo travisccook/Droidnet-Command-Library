@@ -2,17 +2,17 @@
   "$schema": "droidnet-command-library/releases/v1",
   "_comment": "Update pointer for the 'Update Library' flow. A device fetches this file, compares latest.libraryVersion to its installed catalog, and (if newer) downloads latest.url (the catalog manifest), then fetches each board listed in manifest.boards in order, validates them, and loads them via loadLibrary(boards, { libraryVersion }).",
   "latest": {
-    "libraryVersion": "4.1.0",
+    "libraryVersion": "4.2.0",
     "schemaVersion": "v1",
     "releasedAt": "2026-07-09",
     "url": "https://raw.githubusercontent.com/travisccook/droidnet-command-library/main/libraries/manifest.json",
-    "notes": "Minor: WCB firmware 6.1.5 sweep. WCB · HCR Vocalizer (wcb-hcr) rounds out from 2 to 22 commands: per-channel volume (VOL/VOLUP/VOLDN with step defaults) and whole-board VOLUP/VOLDN, FADEIN/FADEOUT, and PLAY with fade-in, plus the remaining ;H, verbs — OVERLOAD, SETEMOTION, OVERRIDE, MUSE (on/off/toggle + gap range), STOPEMOTE, RESETEMOTIONS, STOPWAV, FN, and RAW passthrough. Adds WCB · MP3 Trigger board (wcb-mp3): 12 commands covering the ;A, verb set — play/play+callback (track order and filesystem order), stop, next/prev, volume set/up/down, track count, and firmware version. Adds WCB (native config) board (wcb-native): 77 commands covering the board's own ? grammar — hardware/board-number/MAC/baud/port-label setup, broadcast and serial/PWM port mapping, Kyber/Maestro/MP3/HCR sub-device config, ;S/;W routing and ;T timed dispatch, named sequences (?SEQ save/list/clear, ;C/;SEQ run), ETM tuning, debug toggles, and reboot/erase-NVS. Generated against WCB firmware 6.1.5_290119RJUN2026; board catalog 17 -> 19."
+    "notes": "Minor: two widely-adopted community boards added. MarcDuino (marcduino): 23 commands over the CuriousMarc command language — ':' sequences (:SE) and panel open/close/RC/hold, '*' holoprojector on/off/random/RC/reset/hold, magic-panel and on-board HP light/flicker, '$' sound (bank+track, play bank, and the control/preset macros $R/$s/$S/$L/$c/…), and '@' JawaLite-forwarded logic effect/text/charset and PSI state. JAWALite Logic Displays (jawalite): the shared display grammar spoken by Teeces logics, the original JEDI board, and Teensy/ESP LogicEngine firmware — bare 'xxYzzz' effect (T), random style (R), PSI state (S), charset (P), and text (M). Sourced from the MarcDuino command reference and its JawaLite forwarding table (curiousmarc.com, 2026-07); board catalog 19 -> 21."
   },
   "libraries": [
     {
       "id": "droidnet-astromech",
       "name": "DroidNet Astromech Boards",
-      "libraryVersion": "4.1.0",
+      "libraryVersion": "4.2.0",
       "schemaVersion": "v1",
       "url": "https://raw.githubusercontent.com/travisccook/droidnet-command-library/main/libraries/manifest.json"
     }

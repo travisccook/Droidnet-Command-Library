@@ -1,0 +1,139 @@
+{
+  "$schema": "droidnet-command-library/library/v1",
+  "enums": {
+    "jawa.address": {
+      "label": "Display",
+      "values": [
+        { "code": "0", "label": "All displays" },
+        { "code": "1", "label": "Top Front Logic" },
+        { "code": "2", "label": "Bottom Front Logic" },
+        { "code": "3", "label": "Rear Logic" },
+        { "code": "4", "label": "Front PSI" },
+        { "code": "5", "label": "Rear PSI" }
+      ]
+    },
+    "jawa.mode": {
+      "label": "Effect",
+      "values": [
+        { "code": "0", "label": "Test (all on)" },
+        { "code": "1", "label": "Normal random" },
+        { "code": "2", "label": "Flash / alarm" },
+        { "code": "3", "label": "Alarm 4s" },
+        { "code": "4", "label": "Short circuit 10s" },
+        { "code": "5", "label": "Scream" },
+        { "code": "6", "label": "Leia 34s" },
+        { "code": "10", "label": "Star Wars" },
+        { "code": "11", "label": "March 47s" },
+        { "code": "20", "label": "Off" },
+        { "code": "92", "label": "Spectrum bargraph" },
+        { "code": "100", "label": "Text (set via M)" }
+      ]
+    },
+    "jawa.charset": {
+      "label": "Character set",
+      "values": [
+        { "code": "60", "label": "Latin (English)" },
+        { "code": "61", "label": "Aurabesh" }
+      ]
+    },
+    "jawa.psiState": {
+      "label": "State",
+      "values": [
+        { "code": "0", "label": "All on" },
+        { "code": "1", "label": "Normal" },
+        { "code": "2", "label": "First color" },
+        { "code": "3", "label": "Second color" },
+        { "code": "4", "label": "Off" }
+      ]
+    }
+  },
+  "components": [
+    {
+      "id": "jawalite",
+      "name": "JAWALite Logic Displays (Teeces/JEDI)",
+      "kind": "device-native",
+      "confidence": "community",
+      "vendor": "JAWALite protocol (JEDI · Teeces · LogicEngine)",
+      "firmware": "JawaLite command set (per MarcDuino/Teeces forwarding table)",
+      "routing": {
+        "class": "broadcast",
+        "nativeWrapper": "none",
+        "durationSuffix": { "supported": false },
+        "notes": "JawaLite wire format 'xxYzzz' at 2400 baud, CR-terminated (\\r): xx=address, Y=command letter, zzz=numeric/text argument. The shared display grammar spoken by Teeces logics, the original JEDI board, and Teensy/ESP LogicEngine firmware. Same codes as MarcDuino's '@'-forwarded commands, minus the '@' prefix (drive displays directly). Composer fragments omit the trailing CR."
+      },
+      "categories": ["Lighting", "Config", "System"],
+      "commands": [
+        {
+          "id": "jawa.effect",
+          "name": "Display Effect",
+          "safety": "cosmetic",
+          "encoder": "template",
+          "template": "{address}T{mode}",
+          "params": [
+            { "name": "address", "enum": "jawa.address", "default": "0", "required": true },
+            { "name": "mode", "enum": "jawa.mode", "default": "1", "required": true }
+          ],
+          "examples": ["0T1", "0T6", "3T2"],
+          "commentLabel": "Logic {address} — {mode}",
+          "category": "Lighting"
+        },
+        {
+          "id": "jawa.random",
+          "name": "Random Style",
+          "safety": "cosmetic",
+          "encoder": "template",
+          "template": "{address}R{style}",
+          "params": [
+            { "name": "address", "enum": "jawa.address", "default": "0", "required": true },
+            { "name": "style", "type": "int", "min": 0, "max": 6, "required": true }
+          ],
+          "examples": ["0R4", "3R2"],
+          "commentLabel": "Logic {address} random style {style}",
+          "category": "Lighting"
+        },
+        {
+          "id": "jawa.psiState",
+          "name": "PSI State",
+          "safety": "cosmetic",
+          "encoder": "template",
+          "template": "{address}S{state}",
+          "params": [
+            { "name": "address", "enum": "jawa.address", "default": "0", "required": true },
+            { "name": "state", "enum": "jawa.psiState", "default": "1", "required": true }
+          ],
+          "examples": ["4S2", "5S1"],
+          "commentLabel": "PSI {address} — {state}",
+          "category": "Lighting"
+        },
+        {
+          "id": "jawa.charset",
+          "name": "Character Set",
+          "safety": "config",
+          "encoder": "template",
+          "template": "{address}P{charset}",
+          "params": [
+            { "name": "address", "enum": "jawa.address", "default": "0", "required": true },
+            { "name": "charset", "enum": "jawa.charset", "default": "60", "required": true }
+          ],
+          "examples": ["0P60", "0P61"],
+          "commentLabel": "Logic {address} charset {charset}",
+          "category": "Config"
+        },
+        {
+          "id": "jawa.text",
+          "name": "Set Display Text",
+          "safety": "cosmetic",
+          "encoder": "template",
+          "template": "{address}M{text}",
+          "params": [
+            { "name": "address", "enum": "jawa.address", "default": "0", "required": true },
+            { "name": "text", "pattern": ".+", "required": true }
+          ],
+          "examples": ["3MHELLO", "1MR2-D2"],
+          "commentLabel": "Logic {address} text",
+          "category": "System"
+        }
+      ]
+    }
+  ]
+}
