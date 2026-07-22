@@ -1,6 +1,6 @@
 {
   "$schema": "droidnet-command-library/catalog/v1",
-  "libraryVersion": "4.1.0",
+  "libraryVersion": "4.2.0",
   "schemaVersion": "v1",
   "generatedFrom": "C2B5 firmware + WIPDocs (2026-06); R2UppitySpinnerV3 ALT fw 3.5.3 (2026-07); Printed Droid Magic Panel 32 Wireless KB (2026-07); WCB 6.1.5_290119RJUN2026 (2026-07)",
   "boards": [
@@ -43,7 +43,13 @@
     {
       "id": "maestro",
       "file": "boards/maestro.json",
-      "name": "Maestro (Pololu)",
+      "name": "Maestro (sequence trigger)",
+      "confidence": "high"
+    },
+    {
+      "id": "maestro-native",
+      "file": "boards/maestro-native.json",
+      "name": "Maestro (Pololu Protocol)",
       "confidence": "high"
     },
     {
@@ -122,12 +128,6 @@
       "id": "wcb-wled",
       "file": "boards/wcb-wled.json",
       "name": "WCB · WLED Lighting",
-      "confidence": "high"
-    },
-    {
-      "id": "navicore",
-      "file": "boards/navicore.json",
-      "name": "NaviCore Controller",
       "confidence": "high"
     }
   ]

@@ -22,7 +22,7 @@
   "components": [
     {
       "id": "maestro",
-      "name": "Maestro (Pololu)",
+      "name": "Maestro (sequence trigger)",
       "kind": "wcb-verb",
       "confidence": "high",
       "routing": {
@@ -54,126 +54,10 @@
           ],
           "commentLabel": "Maestro seq",
           "category": "Sequences"
-        },
-        {
-          "id": "maestro.setTarget",
-          "name": "Set servo position",
-          "safety": "movement",
-          "local": "maestro",
-          "encoder": "template",
-          "template": "setTarget,{channel},{position}",
-          "params": [
-            { "name": "channel", "label": "Channel (0-31)", "type": "int", "min": 0, "max": 31, "default": 0, "required": true },
-            { "name": "position", "label": "Position (¼µs; 6000 = 1.5 ms)", "type": "int", "unit": "servoPulse", "min": 0, "max": 16383, "default": 6000, "required": true }
-          ],
-          "examples": ["setTarget,0,6000"],
-          "commentLabel": "Maestro pos",
-          "category": "Servo"
-        },
-        {
-          "id": "maestro.goHome",
-          "name": "Send all servos home",
-          "safety": "movement",
-          "local": "maestro",
-          "encoder": "template",
-          "template": "goHome",
-          "params": [],
-          "examples": ["goHome"],
-          "commentLabel": "Maestro home",
-          "category": "Servo"
-        },
-        {
-          "id": "maestro.setSpeed",
-          "name": "Set speed limit",
-          "safety": "movement",
-          "local": "maestro",
-          "encoder": "template",
-          "template": "setSpeed,{channel},{value}",
-          "params": [
-            { "name": "channel", "label": "Channel (0-31)", "type": "int", "min": 0, "max": 31, "default": 0, "required": true },
-            { "name": "value", "label": "Speed (0-16383, 0 = unlimited)", "type": "int", "min": 0, "max": 16383, "default": 0, "required": true }
-          ],
-          "examples": ["setSpeed,0,0"],
-          "commentLabel": "Maestro speed",
-          "category": "Motion"
-        },
-        {
-          "id": "maestro.setAccel",
-          "name": "Set acceleration limit",
-          "safety": "movement",
-          "local": "maestro",
-          "encoder": "template",
-          "template": "setAccel,{channel},{value}",
-          "params": [
-            { "name": "channel", "label": "Channel (0-31)", "type": "int", "min": 0, "max": 31, "default": 0, "required": true },
-            { "name": "value", "label": "Accel (0-255, 0 = unlimited)", "type": "int", "min": 0, "max": 255, "default": 0, "required": true }
-          ],
-          "examples": ["setAccel,0,0"],
-          "commentLabel": "Maestro accel",
-          "category": "Motion"
-        },
-        {
-          "id": "maestro.setSpeedAccel",
-          "name": "Set speed + acceleration",
-          "safety": "movement",
-          "local": "maestro",
-          "encoder": "template",
-          "template": "setSpeedAccel,{channel},{speed},{accel}",
-          "params": [
-            { "name": "channel", "label": "Channel (0-31)", "type": "int", "min": 0, "max": 31, "default": 0, "required": true },
-            { "name": "speed", "label": "Speed (0-16383)", "type": "int", "min": 0, "max": 16383, "default": 0, "required": true },
-            { "name": "accel", "label": "Accel (0-255)", "type": "int", "min": 0, "max": 255, "default": 0, "required": true }
-          ],
-          "examples": ["setSpeedAccel,0,0,0"],
-          "commentLabel": "Maestro spd+acc",
-          "category": "Motion"
-        },
-        {
-          "id": "maestro.setEasing",
-          "name": "Set active easing",
-          "safety": "cosmetic",
-          "local": "maestro",
-          "encoder": "template",
-          "template": "setEasing,{profile}",
-          "params": [
-            { "name": "profile", "label": "Easing (release | off | p1..p8)", "type": "text", "default": "release", "required": true }
-          ],
-          "examples": ["setEasing,release"],
-          "commentLabel": "Maestro easing",
-          "category": "Motion"
-        },
-        {
-          "id": "maestro.restartScript",
-          "name": "Run a script (subroutine)",
-          "safety": "movement",
-          "local": "maestro",
-          "encoder": "template",
-          "template": "restartScript,{sub}",
-          "params": [
-            { "name": "sub", "label": "Subroutine # (0-127)", "type": "int", "min": 0, "max": 127, "default": 0, "required": true }
-          ],
-          "examples": ["restartScript,0"],
-          "commentLabel": "Maestro script",
-          "category": "Script"
-        },
-        {
-          "id": "maestro.stopScript",
-          "name": "Stop the script",
-          "safety": "movement",
-          "local": "maestro",
-          "encoder": "template",
-          "template": "stopScript",
-          "params": [],
-          "examples": ["stopScript"],
-          "commentLabel": "Maestro stop",
-          "category": "Script"
         }
       ],
       "categories": [
-        "Sequences",
-        "Servo",
-        "Motion",
-        "Script"
+        "Sequences"
       ]
     }
   ]
