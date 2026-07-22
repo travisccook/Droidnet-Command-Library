@@ -1,0 +1,62 @@
+{
+  "$schema": "droidnet-command-library/library/v1",
+  "enums": {},
+  "components": [
+    {
+      "id": "navicore",
+      "name": "NaviCore Controller",
+      "kind": "controller-native",
+      "confidence": "high",
+      "firmware": "NaviCore",
+      "routing": {
+        "class": "local",
+        "nativeWrapper": "none",
+        "durationSuffix": { "supported": false }
+      },
+      "commands": [
+        {
+          "id": "nc.record",
+          "name": "Record clip (toggle)",
+          "safety": "cosmetic",
+          "local": "record",
+          "encoder": "template",
+          "template": "{clip}",
+          "params": [
+            { "name": "clip", "label": "Clip name (optional — blank auto-saves rec_N)", "type": "text", "required": false }
+          ],
+          "examples": ["dome_spin", ""],
+          "commentLabel": "Record clip",
+          "category": "Sequences"
+        },
+        {
+          "id": "nc.play",
+          "name": "Play clip",
+          "safety": "cosmetic",
+          "local": "play",
+          "encoder": "template",
+          "template": "{clip}",
+          "params": [
+            { "name": "clip", "label": "Clip name", "type": "text", "required": true },
+            { "name": "loop", "label": "Loop", "type": "bool", "default": false, "required": false }
+          ],
+          "examples": ["dome_spin"],
+          "commentLabel": "Play clip",
+          "category": "Sequences"
+        },
+        {
+          "id": "nc.stop",
+          "name": "Stop record / playback",
+          "safety": "cosmetic",
+          "local": "stop",
+          "encoder": "none",
+          "template": "",
+          "params": [],
+          "examples": [],
+          "commentLabel": "Stop",
+          "category": "Sequences"
+        }
+      ],
+      "categories": ["Sequences"]
+    }
+  ]
+}

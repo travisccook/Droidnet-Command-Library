@@ -43,7 +43,7 @@
     {
       "id": "maestro",
       "file": "boards/maestro.json",
-      "name": "Maestro (sequence trigger)",
+      "name": "Maestro (Pololu)",
       "confidence": "high"
     },
     {
@@ -116,6 +116,18 @@
       "id": "wcb-native",
       "file": "boards/wcb-native.json",
       "name": "WCB (native config)",
+      "confidence": "high"
+    },
+    {
+      "id": "wcb-wled",
+      "file": "boards/wcb-wled.json",
+      "name": "WCB · WLED Lighting",
+      "confidence": "high"
+    },
+    {
+      "id": "navicore",
+      "file": "boards/navicore.json",
+      "name": "NaviCore Controller",
       "confidence": "high"
     }
   ]
