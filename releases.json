@@ -2,17 +2,17 @@
   "$schema": "droidnet-command-library/releases/v1",
   "_comment": "Update pointer for the 'Update Library' flow. A device fetches this file, compares latest.libraryVersion to its installed catalog, and (if newer) downloads latest.url (the catalog manifest), then fetches each board listed in manifest.boards in order, validates them, and loads them via loadLibrary(boards, { libraryVersion }).",
   "latest": {
-    "libraryVersion": "4.1.0",
+    "libraryVersion": "4.2.0",
     "schemaVersion": "v1",
-    "releasedAt": "2026-07-09",
+    "releasedAt": "2026-07-22",
     "url": "https://raw.githubusercontent.com/travisccook/droidnet-command-library/main/libraries/manifest.json",
-    "notes": "Minor: WCB firmware 6.1.5 sweep. WCB · HCR Vocalizer (wcb-hcr) rounds out from 2 to 22 commands: per-channel volume (VOL/VOLUP/VOLDN with step defaults) and whole-board VOLUP/VOLDN, FADEIN/FADEOUT, and PLAY with fade-in, plus the remaining ;H, verbs — OVERLOAD, SETEMOTION, OVERRIDE, MUSE (on/off/toggle + gap range), STOPEMOTE, RESETEMOTIONS, STOPWAV, FN, and RAW passthrough. Adds WCB · MP3 Trigger board (wcb-mp3): 12 commands covering the ;A, verb set — play/play+callback (track order and filesystem order), stop, next/prev, volume set/up/down, track count, and firmware version. Adds WCB (native config) board (wcb-native): 77 commands covering the board's own ? grammar — hardware/board-number/MAC/baud/port-label setup, broadcast and serial/PWM port mapping, Kyber/Maestro/MP3/HCR sub-device config, ;S/;W routing and ;T timed dispatch, named sequences (?SEQ save/list/clear, ;C/;SEQ run), ETM tuning, debug toggles, and reboot/erase-NVS. Generated against WCB firmware 6.1.5_290119RJUN2026; board catalog 17 -> 19."
+    "notes": "Minor: Maestro servo control + WLED lighting. Adds Maestro (Pololu Protocol) board (maestro-native): the device-native Pololu servo grammar — setTarget, goHome, setSpeed/setAccel/setSpeedAccel, setEasing, and restartScript/stopScript. The existing Maestro board (maestro) is now scoped to just the ;M sequence-trigger WCB verb, so each board carries a single transport. Adds WCB · WLED Lighting board (wcb-wled): the ;L, verb set — on/off/toggle, brightness, preset, color, effect (+ speed/intensity), palette, and a raw /json/state escape hatch. Board catalog 19 -> 21."
   },
   "libraries": [
     {
       "id": "droidnet-astromech",
       "name": "DroidNet Astromech Boards",
-      "libraryVersion": "4.1.0",
+      "libraryVersion": "4.2.0",
       "schemaVersion": "v1",
       "url": "https://raw.githubusercontent.com/travisccook/droidnet-command-library/main/libraries/manifest.json"
     }
