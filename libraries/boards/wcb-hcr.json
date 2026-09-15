@@ -79,6 +79,27 @@
         { "code": "OFF", "label": "Off" },
         { "code": "TOGGLE", "label": "Toggle" }
       ]
+    },
+    "hcr.fnCode": {
+      "label": "Function",
+      "values": [
+        { "code": "2", "label": "2 · Set emotion" },
+        { "code": "3", "label": "3 · Trigger" },
+        { "code": "4", "label": "4 · Stimulate" },
+        { "code": "5", "label": "5 · Overload" },
+        { "code": "6", "label": "6 · Muse (once)" },
+        { "code": "7", "label": "7 · Muse gap (WCB 6.2+)" },
+        { "code": "8", "label": "8 · Stop all" },
+        { "code": "9", "label": "9 · Stop emote" },
+        { "code": "10", "label": "10 · Override emotions (WCB 6.2+)" },
+        { "code": "11", "label": "11 · Reset emotions" },
+        { "code": "13", "label": "13 · Muse on/off (WCB 6.2+)" },
+        { "code": "14", "label": "14 · Play WAV" },
+        { "code": "16", "label": "16 · Stop WAV" },
+        { "code": "17", "label": "17 · Set volume" },
+        { "code": "18", "label": "18 · Volume up all (WCB 6.2+)" },
+        { "code": "19", "label": "19 · Volume down all (WCB 6.2+)" }
+      ]
     }
   },
   "components": [
@@ -87,9 +108,10 @@
       "name": "WCB · HCR Vocalizer",
       "kind": "wcb-verb",
       "confidence": "high",
-      "firmware": "WCB 6.1.0 HCR_Integration",
+      "firmware": "WCB 6.2.1_021242RSEP2026",
       "routing": {
-        "class": "wcb-verb"
+        "class": "wcb-verb",
+        "notes": "Needs a WCB with the HCR Vocalizer configured (?HCR,PORT,S<port>:<baud>). On WCB 6.2.1 ;H runs on the board that hosts the HCR: this board if it has one, else the stored ?HCR,REMOTE,W<n> host, else an online board that advertises HCR over WDP (WCB.ino:6391-6409, 6429-6431). A ;H that arrived over the mesh runs where it lands and is never forwarded again. WCB 6.1.x runs ;H only on the board that receives it (6.1.5 WCB.ino:4711-4712); prefix ;W<n>, to reach another board. Needs 6.2+: Set Volume for all channels (;H,VOL,<level>, WCB_HCR.cpp:365-388; 6.1.5 requires a channel) and FN codes 7, 10, 13, 18 and 19. TRIGGER and the all-channel VOLUP/VOLDN step also work on 6.1.5. FN codes follow WcbCmd HcrCodec::normalize (WcbHcr.cpp:7-36; 12 and 15 are rejected); chan runs to 99 for fn 7 (muse gap), track to 9999 for fn 14 (Play WAV). Volume levels are accepted as 0-100, but 6.2.1 sends at most 99 to the HCR (hcrSetVol, WCB_HCR.cpp:84-87)."
       },
       "commands": [
         {
@@ -114,6 +136,30 @@
             ";H,STIM,H,STRONG"
           ],
           "commentLabel": "HCR stimulus",
+          "category": "Emotion"
+        },
+        {
+          "id": "hcr.trigger",
+          "name": "Emotional Trigger",
+          "safety": "cosmetic",
+          "encoder": "template",
+          "template": ";H,TRIGGER,{emotion},{strength}",
+          "params": [
+            {
+              "name": "emotion",
+              "enum": "hcr.emotion",
+              "required": true
+            },
+            {
+              "name": "strength",
+              "enum": "hcr.strength",
+              "required": true
+            }
+          ],
+          "examples": [
+            ";H,TRIGGER,M,MOD"
+          ],
+          "commentLabel": "HCR trigger",
           "category": "Emotion"
         },
         {
@@ -169,6 +215,27 @@
           "category": "Volume"
         },
         {
+          "id": "hcr.volAll",
+          "name": "Set Volume, all channels (WCB 6.2+)",
+          "safety": "cosmetic",
+          "encoder": "template",
+          "template": ";H,VOL,{level}",
+          "params": [
+            {
+              "name": "level",
+              "type": "int",
+              "min": 0,
+              "max": 100,
+              "required": true
+            }
+          ],
+          "examples": [
+            ";H,VOL,60"
+          ],
+          "commentLabel": "HCR volume all",
+          "category": "Volume"
+        },
+        {
           "id": "hcr.volUp",
           "name": "Volume Up (channel)",
           "safety": "cosmetic",
@@ -209,6 +276,28 @@
           "category": "Volume"
         },
         {
+          "id": "hcr.volUpAllStep",
+          "name": "Volume Up by step, all channels",
+          "safety": "cosmetic",
+          "encoder": "template",
+          "template": ";H,VOLUP,{step}",
+          "params": [
+            {
+              "name": "step",
+              "type": "int",
+              "min": 1,
+              "max": 100,
+              "default": 5,
+              "required": false
+            }
+          ],
+          "examples": [
+            ";H,VOLUP,10"
+          ],
+          "commentLabel": "HCR vol up all (step)",
+          "category": "Volume"
+        },
+        {
           "id": "hcr.volDown",
           "name": "Volume Down (channel)",
           "safety": "cosmetic",
@@ -246,6 +335,28 @@
             ";H,VOLDN"
           ],
           "commentLabel": "HCR vol down all",
+          "category": "Volume"
+        },
+        {
+          "id": "hcr.volDownAllStep",
+          "name": "Volume Down by step, all channels",
+          "safety": "cosmetic",
+          "encoder": "template",
+          "template": ";H,VOLDN,{step}",
+          "params": [
+            {
+              "name": "step",
+              "type": "int",
+              "min": 1,
+              "max": 100,
+              "default": 5,
+              "required": false
+            }
+          ],
+          "examples": [
+            ";H,VOLDN,10"
+          ],
+          "commentLabel": "HCR vol down all (step)",
           "category": "Volume"
         },
         {
@@ -367,8 +478,8 @@
           "examples": [";H,STOPWAV,A"], "commentLabel": "HCR stop wav", "category": "Sound" },
         { "id": "hcr.fn", "name": "Function (numeric)", "safety": "cosmetic", "encoder": "template",
           "template": ";H,FN,{fn},{chan},{track}",
-          "params": [ { "name": "fn", "type": "int", "min": 0, "max": 99, "required": true },
-                      { "name": "chan", "type": "int", "min": 0, "max": 9, "required": true },
+          "params": [ { "name": "fn", "enum": "hcr.fnCode", "required": true },
+                      { "name": "chan", "type": "int", "min": 0, "max": 99, "required": true },
                       { "name": "track", "type": "int", "min": 0, "max": 9999, "required": true } ],
           "examples": [";H,FN,14,1,5"], "commentLabel": "HCR fn", "category": "System" },
         { "id": "hcr.raw", "name": "Raw Passthrough", "safety": "cosmetic", "encoder": "template",

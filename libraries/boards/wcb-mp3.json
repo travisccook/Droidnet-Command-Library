@@ -7,8 +7,11 @@
       "name": "WCB · MP3 Trigger",
       "kind": "wcb-verb",
       "confidence": "high",
-      "firmware": "WCB 6.1.5_290119RJUN2026",
-      "routing": { "class": "wcb-verb" },
+      "firmware": "WCB 6.2.1_021242RSEP2026",
+      "routing": {
+        "class": "wcb-verb",
+        "notes": "Needs a WCB with the SparkFun MP3 Trigger configured (?MP3,S<port>:<baud>:V<vol>). On WCB 6.2.1 ;A runs on the board that hosts the MP3 Trigger: this board if it has one, else the stored ?MP3,REMOTE,W<n> host, else an online board that advertises MP3 over WDP (WCB.ino:6391-6409, 6423-6425). An ;A that arrived over the mesh runs where it lands and is never forwarded again. WCB 6.1.x plays only on the board that receives it (6.1.5 WCB.ino:4709-4710); prefix ;W<n>, to reach another board. The verbs and ranges are unchanged in 6.2.1 (WcbCmd Mp3Codec::handle, WcbMp3.cpp:32-93): VOL runs from 0 (loudest) to 64 (inaudible), VOLUP/VOLDN move 5 steps, and PLAY/PLAYFS send the stored volume before the track."
+      },
       "commands": [
         { "id": "mp3.play", "name": "Play Track", "safety": "cosmetic", "encoder": "template",
           "template": ";A,PLAY,{track}",

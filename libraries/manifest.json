@@ -1,8 +1,8 @@
 {
   "$schema": "droidnet-command-library/catalog/v1",
-  "libraryVersion": "4.2.0",
+  "libraryVersion": "4.3.0",
   "schemaVersion": "v1",
-  "generatedFrom": "C2B5 firmware + WIPDocs (2026-06); R2UppitySpinnerV3 ALT fw 3.5.3 (2026-07); Printed Droid Magic Panel 32 Wireless KB (2026-07); WCB 6.1.5_290119RJUN2026 (2026-07)",
+  "generatedFrom": "C2B5 firmware + WIPDocs (2026-06); R2UppitySpinnerV3 ALT fw 3.5.3 (2026-07); Printed Droid Magic Panel 32 Wireless KB (2026-07); WCB 6.1.5_290119RJUN2026 (2026-07); WCB 6.2.1_021242RSEP2026 + WcbCmd 0.8.0 (2026-09)",
   "boards": [
     {
       "id": "flthy-hps",
@@ -41,9 +41,15 @@
       "confidence": "high"
     },
     {
+      "id": "wcb-dfp",
+      "file": "boards/wcb-dfp.json",
+      "name": "WCB · DFPlayer Mini (WCB 6.2+)",
+      "confidence": "high"
+    },
+    {
       "id": "maestro",
       "file": "boards/maestro.json",
-      "name": "Maestro (sequence trigger)",
+      "name": "Maestro (WCB ;M verbs)",
       "confidence": "high"
     },
     {
@@ -127,7 +133,7 @@
     {
       "id": "wcb-wled",
       "file": "boards/wcb-wled.json",
-      "name": "WCB · WLED Lighting",
+      "name": "WCB · WLED Lighting (WCB 6.2+)",
       "confidence": "high"
     }
   ]

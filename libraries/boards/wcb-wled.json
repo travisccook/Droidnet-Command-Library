@@ -4,12 +4,13 @@
   "components": [
     {
       "id": "wcb-wled",
-      "name": "WCB · WLED Lighting",
+      "name": "WCB · WLED Lighting (WCB 6.2+)",
       "kind": "wcb-verb",
       "confidence": "high",
-      "firmware": "WCB WCB_WLED",
+      "firmware": "WCB 6.2.1_021242RSEP2026",
       "routing": {
-        "class": "wcb-verb"
+        "class": "wcb-verb",
+        "notes": "Needs WCB 6.2.1: 6.1.5 has no ;L dispatch and answers \"Invalid Serial Command\" (6.1.5 WCB.ino:4697-4718; 6.2.1 WCB.ino:6432-6433). The receiving WCB must already know the WLED id, either configured with ?WLED,<id>:W<wcb>S<port>:<baud> or learned over WDP from the board that hosts it; an unknown id only prints \"WLED <id> not configured\" and there is no fallback (WCB_WLED.cpp:110-157). A remote id is forwarded one mesh hop to its host (ETM-ACKed); a ;L that arrived over the mesh is never forwarded again. Fire-and-forget: the WCB never reads WLED state back. While ETM checksums are on (?ETM,CHKSM,ON) a mesh-routed command must stay within 187 characters (WCB.ino:216-223, ETM_MAX_CMD_WITH_CRC; the help text's 188 is off by one), which matters for JSON payloads. Verbs follow WcbCmd WcbWled::build (WcbWled.cpp:24-101). Preset ids are 1-250 (WLED JSON API psave/pdel)."
       },
       "commands": [
         {
@@ -73,7 +74,7 @@
           "template": ";L{wledId},PS,{preset}",
           "params": [
             { "name": "wledId", "label": "WLED ID (1-9)", "type": "int", "min": 1, "max": 9, "default": 1, "required": true },
-            { "name": "preset", "label": "Preset #", "type": "int", "min": 0, "max": 250, "default": 1, "required": true }
+            { "name": "preset", "label": "Preset #", "type": "int", "min": 1, "max": 250, "default": 1, "required": true }
           ],
           "examples": [";L1,PS,3"],
           "commentLabel": "WLED preset",

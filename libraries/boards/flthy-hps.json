@@ -17,6 +17,18 @@
           "label": "Top"
         },
         {
+          "code": "X",
+          "label": "Front & Rear"
+        },
+        {
+          "code": "Y",
+          "label": "Front & Top"
+        },
+        {
+          "code": "Z",
+          "label": "Rear & Top"
+        },
+        {
           "code": "A",
           "label": "All"
         }
@@ -190,7 +202,7 @@
       "name": "FlthyHPs Holoprojectors",
       "kind": "device-native",
       "confidence": "high",
-      "firmware": "v1.8",
+      "firmware": "v1.6+ (checked against v1.81 and v2.1 source)",
       "routing": {
         "class": "broadcast",
         "nativeWrapper": "none",
@@ -314,7 +326,7 @@
           "name": "Short Circuit",
           "safety": "cosmetic",
           "encoder": "template",
-          "template": "{designator}005{color}",
+          "template": "{designator}007{color}",
           "params": [
             {
               "name": "designator",
@@ -329,8 +341,8 @@
           ],
           "supportsDuration": true,
           "examples": [
-            "A0057",
-            "F0055|10"
+            "A0077",
+            "F0075|10"
           ],
           "commentLabel": "Flthy short circuit",
           "category": "Lighting"
@@ -367,7 +379,7 @@
           "name": "Solid Color",
           "safety": "cosmetic",
           "encoder": "template",
-          "template": "{designator}006{color}",
+          "template": "{designator}005{color}",
           "params": [
             {
               "name": "designator",
@@ -382,9 +394,10 @@
           ],
           "supportsDuration": true,
           "examples": [
-            "A0065",
-            "R0063",
-            "A0065|60"
+            "A0055",
+            "R0053",
+            "A0055|60",
+            "X0055"
           ],
           "commentLabel": "Flthy solid",
           "category": "Lighting"
@@ -394,7 +407,7 @@
           "name": "Rainbow",
           "safety": "cosmetic",
           "encoder": "template",
-          "template": "{designator}007",
+          "template": "{designator}006",
           "params": [
             {
               "name": "designator",
@@ -404,8 +417,8 @@
           ],
           "supportsDuration": true,
           "examples": [
-            "T007",
-            "A007|45"
+            "T006",
+            "A006|45"
           ],
           "commentLabel": "Flthy rainbow",
           "category": "Lighting"

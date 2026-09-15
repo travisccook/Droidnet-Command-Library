@@ -15,6 +15,71 @@
         {
           "code": "2",
           "label": "#2"
+        },
+        {
+          "code": "3",
+          "label": "#3"
+        },
+        {
+          "code": "4",
+          "label": "#4"
+        },
+        {
+          "code": "5",
+          "label": "#5"
+        },
+        {
+          "code": "6",
+          "label": "#6"
+        },
+        {
+          "code": "7",
+          "label": "#7"
+        },
+        {
+          "code": "8",
+          "label": "#8"
+        },
+        {
+          "code": "9",
+          "label": "All local (this WCB)"
+        }
+      ]
+    },
+    "maestro.queryId": {
+      "label": "Maestro",
+      "values": [
+        {
+          "code": "1",
+          "label": "#1"
+        },
+        {
+          "code": "2",
+          "label": "#2"
+        },
+        {
+          "code": "3",
+          "label": "#3"
+        },
+        {
+          "code": "4",
+          "label": "#4"
+        },
+        {
+          "code": "5",
+          "label": "#5"
+        },
+        {
+          "code": "6",
+          "label": "#6"
+        },
+        {
+          "code": "7",
+          "label": "#7"
+        },
+        {
+          "code": "8",
+          "label": "#8"
         }
       ]
     }
@@ -22,11 +87,13 @@
   "components": [
     {
       "id": "maestro",
-      "name": "Maestro (sequence trigger)",
+      "name": "Maestro (WCB ;M verbs)",
       "kind": "wcb-verb",
       "confidence": "high",
+      "firmware": "WCB 6.2.1_021242RSEP2026",
       "routing": {
-        "class": "wcb-verb"
+        "class": "wcb-verb",
+        "notes": "Run Sequence (;M<id><seq>) works on every WCB firmware. The comma forms, named \"(WCB 6.2+)\", need WCB 6.2.1 on the board that parses them: WCB 6.1.x reads any comma form as ;M<id>0 and runs subroutine 0 instead (6.1.5 WCB.ino:4871-4876). A 6.2.1 board passes a plain ;M<id>,<n> on to another board as ;M<id><n>, but verbs and subroutines with a parameter travel as typed, so the WCB hosting the Maestro needs 6.2.1 as well (WCB_Maestro.cpp maestroVerbForwardText). Id 0 = every Maestro on the mesh; 1-8 = the Maestro configured with that id (?MAESTRO,M<id>:W<wcb>S<port>:<baud>); 9 = every Maestro configured on the receiving WCB, or its S1 Maestro addressed as the WCB's own number when none is configured (also on 6.1.5, unless that board has a Maestro configured as id 9). Subroutines are Pololu data bytes 0-127: the firmware help says 0-255, but a Pololu data byte cannot exceed 127. Channels are 0-based, 0-23 (Mini Maestro 24). Target is in quarter-microseconds (6000 = 1.5 ms; 0 stops the pulses); speed 0 and acceleration 0 mean unlimited. get* queries take ids 1-8 only and are asynchronous: the answer lands in the RAM variables m<id>pos<ch>, m<id>moving (0/1) and m<id>err (not saved to NVS), which an IF in a separate, later trigger reads (e.g. IF,m2moving=0). Never wrap a get in ;W: the answer would stay on the target board (WCB_Help.cpp:451-459). getMovingState works on Mini Maestro only (Pololu Maestro guide 5.e)."
       },
       "commands": [
         {
@@ -45,7 +112,7 @@
               "name": "seq",
               "type": "int",
               "min": 0,
-              "max": 9,
+              "max": 127,
               "required": true
             }
           ],
@@ -54,10 +121,369 @@
           ],
           "commentLabel": "Maestro seq",
           "category": "Sequences"
+        },
+        {
+          "id": "maestro.wcb.sub",
+          "name": "Run Subroutine (WCB 6.2+)",
+          "safety": "movement",
+          "encoder": "template",
+          "template": ";M{id},{sub}",
+          "params": [
+            {
+              "name": "id",
+              "enum": "maestro.id",
+              "default": "1",
+              "required": true
+            },
+            {
+              "name": "sub",
+              "label": "Subroutine (0-127)",
+              "type": "int",
+              "min": 0,
+              "max": 127,
+              "default": 0,
+              "required": true
+            }
+          ],
+          "examples": [
+            ";M1,5"
+          ],
+          "commentLabel": "Maestro sub",
+          "category": "Sequences"
+        },
+        {
+          "id": "maestro.wcb.subParam",
+          "name": "Run Subroutine with Parameter (WCB 6.2+)",
+          "safety": "movement",
+          "encoder": "template",
+          "template": ";M{id},{sub},{param}",
+          "params": [
+            {
+              "name": "id",
+              "enum": "maestro.id",
+              "default": "1",
+              "required": true
+            },
+            {
+              "name": "sub",
+              "label": "Subroutine (0-127)",
+              "type": "int",
+              "min": 0,
+              "max": 127,
+              "default": 0,
+              "required": true
+            },
+            {
+              "name": "param",
+              "label": "Parameter (0-16383)",
+              "type": "int",
+              "min": 0,
+              "max": 16383,
+              "default": 0,
+              "required": true
+            }
+          ],
+          "examples": [
+            ";M3,5,1000"
+          ],
+          "commentLabel": "Maestro sub+param",
+          "category": "Sequences"
+        },
+        {
+          "id": "maestro.wcb.subVerb",
+          "name": "Run Subroutine, sub verb (WCB 6.2+)",
+          "safety": "movement",
+          "encoder": "template",
+          "template": ";M{id},sub,{sub}",
+          "params": [
+            {
+              "name": "id",
+              "enum": "maestro.id",
+              "default": "1",
+              "required": true
+            },
+            {
+              "name": "sub",
+              "label": "Subroutine (0-127)",
+              "type": "int",
+              "min": 0,
+              "max": 127,
+              "default": 0,
+              "required": true
+            }
+          ],
+          "examples": [
+            ";M2,sub,5"
+          ],
+          "commentLabel": "Maestro sub",
+          "category": "Sequences"
+        },
+        {
+          "id": "maestro.wcb.subVerbParam",
+          "name": "Run Subroutine with Parameter, sub verb (WCB 6.2+)",
+          "safety": "movement",
+          "encoder": "template",
+          "template": ";M{id},sub,{sub},{param}",
+          "params": [
+            {
+              "name": "id",
+              "enum": "maestro.id",
+              "default": "1",
+              "required": true
+            },
+            {
+              "name": "sub",
+              "label": "Subroutine (0-127)",
+              "type": "int",
+              "min": 0,
+              "max": 127,
+              "default": 0,
+              "required": true
+            },
+            {
+              "name": "param",
+              "label": "Parameter (0-16383)",
+              "type": "int",
+              "min": 0,
+              "max": 16383,
+              "default": 0,
+              "required": true
+            }
+          ],
+          "examples": [
+            ";M2,sub,5,1000"
+          ],
+          "commentLabel": "Maestro sub+param",
+          "category": "Sequences"
+        },
+        {
+          "id": "maestro.wcb.stopScript",
+          "name": "Stop Script (WCB 6.2+)",
+          "safety": "movement",
+          "encoder": "template",
+          "template": ";M{id},stopScript",
+          "params": [
+            {
+              "name": "id",
+              "enum": "maestro.id",
+              "default": "1",
+              "required": true
+            }
+          ],
+          "examples": [
+            ";M1,stopScript"
+          ],
+          "commentLabel": "Maestro stop script",
+          "category": "Sequences"
+        },
+        {
+          "id": "maestro.wcb.goHome",
+          "name": "Go Home (WCB 6.2+)",
+          "safety": "movement",
+          "encoder": "template",
+          "template": ";M{id},goHome",
+          "params": [
+            {
+              "name": "id",
+              "enum": "maestro.id",
+              "default": "1",
+              "required": true
+            }
+          ],
+          "examples": [
+            ";M2,goHome"
+          ],
+          "commentLabel": "Maestro home",
+          "category": "Movement"
+        },
+        {
+          "id": "maestro.wcb.setTarget",
+          "name": "Set Servo Target (WCB 6.2+)",
+          "safety": "movement",
+          "encoder": "template",
+          "template": ";M{id},setTarget,{channel},{target}",
+          "params": [
+            {
+              "name": "id",
+              "enum": "maestro.id",
+              "default": "1",
+              "required": true
+            },
+            {
+              "name": "channel",
+              "label": "Channel (0-23)",
+              "type": "int",
+              "min": 0,
+              "max": 23,
+              "default": 0,
+              "required": true
+            },
+            {
+              "name": "target",
+              "label": "Target (¼µs; 6000 = 1.5 ms)",
+              "type": "int",
+              "min": 0,
+              "max": 16383,
+              "default": 6000,
+              "required": true
+            }
+          ],
+          "examples": [
+            ";M1,setTarget,0,6000"
+          ],
+          "commentLabel": "Maestro target",
+          "category": "Movement"
+        },
+        {
+          "id": "maestro.wcb.setSpeed",
+          "name": "Set Speed Limit (WCB 6.2+)",
+          "safety": "movement",
+          "encoder": "template",
+          "template": ";M{id},setSpeed,{channel},{speed}",
+          "params": [
+            {
+              "name": "id",
+              "enum": "maestro.id",
+              "default": "1",
+              "required": true
+            },
+            {
+              "name": "channel",
+              "label": "Channel (0-23)",
+              "type": "int",
+              "min": 0,
+              "max": 23,
+              "default": 0,
+              "required": true
+            },
+            {
+              "name": "speed",
+              "label": "Speed (0-16383, 0 = unlimited)",
+              "type": "int",
+              "min": 0,
+              "max": 16383,
+              "default": 0,
+              "required": true
+            }
+          ],
+          "examples": [
+            ";M5,setSpeed,3,10"
+          ],
+          "commentLabel": "Maestro speed",
+          "category": "Movement"
+        },
+        {
+          "id": "maestro.wcb.setAccel",
+          "name": "Set Acceleration Limit (WCB 6.2+)",
+          "safety": "movement",
+          "encoder": "template",
+          "template": ";M{id},setAccel,{channel},{accel}",
+          "params": [
+            {
+              "name": "id",
+              "enum": "maestro.id",
+              "default": "1",
+              "required": true
+            },
+            {
+              "name": "channel",
+              "label": "Channel (0-23)",
+              "type": "int",
+              "min": 0,
+              "max": 23,
+              "default": 0,
+              "required": true
+            },
+            {
+              "name": "accel",
+              "label": "Accel (0-255, 0 = unlimited)",
+              "type": "int",
+              "min": 0,
+              "max": 255,
+              "default": 0,
+              "required": true
+            }
+          ],
+          "examples": [
+            ";M2,setAccel,0,5"
+          ],
+          "commentLabel": "Maestro accel",
+          "category": "Movement"
+        },
+        {
+          "id": "maestro.wcb.getPosition",
+          "name": "Read Servo Position (WCB 6.2+)",
+          "safety": "cosmetic",
+          "encoder": "template",
+          "template": ";M{id},getPosition,{channel}",
+          "params": [
+            {
+              "name": "id",
+              "enum": "maestro.queryId",
+              "default": "1",
+              "required": true
+            },
+            {
+              "name": "channel",
+              "label": "Channel (0-23)",
+              "type": "int",
+              "min": 0,
+              "max": 23,
+              "default": 0,
+              "required": true
+            }
+          ],
+          "examples": [
+            ";M2,getPosition,0"
+          ],
+          "commentLabel": "Maestro get pos",
+          "category": "System"
+        },
+        {
+          "id": "maestro.wcb.getMovingState",
+          "name": "Read Moving State (WCB 6.2+)",
+          "safety": "cosmetic",
+          "encoder": "template",
+          "template": ";M{id},getMovingState",
+          "params": [
+            {
+              "name": "id",
+              "enum": "maestro.queryId",
+              "default": "1",
+              "required": true
+            }
+          ],
+          "examples": [
+            ";M2,getMovingState"
+          ],
+          "commentLabel": "Maestro get moving",
+          "category": "System"
+        },
+        {
+          "id": "maestro.wcb.getErrors",
+          "name": "Read Errors (WCB 6.2+)",
+          "safety": "cosmetic",
+          "encoder": "template",
+          "template": ";M{id},getErrors",
+          "params": [
+            {
+              "name": "id",
+              "enum": "maestro.queryId",
+              "default": "1",
+              "required": true
+            }
+          ],
+          "examples": [
+            ";M2,getErrors"
+          ],
+          "commentLabel": "Maestro get errors",
+          "category": "System"
         }
       ],
       "categories": [
-        "Sequences"
+        "Sequences",
+        "Movement",
+        "System"
       ]
     }
   ]

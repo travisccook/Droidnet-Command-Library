@@ -2,17 +2,17 @@
   "$schema": "droidnet-command-library/releases/v1",
   "_comment": "Update pointer for the 'Update Library' flow. A device fetches this file, compares latest.libraryVersion to its installed catalog, and (if newer) downloads latest.url (the catalog manifest), then fetches each board listed in manifest.boards in order, validates them, and loads them via loadLibrary(boards, { libraryVersion }).",
   "latest": {
-    "libraryVersion": "4.2.0",
+    "libraryVersion": "4.3.0",
     "schemaVersion": "v1",
-    "releasedAt": "2026-07-22",
+    "releasedAt": "2026-09-15",
     "url": "https://raw.githubusercontent.com/travisccook/droidnet-command-library/main/libraries/manifest.json",
-    "notes": "Minor: Maestro servo control + WLED lighting. Adds Maestro (Pololu Protocol) board (maestro-native): the device-native Pololu servo grammar — setTarget, goHome, setSpeed/setAccel/setSpeedAccel, setEasing, and restartScript/stopScript. The existing Maestro board (maestro) is now scoped to just the ;M sequence-trigger WCB verb, so each board carries a single transport. Adds WCB · WLED Lighting board (wcb-wled): the ;L, verb set — on/off/toggle, brightness, preset, color, effect (+ speed/intensity), palette, and a raw /json/state escape hatch. Board catalog 19 -> 21."
+    "notes": "Minor: WCB firmware 6.2.1 sweep. Maestro (maestro) adds the WCB 6.2+ comma forms: Run Subroutine (with and without a parameter, number and sub-verb spellings), Stop Script, Go Home, Set Servo Target/Speed/Acceleration, and Read Position/Moving State/Errors queries. Ids widen to 0-9 (9 = this WCB's Maestros) and subroutines to 0-127. Adds WCB · DFPlayer Mini board (wcb-dfp, WCB 6.2+): 21 ;D, verbs (play/folder/MP3-folder with optional ONFIN callback, stop/pause/resume/next/prev/random, loop track/all/folder, EQ, volume/up/down, reset, status). WCB · HCR Vocalizer (wcb-hcr) adds TRIGGER, all-channel VOL and VOLUP/VOLDN steps, and limits FN to the firmware's function codes. WCB (native config) (wcb-native) adds 66 commands (mesh channel, alias, controller, status LED pin/identify, WLED/DFPlayer config, MP3/DFPlayer/HCR host routing, Maestro remote/Kyber map, ;W alias routing, ;P PWM pulse, ;V/;VP variables and IF, sequence names/get and ,L local runs, timer stop, WDP, debug/track/version) and corrects ranges (board numbers 1-20, 30-minute timer, S0 routing, HCR baud/poll/get fields, ETM miss 100, multi-destination maps). WLED presets start at 1; the MP3 Trigger and WLED boards document 6.2.1 routing. FlthyHPs Holoprojectors (flthy-hps): Solid Color, Rainbow and Short Circuit now send the codes FlthyHPs v1.6+ firmware runs (005, 006, 007; 4.2.0 sent 006, 007, 005), and the X/Y/Z designators are back. Saved steps keep their exact text, but they decode by what the firmware runs: steps saved by 4.2.0 as Solid Color or Rainbow (006, 007) now show as raw text, and 4.2.0 Short Circuit steps (005) now show as Solid Color. Text fields (keys, aliases, variable names, conditions, colors) need a host that uses engine 3.1.0 or later. Generated against WCB 6.2.1_021242RSEP2026 + WcbCmd 0.8.0; board catalog 21 -> 22, commands 397 -> 500."
   },
   "libraries": [
     {
       "id": "droidnet-astromech",
       "name": "DroidNet Astromech Boards",
-      "libraryVersion": "4.2.0",
+      "libraryVersion": "4.3.0",
       "schemaVersion": "v1",
       "url": "https://raw.githubusercontent.com/travisccook/droidnet-command-library/main/libraries/manifest.json"
     }

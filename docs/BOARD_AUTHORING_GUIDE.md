@@ -107,6 +107,14 @@ confirm-before-firing warning in the UI. Use `movement` for anything that moves
 hardware, `power` for power switching, `config` for settings that change state.
 When unsure, pick the more cautious class.
 
+**Firmware requirements go in the name.** Neither the composer nor the hosted
+reference shows a component's `firmware` or `routing.notes`, so users never see
+them. When a command needs newer firmware than the rest of its board, say so in
+the command `name` — e.g. `"Go Home (WCB 6.2+)"`. When the whole board needs it,
+put it in the component `name` and the matching manifest entry. Keep `firmware`
+and `routing.notes` accurate anyway: they are the reviewer's record of what was
+verified.
+
 **`commentLabel` — the auto-note on insert.** When a step is added, the composer
 attaches this string as the step's `*** …` comment (its human label in the wire
 string). It supports two bits of grammar, so the note can describe the actual

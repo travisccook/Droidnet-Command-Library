@@ -4,6 +4,19 @@
 **Board:** `libraries/boards/flthy-hps.json`
 **Source of truth:** [FlthyHPs Manual v1.8](https://www.printed-droid.com/wp-content/uploads/2020/01/FlthyHPsManual_v1.8.pdf), "I2C/Serial Command Structure" (pp. 22–24)
 
+> **Superseded in part by 4.3.0 (2026-09-15).** Decisions 1 and 2 below are reversed, and the
+> "Problem" section's diagnosis is wrong. The manual's command table (05 Short Circuit, 06 Solid,
+> 07 Rainbow; examples `R0063`, `T007`) is the numbering of the v1.3-v1.5 sketches. From v1.6 on,
+> every sketch dispatches `005` solid, `006` rainbow and `007` short circuit, and accepts the
+> `X`/`Y`/`Z` designators. That includes v1.81, the last v1 sketch (`FlthyHPs_v1.8.ino`: designators
+> `:791-797`, dispatch `:932-934`), and the author's current v2.1. 4.3.0 therefore sets
+> `flthy.led.solid` to `{designator}005{color}`, `flthy.led.rainbow` to `{designator}006` and
+> `flthy.led.shortcircuit` to `{designator}007{color}`, and restores X (Front & Rear), Y (Front & Top)
+> and Z (Rear & Top). The ids and param names do not change. Decision 3 (servo codes follow the
+> table) stands; it matches the v1.81 servo dispatch (`FlthyHPs_v1.8.ino:956-961`). Sources and
+> line references: `2026-09-15-wcb-firmware-6.2.1-sweep-design.md`, "FlthyHPs sequence codes".
+> The tables below record the 2.3.0 design as it shipped.
+
 ## Problem
 
 The `flthy-hps` board implements only 2 of the manual's ~20 device commands, and **both are mis-encoded** (off by one sequence number):

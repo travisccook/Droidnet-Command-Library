@@ -1,0 +1,108 @@
+{
+  "$schema": "droidnet-command-library/library/v1",
+  "enums": {
+    "dfp.eq": {
+      "label": "Equalizer",
+      "values": [
+        { "code": "0", "label": "Normal" },
+        { "code": "1", "label": "Pop" },
+        { "code": "2", "label": "Rock" },
+        { "code": "3", "label": "Jazz" },
+        { "code": "4", "label": "Classic" },
+        { "code": "5", "label": "Bass" }
+      ]
+    },
+    "dfp.loopAll": {
+      "label": "Loop all",
+      "values": [
+        { "code": "0", "label": "Off" },
+        { "code": "1", "label": "On" }
+      ]
+    }
+  },
+  "components": [
+    {
+      "id": "wcb-dfp",
+      "name": "WCB · DFPlayer Mini (WCB 6.2+)",
+      "kind": "wcb-verb",
+      "confidence": "high",
+      "firmware": "WCB 6.2.1_021242RSEP2026",
+      "routing": {
+        "class": "wcb-verb",
+        "notes": "Needs WCB 6.2.1 with a DFPlayer Mini configured (?DFP,S<port>; the baud is fixed at 9600). WCB 6.1.x has no ;D. ;D runs on the board that hosts the DFPlayer: this board if it has one, else the stored ?DFP,REMOTE,W<n> host, else an online board that advertises a DFPlayer over WDP (WCB.ino:6426-6428). Volume is 0 (silent) to 30 (loudest), the reverse of the MP3 Trigger's ;A scale; VOLUP/VOLDN step by 2. ONFIN,<key> runs stored command ;C<key> when the track finishes; STOP and RESET cancel it. The module needs about 1.5-3 s after power-on before it accepts commands, and clone modules may ignore RANDOM, EQ and LOOPFOLDER (WCB_Help.cpp:589-593). Verbs and ranges: WcbCmd 0.8.0 DfPlayerCodec::handle (WcbDfPlayer.cpp:51-168). Not modeled: the bare ,<key> callback, and ;D,DEVICE,<n> (1 USB, 2 SD, 3 AUX, 4 Sleep, 5 Flash), which 6.2.1 rejects as unknown: processDFPCommand strips the leading D (WCB_DFP.cpp:72-74) and DfPlayerCodec::handle strips a second one (WcbDfPlayer.cpp:54), leaving EVICE,<n>."
+      },
+      "commands": [
+        { "id": "dfp.play", "name": "Play Track", "safety": "cosmetic", "encoder": "template",
+          "template": ";D,PLAY,{track}",
+          "params": [ { "name": "track", "type": "int", "min": 1, "max": 2999, "required": true } ],
+          "examples": [";D,PLAY,5"], "commentLabel": "DFPlayer play", "category": "Sound" },
+        { "id": "dfp.playCb", "name": "Play Track + Callback", "safety": "cosmetic", "encoder": "template",
+          "template": ";D,PLAY,{track},ONFIN,{key}",
+          "params": [ { "name": "track", "type": "int", "min": 1, "max": 2999, "required": true },
+                      { "name": "key", "pattern": "[A-Za-z0-9_]+", "required": true } ],
+          "examples": [";D,PLAY,5,ONFIN,done"], "commentLabel": "DFPlayer play+cb", "category": "Sound" },
+        { "id": "dfp.folder", "name": "Play Folder Track", "safety": "cosmetic", "encoder": "template",
+          "template": ";D,FOLDER,{folder},{track}",
+          "params": [ { "name": "folder", "type": "int", "min": 1, "max": 99, "required": true },
+                      { "name": "track", "type": "int", "min": 1, "max": 255, "required": true } ],
+          "examples": [";D,FOLDER,1,5"], "commentLabel": "DFPlayer folder", "category": "Sound" },
+        { "id": "dfp.folderCb", "name": "Play Folder Track + Callback", "safety": "cosmetic", "encoder": "template",
+          "template": ";D,FOLDER,{folder},{track},ONFIN,{key}",
+          "params": [ { "name": "folder", "type": "int", "min": 1, "max": 99, "required": true },
+                      { "name": "track", "type": "int", "min": 1, "max": 255, "required": true },
+                      { "name": "key", "pattern": "[A-Za-z0-9_]+", "required": true } ],
+          "examples": [";D,FOLDER,1,5,ONFIN,done"], "commentLabel": "DFPlayer folder+cb", "category": "Sound" },
+        { "id": "dfp.mp3Folder", "name": "Play /MP3 Folder Track", "safety": "cosmetic", "encoder": "template",
+          "template": ";D,MP3FOLDER,{track}",
+          "params": [ { "name": "track", "type": "int", "min": 1, "max": 9999, "required": true } ],
+          "examples": [";D,MP3FOLDER,3"], "commentLabel": "DFPlayer MP3 folder", "category": "Sound" },
+        { "id": "dfp.mp3FolderCb", "name": "Play /MP3 Folder Track + Callback", "safety": "cosmetic", "encoder": "template",
+          "template": ";D,MP3FOLDER,{track},ONFIN,{key}",
+          "params": [ { "name": "track", "type": "int", "min": 1, "max": 9999, "required": true },
+                      { "name": "key", "pattern": "[A-Za-z0-9_]+", "required": true } ],
+          "examples": [";D,MP3FOLDER,3,ONFIN,done"], "commentLabel": "DFPlayer MP3 folder+cb", "category": "Sound" },
+        { "id": "dfp.stop", "name": "Stop", "safety": "cosmetic", "encoder": "template",
+          "template": ";D,STOP", "params": [], "examples": [";D,STOP"], "commentLabel": "DFPlayer stop", "category": "Sound" },
+        { "id": "dfp.pause", "name": "Pause", "safety": "cosmetic", "encoder": "template",
+          "template": ";D,PAUSE", "params": [], "examples": [";D,PAUSE"], "commentLabel": "DFPlayer pause", "category": "Sound" },
+        { "id": "dfp.resume", "name": "Resume", "safety": "cosmetic", "encoder": "template",
+          "template": ";D,RESUME", "params": [], "examples": [";D,RESUME"], "commentLabel": "DFPlayer resume", "category": "Sound" },
+        { "id": "dfp.next", "name": "Next Track", "safety": "cosmetic", "encoder": "template",
+          "template": ";D,NEXT", "params": [], "examples": [";D,NEXT"], "commentLabel": "DFPlayer next", "category": "Sound" },
+        { "id": "dfp.prev", "name": "Previous Track", "safety": "cosmetic", "encoder": "template",
+          "template": ";D,PREV", "params": [], "examples": [";D,PREV"], "commentLabel": "DFPlayer prev", "category": "Sound" },
+        { "id": "dfp.random", "name": "Random Play", "safety": "cosmetic", "encoder": "template",
+          "template": ";D,RANDOM", "params": [], "examples": [";D,RANDOM"], "commentLabel": "DFPlayer random", "category": "Sound" },
+        { "id": "dfp.loop", "name": "Loop Track", "safety": "cosmetic", "encoder": "template",
+          "template": ";D,LOOP,{track}",
+          "params": [ { "name": "track", "type": "int", "min": 1, "max": 2999, "required": true } ],
+          "examples": [";D,LOOP,5"], "commentLabel": "DFPlayer loop", "category": "Sound" },
+        { "id": "dfp.loopAll", "name": "Loop All Tracks", "safety": "cosmetic", "encoder": "template",
+          "template": ";D,LOOPALL,{state}",
+          "params": [ { "name": "state", "enum": "dfp.loopAll", "required": true } ],
+          "examples": [";D,LOOPALL,1"], "commentLabel": "DFPlayer loop all", "category": "Sound" },
+        { "id": "dfp.loopFolder", "name": "Loop Folder", "safety": "cosmetic", "encoder": "template",
+          "template": ";D,LOOPFOLDER,{folder}",
+          "params": [ { "name": "folder", "type": "int", "min": 1, "max": 99, "required": true } ],
+          "examples": [";D,LOOPFOLDER,1"], "commentLabel": "DFPlayer loop folder", "category": "Sound" },
+        { "id": "dfp.eq", "name": "Equalizer", "safety": "cosmetic", "encoder": "template",
+          "template": ";D,EQ,{preset}",
+          "params": [ { "name": "preset", "enum": "dfp.eq", "required": true } ],
+          "examples": [";D,EQ,2"], "commentLabel": "DFPlayer EQ", "category": "Sound" },
+        { "id": "dfp.volume", "name": "Set Volume", "safety": "cosmetic", "encoder": "template",
+          "template": ";D,VOL,{volume}",
+          "params": [ { "name": "volume", "type": "int", "min": 0, "max": 30, "default": 20, "required": true } ],
+          "examples": [";D,VOL,20"], "commentLabel": "DFPlayer volume", "category": "Volume" },
+        { "id": "dfp.volUp", "name": "Volume Up (+2)", "safety": "cosmetic", "encoder": "template",
+          "template": ";D,VOLUP", "params": [], "examples": [";D,VOLUP"], "commentLabel": "DFPlayer vol up", "category": "Volume" },
+        { "id": "dfp.volDown", "name": "Volume Down (-2)", "safety": "cosmetic", "encoder": "template",
+          "template": ";D,VOLDN", "params": [], "examples": [";D,VOLDN"], "commentLabel": "DFPlayer vol down", "category": "Volume" },
+        { "id": "dfp.reset", "name": "Reset Module", "safety": "config", "encoder": "template",
+          "template": ";D,RESET", "params": [], "examples": [";D,RESET"], "commentLabel": "DFPlayer reset", "category": "System" },
+        { "id": "dfp.status", "name": "Query Play Status", "safety": "cosmetic", "encoder": "template",
+          "template": ";D,STATUS", "params": [], "examples": [";D,STATUS"], "commentLabel": "DFPlayer status", "category": "System" }
+      ],
+      "categories": ["Sound", "Volume", "System"]
+    }
+  ]
+}
