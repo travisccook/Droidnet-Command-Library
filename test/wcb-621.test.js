@@ -184,3 +184,92 @@ describe('maestro: WCB 6.2 comma verbs and get queries', () => {
     expect(comp.routing.notes).toMatch(/1-8/);
   });
 });
+
+// ---- wcb-dfp: DFPlayer Mini ;D verbs (WCB 6.2+) --------------------------------------------
+// Grammar and ranges: WcbCmd 0.8.0 DfPlayerCodec::handle (WcbDfPlayer.cpp:51-168), which WCB
+// 6.2.1 links; dispatch WCB_DFP.cpp:69-91; host routing WCB.ino:6426-6428; help WCB_Help.cpp:566-593.
+describe('wcb-dfp: DFPlayer Mini (;D, WCB 6.2+)', () => {
+  let cb;
+  beforeEach(() => {
+    cb = loadEngine();
+    const { manifest, boards } = readCatalog();
+    cb.loadLibrary(boards.map(b => JSON.parse(JSON.stringify(b))), { libraryVersion: manifest.libraryVersion });
+  });
+
+  test('is listed right after wcb-mp3 and names WCB 6.2+ in the component and the manifest', () => {
+    const { manifest } = readCatalog();
+    const ids = manifest.boards.map(b => b.id);
+    expect(ids.indexOf('wcb-dfp')).toBe(ids.indexOf('wcb-mp3') + 1);
+    const comp = cb.getComponents().find(c => c.id === 'wcb-dfp');
+    expect(comp).toMatchObject({ kind: 'wcb-verb', confidence: 'high', firmware: 'WCB 6.2.1_021242RSEP2026' });
+    expect(comp.name).toBe('WCB · DFPlayer Mini (WCB 6.2+)');
+    expect(manifest.boards.find(b => b.id === 'wcb-dfp').name).toBe(comp.name);
+  });
+
+  test('models the 21 verbs WCB 6.2.1 accepts, in order', () => {
+    expect(cb.getCommands('wcb-dfp').map(c => c.template)).toEqual([
+      ';D,PLAY,{track}', ';D,PLAY,{track},ONFIN,{key}',
+      ';D,FOLDER,{folder},{track}', ';D,FOLDER,{folder},{track},ONFIN,{key}',
+      ';D,MP3FOLDER,{track}', ';D,MP3FOLDER,{track},ONFIN,{key}',
+      ';D,STOP', ';D,PAUSE', ';D,RESUME', ';D,NEXT', ';D,PREV', ';D,RANDOM',
+      ';D,LOOP,{track}', ';D,LOOPALL,{state}', ';D,LOOPFOLDER,{folder}', ';D,EQ,{preset}',
+      ';D,VOL,{volume}', ';D,VOLUP', ';D,VOLDN',
+      ';D,RESET', ';D,STATUS',
+    ]);
+  });
+
+  test('keeps the ids, templates and params of the DroidNet 2.2.0 dfp board', () => {
+    const play = cb.getCommand('dfp.play');
+    expect(play.template).toBe(';D,PLAY,{track}');
+    expect(play.params).toEqual([expect.objectContaining({ name: 'track', type: 'int', min: 1, max: 2999 })]);
+    expect(cb.getCommand('dfp.stop').template).toBe(';D,STOP');
+    const vol = cb.getCommand('dfp.volume');
+    expect(vol.template).toBe(';D,VOL,{volume}');
+    expect(vol.params).toEqual([expect.objectContaining({ name: 'volume', type: 'int', min: 0, max: 30, default: 20 })]);
+    expect(cb.encode(vol, {}, {})).toBe(';D,VOL,20');
+  });
+
+  test('ranges and enums follow DfPlayerCodec::handle', () => {
+    const range = (id, name) => { const p = cb.getCommand(id).params.find(x => x.name === name); return [p.min, p.max]; };
+    expect(range('dfp.folder', 'folder')).toEqual([1, 99]);
+    expect(range('dfp.folder', 'track')).toEqual([1, 255]);
+    expect(range('dfp.mp3Folder', 'track')).toEqual([1, 9999]);
+    expect(range('dfp.loop', 'track')).toEqual([1, 2999]);
+    expect(range('dfp.loopFolder', 'folder')).toEqual([1, 99]);
+    expect(cb.getEnum('dfp.eq').values.map(v => v.code)).toEqual(['0', '1', '2', '3', '4', '5']);
+    expect(cb.getEnum('dfp.loopAll').values.map(v => v.code)).toEqual(['0', '1']);
+  });
+
+  test('ONFIN callbacks decode to their own ids; the bare ,key form stays raw', () => {
+    expect(cb.match(';D,PLAY,5')).toMatchObject({ commandId: 'dfp.play', params: { track: '5' } });
+    expect(cb.match(';D,PLAY,5,ONFIN,done')).toMatchObject({ commandId: 'dfp.playCb', params: { track: '5', key: 'done' } });
+    expect(cb.match(';D,FOLDER,1,5,ONFIN,done')).toMatchObject({ commandId: 'dfp.folderCb', params: { folder: '1', track: '5', key: 'done' } });
+    expect(cb.match(';D,MP3FOLDER,3,ONFIN,done')).toMatchObject({ commandId: 'dfp.mp3FolderCb', params: { track: '3', key: 'done' } });
+    expect(cb.match(';D,PLAY,5,done')).toBeNull();
+    const v = ';D,PLAY,5,ONFIN,done^*** DFPlayer play+cb^;D,VOL,0';
+    expect(cb.buildWCBValue(cb.parseWCBValue(v))).toBe(v);
+  });
+
+  test('LOOP / LOOPALL / LOOPFOLDER and VOL / VOLUP / VOLDN do not shadow each other', () => {
+    expect(cb.match(';D,LOOP,5').commandId).toBe('dfp.loop');
+    expect(cb.match(';D,LOOPALL,1').commandId).toBe('dfp.loopAll');
+    expect(cb.match(';D,LOOPFOLDER,1').commandId).toBe('dfp.loopFolder');
+    expect(cb.match(';D,VOL,20').commandId).toBe('dfp.volume');
+    expect(cb.match(';D,VOLUP').commandId).toBe('dfp.volUp');
+    expect(cb.match(';D,VOLDN').commandId).toBe('dfp.volDown');
+  });
+
+  test('only RESET is non-cosmetic', () => {
+    const nonCosmetic = cb.getCommands('wcb-dfp').filter(c => c.safety !== 'cosmetic').map(c => `${c.id}:${c.safety}`);
+    expect(nonCosmetic).toEqual(['dfp.reset:config']);
+  });
+
+  // ;D,DEVICE,<n> is documented (WCB_Help.cpp:581) but WCB 6.2.1 rejects it: processDFPCommand
+  // strips the leading "D," (WCB_DFP.cpp:72-74), then DfPlayerCodec::handle strips an optional
+  // leading 'D' again (WcbDfPlayer.cpp:54), so "DEVICE,2" reaches the verb table as "EVICE,2".
+  // Add dfp.device (a minor) once a WcbCmd fix ships in WCB firmware.
+  test(';D,DEVICE,<n> is not modeled while WCB 6.2.1 rejects it', () => {
+    expect(cb.getCommand('dfp.device')).toBeNull();
+    expect(cb.match(';D,DEVICE,2')).toBeNull();
+  });
+});

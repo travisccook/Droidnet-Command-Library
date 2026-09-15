@@ -41,6 +41,12 @@
       "confidence": "high"
     },
     {
+      "id": "wcb-dfp",
+      "file": "boards/wcb-dfp.json",
+      "name": "WCB · DFPlayer Mini (WCB 6.2+)",
+      "confidence": "high"
+    },
+    {
       "id": "maestro",
       "file": "boards/maestro.json",
       "name": "Maestro (WCB ;M verbs)",
