@@ -442,6 +442,40 @@ Committed before any board edit and green on 4.2.0:
   ids (`wcb.runSeqLocal`, `wcb.runSeqLongLocal`, `wcb.seqNames`, `wcb.seqGet`,
   `wcb.timerStop`) are not moved by its split automatically; mention them in the PR.
 
+## As built
+
+Where the implementation commits re-read the firmware and departed from, or refined, the
+tables above (each commit message gives the detail):
+
+- **`wcb-dfp` has 21 commands, not 22.** `dfp.device` and its enum are not modeled because WCB
+  6.2.1 rejects `;D,DEVICE,<n>`: `processDFPCommand` strips the leading `D,`
+  (`WCB_DFP.cpp:72-74`), then WcbCmd `DfPlayerCodec::handle` strips an optional leading `D`
+  again (`WcbDfPlayer.cpp:54`), so the codec sees `EVICE,<n>`. WcbCmd's own golden vector
+  `DEVICE,2` (`examples/GoldenVectors/GoldenVectors.ino:211`) fails the same way. `;D,DEVICE,2`
+  stays a raw step; adding `dfp.device` once a fix ships is a minor. Only `dfp.reset` is
+  `config`.
+- **`maestro` comma forms.** A 6.2.1 board forwards a comma form whose payload is only a
+  number (`;M1,5`) in the legacy spelling `;M15` (`WCB_Maestro.cpp:262-271`), so only verbs
+  and subroutines with a parameter need 6.2.1 on the Maestro host. 6.1.5 also accepts a
+  Maestro configured as id 9 (6.1.5 `WCB_Maestro.cpp:247-248`); 6.2.1 allows 1-8. The
+  `routing.notes` say both.
+- **`wcb-native`.**
+  - `wcb.wledCfg` port uses `wcb.port` (S1-S5), not `wcb.portUsb`: a local WLED must be on
+    S1-S5 (`WCB_WLED.cpp:311`).
+  - `wcb.dfpOnErr` and `wcb.varClear` get case-insensitive lookaheads like `wcb.alias`, because
+    the firmware compares `CLEAR` and `ALL` case-insensitively (`WCB_DFP.cpp:189`,
+    `WCB_Variables.cpp:326-328`). The ONERR key is capped at 23 characters
+    (`WCB_DFP.cpp:193`).
+  - Read-only `?` queries keep the board's existing `config` convention; only `wcb.identify`
+    is `cosmetic`.
+  - `wcb.varScope`, `wcb.varOp`, `wcb.varDir` and the Movement and Variables categories land
+    with the 66 new commands rather than with the range fixes.
+- **`wcb-hcr`.** `;H,VOL` / `VOLUP` / `VOLDN` accept 0-100, but `hcrSetVol` sends at most 99
+  (`WCB_HCR.cpp:84-87`). Ranges stay 0-100 and the notes record the cap. `hcr.fn` `track`
+  0-9999 fits fn 14 (Play WAV); the other codes take 0-99.
+- **Totals.** 22 boards and 500 commands: 397 + 12 `maestro.wcb.*` + 21 `dfp.*` + 4 `hcr.*` +
+  66 `wcb.*`. The only template changes to 4.2.0 ids are the three allowlisted FlthyHPs codes.
+
 ## Verification status
 
 Verified against source only (WCB `66845b9a`, WcbCmd `168f1e5`, the Pololu Maestro guide, the
