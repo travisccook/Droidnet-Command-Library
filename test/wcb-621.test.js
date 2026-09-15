@@ -357,4 +357,19 @@ describe('WCB 6.2.1: wcb-hcr / wcb-mp3 / wcb-wled', () => {
       expect(cb.match(';A,PLAY,1,ONFIN,wave')).toMatchObject({ commandId: 'mp3.playCb' });
     });
   });
+
+  describe('wcb-wled', () => {
+    test('the whole board is named for WCB 6.2+ in the component and the manifest', () => {
+      const wled = component('wcb-wled');
+      expect(wled.name).toBe('WCB · WLED Lighting (WCB 6.2+)');
+      expect(manifest.boards.find(b => b.id === 'wcb-wled').name).toBe(wled.name);
+      expect(wled.firmware).toBe(FW_621);
+      expect(wled.routing.notes).toMatch(/187/);
+    });
+
+    test('presets start at 1 (WLED preset ids are 1-250)', () => {
+      expect(param('wled.preset', 'preset')).toMatchObject({ min: 1, max: 250, default: 1 });
+      expect(cb.match(';L1,PS,3')).toMatchObject({ commandId: 'wled.preset', params: { wledId: '1', preset: '3' } });
+    });
+  });
 });

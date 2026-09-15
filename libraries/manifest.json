@@ -133,7 +133,7 @@
     {
       "id": "wcb-wled",
       "file": "boards/wcb-wled.json",
-      "name": "WCB · WLED Lighting",
+      "name": "WCB · WLED Lighting (WCB 6.2+)",
       "confidence": "high"
     }
   ]
