@@ -72,7 +72,7 @@ Lands before any board edit and must pass on 4.2.0.
 
 **Firmware to re-check:** WcbCmd `WcbDfPlayer.cpp:51-168`; `WCB_DFP.cpp:144-327`; `WCB_Help.cpp:566-593`; `WCB.ino:6426-6428`.
 
-- [ ] Component, enums (`dfp.eq`, `dfp.device`, `dfp.loopAll`) and the 22 commands from the spec table. `dfp.play`, `dfp.stop`, `dfp.volume` keep DroidNet's templates and param names (D1).
+- [ ] Component, enums (`dfp.eq`, `dfp.loopAll`) and the 21 commands from the spec table (`dfp.device` dropped: WCB 6.2.1 cannot run `DEVICE`, see the spec's As built). `dfp.play`, `dfp.stop`, `dfp.volume` keep DroidNet's templates and param names (D1).
 - [ ] Manifest entry `{ "id": "wcb-dfp", "file": "boards/wcb-dfp.json", "name": "WCB · DFPlayer Mini (WCB 6.2+)", "confidence": "high" }` right after `wcb-mp3`.
 - [ ] Update the component-count pin in `test/load-node.test.js` if it is checked before A12 (21 → 22).
 
@@ -130,7 +130,7 @@ Lands before any board edit and must pass on 4.2.0.
 ### Task A12: `release: bump library to 4.3.0 (WCB 6.2.1 sweep)`
 
 - [ ] `libraries/manifest.json`: `libraryVersion` 4.3.0; `generatedFrom` += `; WCB 6.2.1_021242RSEP2026 + WcbCmd 0.8.0 (2026-09)`; 22 boards.
-- [ ] `releases.json`: `latest.libraryVersion` and `libraries[0].libraryVersion` 4.3.0; `releasedAt` = merge date; `latest.notes` one string starting "Minor:" (Maestro comma verbs and queries, ids 0-9 / subs 0-127; `wcb-dfp` with 22 verbs; HCR TRIGGER and all-channel volume, FN codes; 66 `wcb-native` commands and range fixes; WLED presets from 1; FlthyHPs codes follow firmware v1.6+; text fields need a host engine 3.1.0 or later; catalog 21 → 22).
+- [ ] `releases.json`: `latest.libraryVersion` and `libraries[0].libraryVersion` 4.3.0; `releasedAt` = merge date; `latest.notes` one string starting "Minor:" (Maestro comma verbs and queries, ids 0-9 / subs 0-127; `wcb-dfp` with 21 verbs; HCR TRIGGER and all-channel volume, FN codes; 66 `wcb-native` commands and range fixes; WLED presets from 1; FlthyHPs codes follow firmware v1.6+; text fields need a host engine 3.1.0 or later; catalog 21 → 22).
 - [ ] `package.json` and `package-lock.json` (both `version` fields) 4.3.0 — hand-edit, or `npm --no-git-tag-version version 4.3.0`.
 - [ ] Test pins: `test/load-node.test.js` `'4.3.0'` and `toBe(22)`; `test/engine.test.js` `'4.3.0'`.
 - [ ] Gate: `npm run validate` (warnings only for non-standard categories), `npm test` green.

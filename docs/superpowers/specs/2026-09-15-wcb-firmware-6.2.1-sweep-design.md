@@ -163,10 +163,11 @@ Grammar: WcbCmd `WcbDfPlayer.cpp:51-168`; config `WCB_DFP.cpp:144-327`; help
   else the `?DFP,REMOTE` board, else a board advertising a DFPlayer over WDP; volume 0 = silent,
   30 = loudest (the reverse of `;A`); allow 1.5-3 s after power-on; clone modules may ignore
   RANDOM, EQ and LOOPFOLDER.
-- **Enums:** `dfp.eq` 0 Normal, 1 Pop, 2 Rock, 3 Jazz, 4 Classic, 5 Bass; `dfp.device` 1 USB,
-  2 SD card, 3 AUX, 4 Sleep, 5 Flash; `dfp.loopAll` 0 Off, 1 On.
-- **22 commands**, all `cosmetic` except `dfp.device` and `dfp.reset` (`config`). Callback key
-  pattern `[A-Za-z0-9_]+`.
+- **Enums:** `dfp.eq` 0 Normal, 1 Pop, 2 Rock, 3 Jazz, 4 Classic, 5 Bass; `dfp.loopAll` 0 Off,
+  1 On.
+- **21 commands**, all `cosmetic` except `dfp.reset` (`config`). Callback key pattern
+  `[A-Za-z0-9_]+`. A `dfp.device` command (`;D,DEVICE,{source}`) and its enum were planned but
+  not shipped: WCB 6.2.1 cannot run `DEVICE` (see As built).
 
 | id | template | params | example |
 |---|---|---|---|
@@ -183,7 +184,6 @@ Grammar: WcbCmd `WcbDfPlayer.cpp:51-168`; config `WCB_DFP.cpp:144-327`; help
 | `dfp.eq` | `;D,EQ,{preset}` | `dfp.eq` | `;D,EQ,2` |
 | `dfp.volume` | `;D,VOL,{volume}` | volume 0-30, default 20 | `;D,VOL,20` |
 | `dfp.volUp`, `dfp.volDown` | `;D,VOLUP`, `;D,VOLDN` | — (steps of 2) | same as template |
-| `dfp.device` | `;D,DEVICE,{source}` | `dfp.device` | `;D,DEVICE,2` |
 | `dfp.reset` | `;D,RESET` | — | `;D,RESET` |
 | `dfp.status` | `;D,STATUS` | — | `;D,STATUS` |
 
@@ -390,7 +390,7 @@ is stored.
 | `wled.power`, `wled.brightness`, `wled.effect`, `wled.effectTuned`, `wled.palette` | DroidNet only | — | not added (D1) |
 | `wled.preset` | `{id}` enum, 1-250 | `{wledId}` int, 0-250 | published shape, min 1 |
 | `wled.color` | named-color enum | hex `pattern` | unchanged |
-| `dfp.play`, `dfp.stop`, `dfp.volume` | as in the `wcb-dfp` table | — | same template and params, plus 19 more `dfp.*` |
+| `dfp.play`, `dfp.stop`, `dfp.volume` | as in the `wcb-dfp` table | — | same template and params, plus 18 more `dfp.*` |
 | `mp.mode` / `magic-panel` | DroidNet | `iamp.mode` / `ia-magic-panel` since 4.0.0 | unchanged |
 | `flthy.led.solid`, `flthy.led.rainbow` | 005 / 006 | 006 / 007 | 005 / 006 (firmware) |
 
