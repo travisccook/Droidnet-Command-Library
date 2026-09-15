@@ -12,7 +12,8 @@
         "nativeWrapper": "none",
         "durationSuffix": {
           "supported": false
-        }
+        },
+        "notes": "Bare Pololu action grammar used by NaviCore and local controllers; a WCB does not translate it (WCB 6.2.1 broadcasts unprefixed text as-is, WCB.ino handleSingleCommand -> processBroadcastCommand). For a WCB use the maestro board (;M{id},…). WcbCmd's WcbMaestro omits restartScript, setSpeedAccel and setEasing (WcbMaestro.h:48-51)."
       },
       "commands": [
         {

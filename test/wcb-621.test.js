@@ -185,6 +185,19 @@ describe('maestro: WCB 6.2 comma verbs and get queries', () => {
   });
 });
 
+// maestro-native (A10): routing.notes only (D3). The bare Pololu action grammar is not a WCB grammar;
+// the notes steer WCB users to the maestro board's ;M{id}, forms.
+describe('maestro-native: not a WCB grammar', () => {
+  test('notes say a WCB does not translate it and point at the maestro board', () => {
+    const cb = loadEngine();
+    const { manifest, boards } = readCatalog();
+    cb.loadLibrary(boards.map(b => JSON.parse(JSON.stringify(b))), { libraryVersion: manifest.libraryVersion });
+    const comp = cb.getComponents().find(c => c.id === 'maestro-native');
+    expect(comp.routing.notes).toMatch(/a WCB does not translate it/);
+    expect(comp.routing.notes).toMatch(/;M\{id\},/);
+  });
+});
+
 // ---- wcb-dfp: DFPlayer Mini ;D verbs (WCB 6.2+) --------------------------------------------
 // Grammar and ranges: WcbCmd 0.8.0 DfPlayerCodec::handle (WcbDfPlayer.cpp:51-168), which WCB
 // 6.2.1 links; dispatch WCB_DFP.cpp:69-91; host routing WCB.ino:6426-6428; help WCB_Help.cpp:566-593.
