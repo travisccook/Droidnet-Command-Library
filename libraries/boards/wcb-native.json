@@ -27,7 +27,14 @@
       { "code": "MUSE", "label": "Muse" }, { "code": "WAVCOUNT", "label": "WAV count" },
       { "code": "PLAYING,V", "label": "Playing: Vocalizer" }, { "code": "PLAYING,A", "label": "Playing: channel A" },
       { "code": "PLAYING,B", "label": "Playing: channel B" }, { "code": "VOL,V", "label": "Volume: Vocalizer" },
-      { "code": "VOL,A", "label": "Volume: channel A" }, { "code": "VOL,B", "label": "Volume: channel B" } ] }
+      { "code": "VOL,A", "label": "Volume: channel A" }, { "code": "VOL,B", "label": "Volume: channel B" } ] },
+    "wcb.varScope": { "label": "Scope", "values": [
+      { "code": "V", "label": "Volatile (RAM)" }, { "code": "VP", "label": "Persistent (NVS, WCB 6.2+)" } ] },
+    "wcb.varOp": { "label": "Operation", "values": [
+      { "code": "TOGGLE", "label": "Toggle (0 / 1)" }, { "code": "INC", "label": "Increment by 1" },
+      { "code": "DEC", "label": "Decrement by 1" }, { "code": "true", "label": "Set true (1)" },
+      { "code": "false", "label": "Set false (0)" } ] },
+    "wcb.varDir": { "label": "Direction", "values": [ { "code": "INC", "label": "Increment" }, { "code": "DEC", "label": "Decrement" } ] }
   },
   "components": [
     {
@@ -99,6 +106,167 @@
             "?WCBQ,3"
           ],
           "commentLabel": "WCB quantity",
+          "category": "Setup"
+        },
+        {
+          "id": "wcb.meshChannel",
+          "name": "Set Mesh Channel, applies on reboot (WCB 6.2+)",
+          "safety": "config",
+          "encoder": "template",
+          "template": "?WCBCH,{ch}",
+          "params": [
+            {
+              "name": "ch",
+              "type": "int",
+              "min": 1,
+              "max": 11,
+              "required": true
+            }
+          ],
+          "examples": [
+            "?WCBCH,6"
+          ],
+          "commentLabel": "WCB mesh channel",
+          "category": "Setup"
+        },
+        {
+          "id": "wcb.aliasClear",
+          "name": "Clear Board Alias",
+          "safety": "config",
+          "encoder": "template",
+          "template": "?ALIAS,CLEAR",
+          "params": [],
+          "examples": [
+            "?ALIAS,CLEAR"
+          ],
+          "commentLabel": "WCB alias clear",
+          "category": "Setup"
+        },
+        {
+          "id": "wcb.aliasList",
+          "name": "Show Board Alias",
+          "safety": "config",
+          "encoder": "template",
+          "template": "?ALIAS,LIST",
+          "params": [],
+          "examples": [
+            "?ALIAS,LIST"
+          ],
+          "commentLabel": "WCB alias list",
+          "category": "Setup"
+        },
+        {
+          "id": "wcb.alias",
+          "name": "Set Board Alias",
+          "safety": "config",
+          "encoder": "template",
+          "template": "?ALIAS,{name}",
+          "params": [
+            {
+              "name": "name",
+              "pattern": "(?![Cc][Ll][Ee][Aa][Rr]$|[Ll][Ii][Ss][Tt]$)[A-Za-z][^,;?]{0,23}",
+              "required": true
+            }
+          ],
+          "examples": [
+            "?ALIAS,Dome"
+          ],
+          "commentLabel": "WCB alias",
+          "category": "Setup"
+        },
+        {
+          "id": "wcb.controllerOn",
+          "name": "Controller Peer On (WCB 6.2+)",
+          "safety": "config",
+          "encoder": "template",
+          "template": "?CONTROLLER,ON",
+          "params": [],
+          "examples": [
+            "?CONTROLLER,ON"
+          ],
+          "commentLabel": "WCB controller on",
+          "category": "Setup"
+        },
+        {
+          "id": "wcb.controllerOnId",
+          "name": "Controller Peer On, custom id (WCB 6.2+)",
+          "safety": "config",
+          "encoder": "template",
+          "template": "?CONTROLLER,ON,{id}",
+          "params": [
+            {
+              "name": "id",
+              "type": "int",
+              "min": 1,
+              "max": 20,
+              "required": true,
+              "default": 20
+            }
+          ],
+          "examples": [
+            "?CONTROLLER,ON,20"
+          ],
+          "commentLabel": "WCB controller on id",
+          "category": "Setup"
+        },
+        {
+          "id": "wcb.controllerOff",
+          "name": "Controller Peer Off (WCB 6.2+)",
+          "safety": "config",
+          "encoder": "template",
+          "template": "?CONTROLLER,OFF",
+          "params": [],
+          "examples": [
+            "?CONTROLLER,OFF"
+          ],
+          "commentLabel": "WCB controller off",
+          "category": "Setup"
+        },
+        {
+          "id": "wcb.ledPin",
+          "name": "Set Status LED Pin",
+          "safety": "config",
+          "encoder": "template",
+          "template": "?LED,PIN,{gpio}",
+          "params": [
+            {
+              "name": "gpio",
+              "type": "int",
+              "min": 0,
+              "max": 48,
+              "required": true
+            }
+          ],
+          "examples": [
+            "?LED,PIN,38"
+          ],
+          "commentLabel": "WCB LED pin",
+          "category": "Setup"
+        },
+        {
+          "id": "wcb.ledPinQuery",
+          "name": "Show Status LED Pin",
+          "safety": "config",
+          "encoder": "template",
+          "template": "?LED,PIN",
+          "params": [],
+          "examples": [
+            "?LED,PIN"
+          ],
+          "commentLabel": "WCB LED pin query",
+          "category": "Setup"
+        },
+        {
+          "id": "wcb.identify",
+          "name": "Identify Board (blink LED)",
+          "safety": "cosmetic",
+          "encoder": "template",
+          "template": "?IDENTIFY",
+          "params": [],
+          "examples": [
+            "?IDENTIFY"
+          ],
+          "commentLabel": "WCB identify",
           "category": "Setup"
         },
         {
@@ -287,6 +455,25 @@
           "category": "Config"
         },
         {
+          "id": "wcb.bcastOutUsb",
+          "name": "Set Broadcast Out to USB/S0 (WCB 6.2+)",
+          "safety": "config",
+          "encoder": "template",
+          "template": "?BCAST,OUT,S0,{state}",
+          "params": [
+            {
+              "name": "state",
+              "enum": "wcb.onOff",
+              "required": true
+            }
+          ],
+          "examples": [
+            "?BCAST,OUT,S0,ON"
+          ],
+          "commentLabel": "WCB bcast out S0",
+          "category": "Config"
+        },
+        {
           "id": "wcb.bcastReset",
           "name": "Reset Broadcast Settings",
           "safety": "config",
@@ -436,6 +623,25 @@
           "category": "Config"
         },
         {
+          "id": "wcb.mapPwmClearOut",
+          "name": "Clear PWM Output Port (reboots)",
+          "safety": "power",
+          "encoder": "template",
+          "template": "?MAP,PWM,CLEAR,OUT,S{port}",
+          "params": [
+            {
+              "name": "port",
+              "enum": "wcb.port",
+              "required": true
+            }
+          ],
+          "examples": [
+            "?MAP,PWM,CLEAR,OUT,S4"
+          ],
+          "commentLabel": "WCB map pwm clear out",
+          "category": "Config"
+        },
+        {
           "id": "wcb.mapPwmList",
           "name": "List PWM Maps",
           "safety": "config",
@@ -504,6 +710,30 @@
             "?KYBER,LOCAL"
           ],
           "commentLabel": "WCB kyber local",
+          "category": "Config"
+        },
+        {
+          "id": "wcb.kyberLocalMaestros",
+          "name": "Kyber Local + Maestro Map",
+          "safety": "config",
+          "encoder": "template",
+          "template": "?KYBER,LOCAL,S{port},{spec}",
+          "params": [
+            {
+              "name": "port",
+              "enum": "wcb.port",
+              "required": true
+            },
+            {
+              "name": "spec",
+              "pattern": "M[0-9]:W[0-9]{1,2}S[0-9]:[0-9]+(?:,M[0-9]:W[0-9]{1,2}S[0-9]:[0-9]+)*",
+              "required": true
+            }
+          ],
+          "examples": [
+            "?KYBER,LOCAL,S2,M1:W1S1:57600,M2:W2S1:57600"
+          ],
+          "commentLabel": "WCB kyber local + maestros",
           "category": "Config"
         },
         {
@@ -593,6 +823,19 @@
           "category": "Config"
         },
         {
+          "id": "wcb.maestroRemote",
+          "name": "Maestro Remote Mode",
+          "safety": "config",
+          "encoder": "template",
+          "template": "?MAESTRO,REMOTE",
+          "params": [],
+          "examples": [
+            "?MAESTRO,REMOTE"
+          ],
+          "commentLabel": "WCB maestro remote",
+          "category": "Config"
+        },
+        {
           "id": "wcb.maestro",
           "name": "Configure Maestro",
           "safety": "config",
@@ -676,6 +919,40 @@
           "category": "Config"
         },
         {
+          "id": "wcb.mp3Remote",
+          "name": "Route MP3 to Host WCB (WCB 6.2+)",
+          "safety": "config",
+          "encoder": "template",
+          "template": "?MP3,REMOTE,W{wcb}",
+          "params": [
+            {
+              "name": "wcb",
+              "type": "int",
+              "min": 1,
+              "max": 20,
+              "required": true
+            }
+          ],
+          "examples": [
+            "?MP3,REMOTE,W2"
+          ],
+          "commentLabel": "WCB mp3 remote",
+          "category": "Config"
+        },
+        {
+          "id": "wcb.mp3RemoteOff",
+          "name": "Stop Routing MP3 (WCB 6.2+)",
+          "safety": "config",
+          "encoder": "template",
+          "template": "?MP3,REMOTE,OFF",
+          "params": [],
+          "examples": [
+            "?MP3,REMOTE,OFF"
+          ],
+          "commentLabel": "WCB mp3 remote off",
+          "category": "Config"
+        },
+        {
           "id": "wcb.mp3Clear",
           "name": "Clear MP3 Config",
           "safety": "config",
@@ -686,6 +963,144 @@
             "?MP3,CLEAR"
           ],
           "commentLabel": "WCB mp3 clear",
+          "category": "Config"
+        },
+        {
+          "id": "wcb.dfpCfg",
+          "name": "Configure DFPlayer (WCB 6.2+)",
+          "safety": "config",
+          "encoder": "template",
+          "template": "?DFP,S{port}:9600:V{vol}",
+          "params": [
+            {
+              "name": "port",
+              "enum": "wcb.port",
+              "required": true
+            },
+            {
+              "name": "vol",
+              "type": "int",
+              "min": 0,
+              "max": 30,
+              "required": true,
+              "default": 20
+            }
+          ],
+          "examples": [
+            "?DFP,S2:9600:V20"
+          ],
+          "commentLabel": "WCB dfp config",
+          "category": "Config"
+        },
+        {
+          "id": "wcb.dfpPort",
+          "name": "Configure DFPlayer, default volume (WCB 6.2+)",
+          "safety": "config",
+          "encoder": "template",
+          "template": "?DFP,S{port}",
+          "params": [
+            {
+              "name": "port",
+              "enum": "wcb.port",
+              "required": true
+            }
+          ],
+          "examples": [
+            "?DFP,S3"
+          ],
+          "commentLabel": "WCB dfp port",
+          "category": "Config"
+        },
+        {
+          "id": "wcb.dfpList",
+          "name": "List DFPlayer Config (WCB 6.2+)",
+          "safety": "config",
+          "encoder": "template",
+          "template": "?DFP,LIST",
+          "params": [],
+          "examples": [
+            "?DFP,LIST"
+          ],
+          "commentLabel": "WCB dfp list",
+          "category": "Config"
+        },
+        {
+          "id": "wcb.dfpClear",
+          "name": "Clear DFPlayer Config (WCB 6.2+)",
+          "safety": "config",
+          "encoder": "template",
+          "template": "?DFP,CLEAR",
+          "params": [],
+          "examples": [
+            "?DFP,CLEAR"
+          ],
+          "commentLabel": "WCB dfp clear",
+          "category": "Config"
+        },
+        {
+          "id": "wcb.dfpRemote",
+          "name": "Route DFPlayer to Host WCB (WCB 6.2+)",
+          "safety": "config",
+          "encoder": "template",
+          "template": "?DFP,REMOTE,W{wcb}",
+          "params": [
+            {
+              "name": "wcb",
+              "type": "int",
+              "min": 1,
+              "max": 20,
+              "required": true
+            }
+          ],
+          "examples": [
+            "?DFP,REMOTE,W3"
+          ],
+          "commentLabel": "WCB dfp remote",
+          "category": "Config"
+        },
+        {
+          "id": "wcb.dfpRemoteOff",
+          "name": "Stop Routing DFPlayer (WCB 6.2+)",
+          "safety": "config",
+          "encoder": "template",
+          "template": "?DFP,REMOTE,OFF",
+          "params": [],
+          "examples": [
+            "?DFP,REMOTE,OFF"
+          ],
+          "commentLabel": "WCB dfp remote off",
+          "category": "Config"
+        },
+        {
+          "id": "wcb.dfpOnErrClear",
+          "name": "Clear DFPlayer On-Error Sequence (WCB 6.2+)",
+          "safety": "config",
+          "encoder": "template",
+          "template": "?DFP,ONERR,CLEAR",
+          "params": [],
+          "examples": [
+            "?DFP,ONERR,CLEAR"
+          ],
+          "commentLabel": "WCB dfp onerr clear",
+          "category": "Config"
+        },
+        {
+          "id": "wcb.dfpOnErr",
+          "name": "Set DFPlayer On-Error Sequence (WCB 6.2+)",
+          "safety": "config",
+          "encoder": "template",
+          "template": "?DFP,ONERR,{key}",
+          "params": [
+            {
+              "name": "key",
+              "pattern": "(?![Cc][Ll][Ee][Aa][Rr]$)[A-Za-z0-9_]{1,23}",
+              "required": true
+            }
+          ],
+          "examples": [
+            "?DFP,ONERR,errseq"
+          ],
+          "commentLabel": "WCB dfp onerr",
           "category": "Config"
         },
         {
@@ -731,6 +1146,53 @@
             "?HCR,POLL,10"
           ],
           "commentLabel": "WCB hcr poll",
+          "category": "Config"
+        },
+        {
+          "id": "wcb.hcrPollOff",
+          "name": "HCR Polling Off",
+          "safety": "config",
+          "encoder": "template",
+          "template": "?HCR,POLL,OFF",
+          "params": [],
+          "examples": [
+            "?HCR,POLL,OFF"
+          ],
+          "commentLabel": "WCB hcr poll off",
+          "category": "Config"
+        },
+        {
+          "id": "wcb.hcrRemote",
+          "name": "Route HCR to Host WCB (WCB 6.2+)",
+          "safety": "config",
+          "encoder": "template",
+          "template": "?HCR,REMOTE,W{wcb}",
+          "params": [
+            {
+              "name": "wcb",
+              "type": "int",
+              "min": 1,
+              "max": 20,
+              "required": true
+            }
+          ],
+          "examples": [
+            "?HCR,REMOTE,W2"
+          ],
+          "commentLabel": "WCB hcr remote",
+          "category": "Config"
+        },
+        {
+          "id": "wcb.hcrRemoteOff",
+          "name": "Stop Routing HCR (WCB 6.2+)",
+          "safety": "config",
+          "encoder": "template",
+          "template": "?HCR,REMOTE,OFF",
+          "params": [],
+          "examples": [
+            "?HCR,REMOTE,OFF"
+          ],
+          "commentLabel": "WCB hcr remote off",
           "category": "Config"
         },
         {
@@ -805,6 +1267,105 @@
           "category": "Config"
         },
         {
+          "id": "wcb.wledCfg",
+          "name": "Configure WLED (WCB 6.2+)",
+          "safety": "config",
+          "encoder": "template",
+          "template": "?WLED,{id}:W{wcb}S{port}:{baud}",
+          "params": [
+            {
+              "name": "id",
+              "type": "int",
+              "min": 1,
+              "max": 9,
+              "required": true
+            },
+            {
+              "name": "wcb",
+              "type": "int",
+              "min": 1,
+              "max": 20,
+              "required": true
+            },
+            {
+              "name": "port",
+              "enum": "wcb.port",
+              "required": true
+            },
+            {
+              "name": "baud",
+              "enum": "wcb.devBaud",
+              "required": true,
+              "default": "115200"
+            }
+          ],
+          "examples": [
+            "?WLED,1:W3S2:115200"
+          ],
+          "commentLabel": "WCB wled config",
+          "category": "Config"
+        },
+        {
+          "id": "wcb.wledList",
+          "name": "List WLED Config (WCB 6.2+)",
+          "safety": "config",
+          "encoder": "template",
+          "template": "?WLED,LIST",
+          "params": [],
+          "examples": [
+            "?WLED,LIST"
+          ],
+          "commentLabel": "WCB wled list",
+          "category": "Config"
+        },
+        {
+          "id": "wcb.wledStatus",
+          "name": "WLED Status (WCB 6.2+)",
+          "safety": "config",
+          "encoder": "template",
+          "template": "?WLED,STATUS",
+          "params": [],
+          "examples": [
+            "?WLED,STATUS"
+          ],
+          "commentLabel": "WCB wled status",
+          "category": "Config"
+        },
+        {
+          "id": "wcb.wledClear",
+          "name": "Clear All WLED Config (WCB 6.2+)",
+          "safety": "config",
+          "encoder": "template",
+          "template": "?WLED,CLEAR",
+          "params": [],
+          "examples": [
+            "?WLED,CLEAR"
+          ],
+          "commentLabel": "WCB wled clear",
+          "category": "Config"
+        },
+        {
+          "id": "wcb.wledClearId",
+          "name": "Clear One WLED (WCB 6.2+)",
+          "safety": "config",
+          "encoder": "template",
+          "template": "?WLED,CLEAR,{id}",
+          "params": [
+            {
+              "name": "id",
+              "type": "int",
+              "min": 1,
+              "max": 9,
+              "required": true
+            }
+          ],
+          "examples": [
+            "?WLED,CLEAR,1"
+          ],
+          "commentLabel": "WCB wled clear id",
+          "category": "Config"
+        },
+        {
           "id": "wcb.routeSerial",
           "name": "Route to Serial Port",
           "safety": "config",
@@ -855,6 +1416,57 @@
           "category": "Routing"
         },
         {
+          "id": "wcb.routeAlias",
+          "name": "Route to WCB by Alias (WCB 6.2+)",
+          "safety": "config",
+          "encoder": "template",
+          "template": ";W{alias},{message}",
+          "params": [
+            {
+              "name": "alias",
+              "pattern": "[A-Za-z][^,;?]{0,23}",
+              "required": true
+            },
+            {
+              "name": "message",
+              "pattern": ".+",
+              "required": true
+            }
+          ],
+          "examples": [
+            ";Wdome,;A,PLAY,1"
+          ],
+          "commentLabel": "WCB route alias",
+          "category": "Routing"
+        },
+        {
+          "id": "wcb.pwmPulse",
+          "name": "Output PWM Pulse",
+          "safety": "movement",
+          "encoder": "template",
+          "template": ";P{port}{width}",
+          "params": [
+            {
+              "name": "port",
+              "enum": "wcb.port",
+              "required": true
+            },
+            {
+              "name": "width",
+              "type": "int",
+              "min": 500,
+              "max": 2500,
+              "required": true,
+              "default": 1500
+            }
+          ],
+          "examples": [
+            ";P11500"
+          ],
+          "commentLabel": "WCB PWM pulse",
+          "category": "Movement"
+        },
+        {
           "id": "wcb.timer",
           "name": "Delayed Command",
           "safety": "config",
@@ -902,6 +1514,38 @@
             "?SEQ,SAVE,wave,;A,PLAY,1"
           ],
           "commentLabel": "WCB seq save",
+          "category": "Sequences"
+        },
+        {
+          "id": "wcb.seqNames",
+          "name": "List Sequence Names (WCB 6.2+)",
+          "safety": "config",
+          "encoder": "template",
+          "template": "?SEQ,NAMES",
+          "params": [],
+          "examples": [
+            "?SEQ,NAMES"
+          ],
+          "commentLabel": "WCB seq names",
+          "category": "Sequences"
+        },
+        {
+          "id": "wcb.seqGet",
+          "name": "Get One Sequence (WCB 6.2+)",
+          "safety": "config",
+          "encoder": "template",
+          "template": "?SEQ,GET,{key}",
+          "params": [
+            {
+              "name": "key",
+              "pattern": "[A-Za-z0-9_]+",
+              "required": true
+            }
+          ],
+          "examples": [
+            "?SEQ,GET,wave"
+          ],
+          "commentLabel": "WCB seq get",
           "category": "Sequences"
         },
         {
@@ -986,6 +1630,268 @@
           ],
           "commentLabel": "WCB run seq (long)",
           "category": "Sequences"
+        },
+        {
+          "id": "wcb.runSeqLocal",
+          "name": "Run Sequence on This Board Only (WCB 6.2+)",
+          "safety": "config",
+          "encoder": "template",
+          "template": ";C{key},L",
+          "params": [
+            {
+              "name": "key",
+              "pattern": "[A-Za-z0-9_]+",
+              "required": true
+            }
+          ],
+          "examples": [
+            ";Cwave,L"
+          ],
+          "commentLabel": "WCB run seq local",
+          "category": "Sequences"
+        },
+        {
+          "id": "wcb.runSeqLongLocal",
+          "name": "Run Sequence on This Board Only, long (WCB 6.2+)",
+          "safety": "config",
+          "encoder": "template",
+          "template": ";SEQ{key},L",
+          "params": [
+            {
+              "name": "key",
+              "pattern": "[A-Za-z0-9_]+",
+              "required": true
+            }
+          ],
+          "examples": [
+            ";SEQwave,L"
+          ],
+          "commentLabel": "WCB run seq local (long)",
+          "category": "Sequences"
+        },
+        {
+          "id": "wcb.timerStop",
+          "name": "Stop Running Timer Sequence",
+          "safety": "config",
+          "encoder": "template",
+          "template": "?STOP",
+          "params": [],
+          "examples": [
+            "?STOP"
+          ],
+          "commentLabel": "WCB timer stop",
+          "category": "Sequences"
+        },
+        {
+          "id": "wcb.varSet",
+          "name": "Set Variable",
+          "safety": "cosmetic",
+          "encoder": "template",
+          "template": ";{scope},{name},{value}",
+          "params": [
+            {
+              "name": "scope",
+              "enum": "wcb.varScope",
+              "required": true,
+              "default": "V"
+            },
+            {
+              "name": "name",
+              "pattern": "[A-Za-z0-9_]{1,15}",
+              "required": true
+            },
+            {
+              "name": "value",
+              "type": "int",
+              "min": -2147483648,
+              "max": 2147483647,
+              "required": true
+            }
+          ],
+          "examples": [
+            ";V,flag,1",
+            ";VP,mode,2"
+          ],
+          "commentLabel": "WCB var set",
+          "category": "Variables"
+        },
+        {
+          "id": "wcb.varOp",
+          "name": "Change Variable",
+          "safety": "cosmetic",
+          "encoder": "template",
+          "template": ";{scope},{name},{op}",
+          "params": [
+            {
+              "name": "scope",
+              "enum": "wcb.varScope",
+              "required": true,
+              "default": "V"
+            },
+            {
+              "name": "name",
+              "pattern": "[A-Za-z0-9_]{1,15}",
+              "required": true
+            },
+            {
+              "name": "op",
+              "enum": "wcb.varOp",
+              "required": true
+            }
+          ],
+          "examples": [
+            ";V,armed,TOGGLE"
+          ],
+          "commentLabel": "WCB var op",
+          "category": "Variables"
+        },
+        {
+          "id": "wcb.varStep",
+          "name": "Increment/Decrement Variable by n",
+          "safety": "cosmetic",
+          "encoder": "template",
+          "template": ";{scope},{name},{dir},{n}",
+          "params": [
+            {
+              "name": "scope",
+              "enum": "wcb.varScope",
+              "required": true,
+              "default": "V"
+            },
+            {
+              "name": "name",
+              "pattern": "[A-Za-z0-9_]{1,15}",
+              "required": true
+            },
+            {
+              "name": "dir",
+              "enum": "wcb.varDir",
+              "required": true
+            },
+            {
+              "name": "n",
+              "type": "int",
+              "min": 1,
+              "max": 2147483647,
+              "required": true,
+              "default": 1
+            }
+          ],
+          "examples": [
+            ";V,volume,INC,5"
+          ],
+          "commentLabel": "WCB var step",
+          "category": "Variables"
+        },
+        {
+          "id": "wcb.if",
+          "name": "IF Condition (gates the next step)",
+          "safety": "cosmetic",
+          "encoder": "template",
+          "template": "IF,{cond}",
+          "params": [
+            {
+              "name": "cond",
+              "pattern": "[A-Za-z0-9_]{1,15}(?:!=|<=|>=|=|<|>)-?[0-9]+(?:,(?:AND|OR|and|or),[A-Za-z0-9_]{1,15}(?:!=|<=|>=|=|<|>)-?[0-9]+)*",
+              "required": true
+            }
+          ],
+          "examples": [
+            "IF,armed=1",
+            "IF,mode>2,AND,armed=1"
+          ],
+          "commentLabel": "IF",
+          "category": "Variables"
+        },
+        {
+          "id": "wcb.varList",
+          "name": "List Variables",
+          "safety": "config",
+          "encoder": "template",
+          "template": "?VAR,LIST",
+          "params": [],
+          "examples": [
+            "?VAR,LIST"
+          ],
+          "commentLabel": "WCB var list",
+          "category": "Variables"
+        },
+        {
+          "id": "wcb.varSetNvs",
+          "name": "Create/Set Persistent Variable",
+          "safety": "config",
+          "encoder": "template",
+          "template": "?VAR,SET,{name},{value}",
+          "params": [
+            {
+              "name": "name",
+              "pattern": "[A-Za-z0-9_]{1,15}",
+              "required": true
+            },
+            {
+              "name": "value",
+              "type": "int",
+              "min": -2147483648,
+              "max": 2147483647,
+              "required": true
+            }
+          ],
+          "examples": [
+            "?VAR,SET,mode,2"
+          ],
+          "commentLabel": "WCB var set nvs",
+          "category": "Variables"
+        },
+        {
+          "id": "wcb.varGet",
+          "name": "Show Variable",
+          "safety": "config",
+          "encoder": "template",
+          "template": "?VAR,GET,{name}",
+          "params": [
+            {
+              "name": "name",
+              "pattern": "[A-Za-z0-9_]{1,15}",
+              "required": true
+            }
+          ],
+          "examples": [
+            "?VAR,GET,mode"
+          ],
+          "commentLabel": "WCB var get",
+          "category": "Variables"
+        },
+        {
+          "id": "wcb.varClearAll",
+          "name": "Delete All Variables",
+          "safety": "config",
+          "encoder": "template",
+          "template": "?VAR,CLEAR,ALL",
+          "params": [],
+          "examples": [
+            "?VAR,CLEAR,ALL"
+          ],
+          "commentLabel": "WCB var clear all",
+          "category": "Variables"
+        },
+        {
+          "id": "wcb.varClear",
+          "name": "Delete Variable",
+          "safety": "config",
+          "encoder": "template",
+          "template": "?VAR,CLEAR,{name}",
+          "params": [
+            {
+              "name": "name",
+              "pattern": "(?![Aa][Ll][Ll]$)[A-Za-z0-9_]{1,15}",
+              "required": true
+            }
+          ],
+          "examples": [
+            "?VAR,CLEAR,mode"
+          ],
+          "commentLabel": "WCB var clear",
+          "category": "Variables"
         },
         {
           "id": "wcb.etmOn",
@@ -1267,6 +2173,294 @@
           "category": "System"
         },
         {
+          "id": "wcb.debugMgmt",
+          "name": "Debug MGMT",
+          "safety": "config",
+          "encoder": "template",
+          "template": "?DEBUG,MGMT,{state}",
+          "params": [
+            {
+              "name": "state",
+              "enum": "wcb.onOff",
+              "required": true
+            }
+          ],
+          "examples": [
+            "?DEBUG,MGMT,ON"
+          ],
+          "commentLabel": "WCB debug mgmt",
+          "category": "System"
+        },
+        {
+          "id": "wcb.debugRaw",
+          "name": "Debug Raw Serial",
+          "safety": "config",
+          "encoder": "template",
+          "template": "?DEBUG,RAW,{state}",
+          "params": [
+            {
+              "name": "state",
+              "enum": "wcb.onOff",
+              "required": true
+            }
+          ],
+          "examples": [
+            "?DEBUG,RAW,ON"
+          ],
+          "commentLabel": "WCB debug raw",
+          "category": "System"
+        },
+        {
+          "id": "wcb.track",
+          "name": "Delivery Tracking On/Off",
+          "safety": "config",
+          "encoder": "template",
+          "template": "?TRACK,{state}",
+          "params": [
+            {
+              "name": "state",
+              "enum": "wcb.onOff",
+              "required": true
+            }
+          ],
+          "examples": [
+            "?TRACK,ON"
+          ],
+          "commentLabel": "WCB track",
+          "category": "System"
+        },
+        {
+          "id": "wcb.trackStatus",
+          "name": "Delivery Tracking Status",
+          "safety": "config",
+          "encoder": "template",
+          "template": "?TRACK,STATUS",
+          "params": [],
+          "examples": [
+            "?TRACK,STATUS"
+          ],
+          "commentLabel": "WCB track status",
+          "category": "System"
+        },
+        {
+          "id": "wcb.version",
+          "name": "Show Firmware Version",
+          "safety": "config",
+          "encoder": "template",
+          "template": "?VERSION",
+          "params": [],
+          "examples": [
+            "?VERSION"
+          ],
+          "commentLabel": "WCB version",
+          "category": "System"
+        },
+        {
+          "id": "wcb.peersLive",
+          "name": "Live Peer Count (WCB 6.2+)",
+          "safety": "config",
+          "encoder": "template",
+          "template": "?PEERSLIVE",
+          "params": [],
+          "examples": [
+            "?PEERSLIVE"
+          ],
+          "commentLabel": "WCB peers live",
+          "category": "System"
+        },
+        {
+          "id": "wcb.wdpList",
+          "name": "WDP Neighbor Table (WCB 6.2+)",
+          "safety": "config",
+          "encoder": "template",
+          "template": "?WDP,LIST",
+          "params": [],
+          "examples": [
+            "?WDP,LIST"
+          ],
+          "commentLabel": "WCB wdp list",
+          "category": "System"
+        },
+        {
+          "id": "wcb.wdpDetail",
+          "name": "WDP Neighbor Detail (WCB 6.2+)",
+          "safety": "config",
+          "encoder": "template",
+          "template": "?WDP,{wcb}",
+          "params": [
+            {
+              "name": "wcb",
+              "type": "int",
+              "min": 1,
+              "max": 20,
+              "required": true
+            }
+          ],
+          "examples": [
+            "?WDP,3"
+          ],
+          "commentLabel": "WCB wdp detail",
+          "category": "System"
+        },
+        {
+          "id": "wcb.wdpStatus",
+          "name": "WDP Status (WCB 6.2+)",
+          "safety": "config",
+          "encoder": "template",
+          "template": "?WDP,STATUS",
+          "params": [],
+          "examples": [
+            "?WDP,STATUS"
+          ],
+          "commentLabel": "WCB wdp status",
+          "category": "System"
+        },
+        {
+          "id": "wcb.wdpDump",
+          "name": "WDP Dump (WCB 6.2+)",
+          "safety": "config",
+          "encoder": "template",
+          "template": "?WDP,DUMP",
+          "params": [],
+          "examples": [
+            "?WDP,DUMP"
+          ],
+          "commentLabel": "WCB wdp dump",
+          "category": "System"
+        },
+        {
+          "id": "wcb.wdpDa",
+          "name": "WDP Serial-Attached Devices (WCB 6.2+)",
+          "safety": "config",
+          "encoder": "template",
+          "template": "?WDP,DA",
+          "params": [],
+          "examples": [
+            "?WDP,DA"
+          ],
+          "commentLabel": "WCB wdp da",
+          "category": "System"
+        },
+        {
+          "id": "wcb.wdpPoll",
+          "name": "WDP Poll Mesh (WCB 6.2+)",
+          "safety": "config",
+          "encoder": "template",
+          "template": "?WDP,POLL",
+          "params": [],
+          "examples": [
+            "?WDP,POLL"
+          ],
+          "commentLabel": "WCB wdp poll",
+          "category": "System"
+        },
+        {
+          "id": "wcb.wdpEnable",
+          "name": "WDP On/Off (WCB 6.2+)",
+          "safety": "config",
+          "encoder": "template",
+          "template": "?WDP,{state}",
+          "params": [
+            {
+              "name": "state",
+              "enum": "wcb.onOff",
+              "required": true
+            }
+          ],
+          "examples": [
+            "?WDP,ON"
+          ],
+          "commentLabel": "WCB wdp enable",
+          "category": "System"
+        },
+        {
+          "id": "wcb.wdpAutojoin",
+          "name": "WDP Auto-Join State (WCB 6.2+)",
+          "safety": "config",
+          "encoder": "template",
+          "template": "?WDP,AUTOJOIN",
+          "params": [],
+          "examples": [
+            "?WDP,AUTOJOIN"
+          ],
+          "commentLabel": "WCB wdp autojoin",
+          "category": "System"
+        },
+        {
+          "id": "wcb.wdpAutojoinSet",
+          "name": "WDP Auto-Join On/Off (WCB 6.2+)",
+          "safety": "config",
+          "encoder": "template",
+          "template": "?WDP,AUTOJOIN,{state}",
+          "params": [
+            {
+              "name": "state",
+              "enum": "wcb.onOff",
+              "required": true
+            }
+          ],
+          "examples": [
+            "?WDP,AUTOJOIN,OFF"
+          ],
+          "commentLabel": "WCB wdp autojoin set",
+          "category": "System"
+        },
+        {
+          "id": "wcb.wdpAdd",
+          "name": "WDP Add Peer (WCB 6.2+)",
+          "safety": "config",
+          "encoder": "template",
+          "template": "?WDP,ADD,{wcb}",
+          "params": [
+            {
+              "name": "wcb",
+              "type": "int",
+              "min": 1,
+              "max": 20,
+              "required": true
+            }
+          ],
+          "examples": [
+            "?WDP,ADD,12"
+          ],
+          "commentLabel": "WCB wdp add",
+          "category": "System"
+        },
+        {
+          "id": "wcb.wdpForget",
+          "name": "WDP Forget Peer (WCB 6.2+)",
+          "safety": "config",
+          "encoder": "template",
+          "template": "?WDP,FORGET,{wcb}",
+          "params": [
+            {
+              "name": "wcb",
+              "type": "int",
+              "min": 1,
+              "max": 20,
+              "required": true
+            }
+          ],
+          "examples": [
+            "?WDP,FORGET,12"
+          ],
+          "commentLabel": "WCB wdp forget",
+          "category": "System"
+        },
+        {
+          "id": "wcb.wdpClear",
+          "name": "WDP Clear Learned Peers (WCB 6.2+)",
+          "safety": "config",
+          "encoder": "template",
+          "template": "?WDP,CLEAR",
+          "params": [],
+          "examples": [
+            "?WDP,CLEAR"
+          ],
+          "commentLabel": "WCB wdp clear",
+          "category": "System"
+        },
+        {
           "id": "wcb.stats",
           "name": "Show Stats",
           "safety": "config",
@@ -1402,7 +2596,7 @@
           "category": "Power"
         }
       ],
-      "categories": ["Setup", "Config", "Routing", "Sequences", "System", "Power"]
+      "categories": ["Setup", "Config", "Routing", "Movement", "Sequences", "Variables", "System", "Power"]
     }
   ]
 }

@@ -438,3 +438,152 @@ describe('wcb-native: WCB 6.2.1 ranges and grammar', () => {
     roundTrips('?MAP,PWM,S1,S2,W20S5');
   });
 });
+
+describe('wcb-native: 66 commands for WCB 6.2.1 (and missed 6.1.5 surface)', () => {
+  let cb;
+  beforeEach(() => {
+    cb = loadEngine();
+    const { manifest, boards } = readCatalog();
+    cb.loadLibrary(boards.map(b => JSON.parse(JSON.stringify(b))), { libraryVersion: manifest.libraryVersion });
+  });
+  const hit = (wire) => { const m = cb.match(wire); return m && m.commandId; };
+
+  // Present in WCB 6.1.5 already (6.1.5 WCB.ino / WCB_Variables.cpp), so no firmware suffix.
+  const SINCE_615 = [
+    'wcb.aliasClear', 'wcb.aliasList', 'wcb.alias', 'wcb.ledPin', 'wcb.ledPinQuery', 'wcb.identify',
+    'wcb.mapPwmClearOut', 'wcb.kyberLocalMaestros', 'wcb.maestroRemote', 'wcb.hcrPollOff', 'wcb.pwmPulse',
+    'wcb.timerStop', 'wcb.varSet', 'wcb.varOp', 'wcb.varStep', 'wcb.if', 'wcb.varList', 'wcb.varSetNvs',
+    'wcb.varGet', 'wcb.varClearAll', 'wcb.varClear', 'wcb.debugMgmt', 'wcb.debugRaw', 'wcb.track',
+    'wcb.trackStatus', 'wcb.version',
+  ];
+  // Absent from 6.1.5; "(WCB 6.2+)" in the name is the only place the composer shows it.
+  const NEW_IN_62 = [
+    'wcb.meshChannel', 'wcb.controllerOn', 'wcb.controllerOnId', 'wcb.controllerOff', 'wcb.bcastOutUsb',
+    'wcb.mp3Remote', 'wcb.mp3RemoteOff', 'wcb.dfpCfg', 'wcb.dfpPort', 'wcb.dfpList', 'wcb.dfpClear',
+    'wcb.dfpRemote', 'wcb.dfpRemoteOff', 'wcb.dfpOnErrClear', 'wcb.dfpOnErr', 'wcb.hcrRemote',
+    'wcb.hcrRemoteOff', 'wcb.wledCfg', 'wcb.wledList', 'wcb.wledStatus', 'wcb.wledClear', 'wcb.wledClearId',
+    'wcb.routeAlias', 'wcb.seqNames', 'wcb.seqGet', 'wcb.runSeqLocal', 'wcb.runSeqLongLocal', 'wcb.peersLive',
+    'wcb.wdpList', 'wcb.wdpDetail', 'wcb.wdpStatus', 'wcb.wdpDump', 'wcb.wdpDa', 'wcb.wdpPoll', 'wcb.wdpEnable',
+    'wcb.wdpAutojoin', 'wcb.wdpAutojoinSet', 'wcb.wdpAdd', 'wcb.wdpForget', 'wcb.wdpClear',
+  ];
+
+  test('adds exactly the 66 new ids, on wcb-native', () => {
+    const added = cb.getCommands('wcb-native').map(c => c.id).filter(id => !FROZEN_420[id]);
+    expect(added.length).toBe(66);
+    expect([...added].sort()).toEqual([...SINCE_615, ...NEW_IN_62].sort());
+  });
+
+  test('firmware requirement is in the name: 6.2-only commands say "(WCB 6.2+)", 6.1.5 ones do not', () => {
+    for (const id of NEW_IN_62) expect(cb.getCommand(id).name).toMatch(/ \(WCB 6\.2\+\)$/);
+    for (const id of SINCE_615) expect(cb.getCommand(id).name).not.toMatch(/6\.2/);
+  });
+
+  test('safety: ;P moves hardware, ?MAP,PWM,CLEAR,OUT reboots, ?IDENTIFY only blinks', () => {
+    expect(cb.getCommand('wcb.pwmPulse').safety).toBe('movement');
+    expect(cb.getCommand('wcb.mapPwmClearOut').safety).toBe('power');
+    expect(cb.getCommand('wcb.identify').safety).toBe('cosmetic');
+  });
+
+  test('literal verbs win over their catch-alls (first match wins)', () => {
+    expect(hit('?ALIAS,CLEAR')).toBe('wcb.aliasClear');
+    expect(hit('?ALIAS,LIST')).toBe('wcb.aliasList');
+    expect(cb.match('?ALIAS,Dome Left')).toEqual({ commandId: 'wcb.alias', params: { name: 'Dome Left' } });
+    expect(hit('?VAR,CLEAR,ALL')).toBe('wcb.varClearAll');
+    expect(cb.match('?VAR,CLEAR,mode')).toEqual({ commandId: 'wcb.varClear', params: { name: 'mode' } });
+    expect(hit('?DFP,ONERR,CLEAR')).toBe('wcb.dfpOnErrClear');
+    expect(cb.match('?DFP,ONERR,errseq')).toEqual({ commandId: 'wcb.dfpOnErr', params: { key: 'errseq' } });
+    expect(hit('?MAESTRO,REMOTE')).toBe('wcb.maestroRemote');
+    expect(hit('?MAESTRO,M1:W2S1:57600')).toBe('wcb.maestro');
+  });
+
+  test('firmware compares CLEAR / LIST / ALL case-insensitively, so any-case spellings stay raw', () => {
+    // WCB.ino:5375-5378 (?ALIAS), WCB_DFP.cpp:189 (?DFP,ONERR), WCB_Variables.cpp:328 (?VAR,CLEAR)
+    expect(cb.match('?ALIAS,clear')).toBeNull();
+    expect(cb.match('?ALIAS,List')).toBeNull();
+    expect(cb.match('?DFP,ONERR,clear')).toBeNull();
+    expect(cb.match('?VAR,CLEAR,all')).toBeNull();
+    expect(cb.parseWCBValue('?ALIAS,clear')[0]).toMatchObject({ type: 'raw' });
+  });
+
+  test(';W routes by alias (letter first) or by board number (digits)', () => {
+    expect(cb.match(';Wdome,;A,PLAY,1')).toEqual({ commandId: 'wcb.routeAlias', params: { alias: 'dome', message: ';A,PLAY,1' } });
+    expect(cb.match(';W2,;A,PLAY,1')).toEqual({ commandId: 'wcb.routeWcb', params: { wcb: '2', message: ';A,PLAY,1' } });
+    expect(hit(';W12,;A,PLAY,1')).toBe('wcb.routeWcb');
+  });
+
+  test(';C<key>,L / ;SEQ<key>,L run locally; the bare forms stay mesh-wide', () => {
+    expect(cb.match(';Cwave,L')).toEqual({ commandId: 'wcb.runSeqLocal', params: { key: 'wave' } });
+    expect(cb.match(';Cwave')).toEqual({ commandId: 'wcb.runSeq', params: { key: 'wave' } });
+    expect(cb.match(';SEQwave,L')).toEqual({ commandId: 'wcb.runSeqLongLocal', params: { key: 'wave' } });
+    expect(hit(';SEQwave')).toBe('wcb.runSeqLong');
+    expect(hit('?STOP')).toBe('wcb.timerStop');
+  });
+
+  test(';P reads one port digit then the pulse width', () => {
+    expect(cb.match(';P11500')).toEqual({ commandId: 'wcb.pwmPulse', params: { port: '1', width: '1500' } });
+    expect(cb.match(';P52500')).toEqual({ commandId: 'wcb.pwmPulse', params: { port: '5', width: '2500' } });
+    expect(cb.match(';P61500')).toBeNull();
+  });
+
+  test('variables: ;V / ;VP set, verb, and step forms; IF conditions', () => {
+    expect(cb.match(';V,flag,1')).toEqual({ commandId: 'wcb.varSet', params: { scope: 'V', name: 'flag', value: '1' } });
+    expect(cb.match(';VP,mode,-2')).toEqual({ commandId: 'wcb.varSet', params: { scope: 'VP', name: 'mode', value: '-2' } });
+    expect(cb.match(';V,armed,TOGGLE')).toEqual({ commandId: 'wcb.varOp', params: { scope: 'V', name: 'armed', op: 'TOGGLE' } });
+    expect(hit(';VP,armed,INC')).toBe('wcb.varOp');
+    expect(cb.match(';V,volume,INC,5')).toEqual({ commandId: 'wcb.varStep', params: { scope: 'V', name: 'volume', dir: 'INC', n: '5' } });
+    expect(cb.match(';V,this_name_is_too_long,1')).toBeNull();
+    expect(cb.match('IF,mode>2,AND,armed=1')).toEqual({ commandId: 'wcb.if', params: { cond: 'mode>2,AND,armed=1' } });
+    for (const c of ['a=1', 'a!=1', 'a<=-3', 'a>=3', 'a<3', 'a>3', 'a=1,OR,b=0,and,c>2']) expect(hit('IF,' + c)).toBe('wcb.if');
+    expect(cb.match('IF,armed')).toBeNull();
+    expect(cb.match('IF,armed=1,AND')).toBeNull();
+    expect(hit('?VAR,SET,mode,2')).toBe('wcb.varSetNvs');
+    expect(hit('?VAR,GET,mode')).toBe('wcb.varGet');
+  });
+
+  test('device routing and config verbs', () => {
+    expect(cb.match('?WLED,1:W3S2:115200')).toEqual({ commandId: 'wcb.wledCfg', params: { id: '1', wcb: '3', port: '2', baud: '115200' } });
+    expect(cb.match('?WLED,1:W3S0:115200')).toBeNull();   // a WLED port is S1-S5 (WCB_WLED.cpp:311)
+    expect(hit('?WLED,CLEAR')).toBe('wcb.wledClear');
+    expect(hit('?WLED,CLEAR,2')).toBe('wcb.wledClearId');
+    expect(cb.match('?DFP,S2:9600:V20')).toEqual({ commandId: 'wcb.dfpCfg', params: { port: '2', vol: '20' } });
+    expect(hit('?DFP,S3')).toBe('wcb.dfpPort');
+    expect(hit('?DFP,REMOTE,W3')).toBe('wcb.dfpRemote');
+    expect(hit('?MP3,REMOTE,W2')).toBe('wcb.mp3Remote');
+    expect(hit('?MP3,REMOTE,OFF')).toBe('wcb.mp3RemoteOff');
+    expect(hit('?HCR,REMOTE,W2')).toBe('wcb.hcrRemote');
+    expect(hit('?HCR,POLL,OFF')).toBe('wcb.hcrPollOff');
+    expect(hit('?HCR,POLL,10')).toBe('wcb.hcrPoll');
+    expect(hit('?BCAST,OUT,S0,ON')).toBe('wcb.bcastOutUsb');
+    expect(hit('?BCAST,OUT,S2,OFF')).toBe('wcb.bcastOut');
+    expect(hit('?MAP,PWM,CLEAR,OUT,S4')).toBe('wcb.mapPwmClearOut');
+    expect(hit('?MAP,PWM,CLEAR,S4')).toBe('wcb.mapPwmClear');
+    expect(cb.match('?KYBER,LOCAL,S2,M1:W1S1:57600,M2:W2S1:57600')).toEqual({
+      commandId: 'wcb.kyberLocalMaestros', params: { port: '2', spec: 'M1:W1S1:57600,M2:W2S1:57600' } });
+    expect(hit('?KYBER,LOCAL')).toBe('wcb.kyberLocal');
+  });
+
+  test('setup and system verbs with optional arguments', () => {
+    expect(hit('?CONTROLLER,ON')).toBe('wcb.controllerOn');
+    expect(cb.match('?CONTROLLER,ON,19')).toEqual({ commandId: 'wcb.controllerOnId', params: { id: '19' } });
+    expect(hit('?LED,PIN')).toBe('wcb.ledPinQuery');
+    expect(hit('?LED,PIN,48')).toBe('wcb.ledPin');
+    expect(hit('?WCBCH,11')).toBe('wcb.meshChannel');
+    expect(hit('?TRACK,STATUS')).toBe('wcb.trackStatus');
+    expect(hit('?TRACK,OFF')).toBe('wcb.track');
+    expect(hit('?DEBUG,MGMT,ON')).toBe('wcb.debugMgmt');
+    expect(hit('?DEBUG,RAW,OFF')).toBe('wcb.debugRaw');
+    expect(hit('?DEBUG,ON')).toBe('wcb.debug');
+    expect(hit('?WDP,3')).toBe('wcb.wdpDetail');
+    expect(hit('?WDP,ON')).toBe('wcb.wdpEnable');
+    expect(hit('?WDP,AUTOJOIN')).toBe('wcb.wdpAutojoin');
+    expect(hit('?WDP,AUTOJOIN,ON')).toBe('wcb.wdpAutojoinSet');
+    expect(hit('?WDP,FORGET,12')).toBe('wcb.wdpForget');
+    expect(hit('?SEQ,NAMES')).toBe('wcb.seqNames');
+    expect(hit('?SEQ,GET,wave')).toBe('wcb.seqGet');
+  });
+
+  test('every new example round-trips byte-identical', () => {
+    const added = cb.getCommands('wcb-native').filter(c => !FROZEN_420[c.id]);
+    for (const cmd of added) for (const ex of cmd.examples) expect(cb.buildWCBValue(cb.parseWCBValue(ex))).toBe(ex);
+  });
+});
