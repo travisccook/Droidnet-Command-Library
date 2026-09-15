@@ -365,8 +365,10 @@ v2.1 — dispatches 005 solid, 006 rainbow, 007 short circuit, and accepts X/Y/Z
 firmware they run rainbow and short circuit respectively. DroidNet's bundled 2.1.0 catalog
 already emits 005 / 006, so adopting 4.3.0 is not a user-facing regression.
 
-**Hardware check** (recommended, not blocking): send `A0055` (solid blue) and `A006` (rainbow)
-to a v1.81 board.
+**Hardware check** (not yet run): send `A0055` (solid blue) and `A006` (rainbow) to a v1.81
+board. Merging this fix in 4.3.0 needs that result or the maintainer's sign-off on the source
+evidence above; otherwise it moves to a 4.3.1 released before the DroidNet release that bundles
+4.3.0. The 4.3.0 release notes spell out the decode change for steps saved by 4.2.0.
 
 **Freeze-test exception.** The A2 fixture keeps the 4.2.0 templates. A11 adds exactly these
 three ids to the freeze test's allowlist, each pinning its 4.2.0 and corrected template.

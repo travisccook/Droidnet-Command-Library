@@ -683,6 +683,14 @@ describe('FlthyHPs sequence codes follow the v1.6+ firmware', () => {
     expect(cb.buildWCBValue(cb.parseWCBValue('A0065^A007|240'))).toBe('A0065^A007|240');
   });
 
+  test('4.2.0 "short circuit" wire text decodes as Solid Color, keeping its saved label (releases.json 4.3.0 notes)', () => {
+    expect(cb.parseWCBValue('A0057^*** Flthy short circuit^F0055|10')).toEqual([
+      { type: 'command', commandId: 'flthy.led.solid', params: { designator: 'A', color: '7' }, label: ' Flthy short circuit' },
+      { type: 'command', commandId: 'flthy.led.solid', params: { designator: 'F', color: '5' }, duration: 10 },
+    ]);
+    for (const v of ['A0065', 'R0063', 'A0065|60', 'T007', 'A007|45']) expect(cb.parseWCBValue(v)).toEqual([{ type: 'raw', text: v }]);
+  });
+
   test('X, Y and Z designators encode and decode', () => {
     expect(cb.getEnum('flthy.designator').values.map(v => v.code)).toEqual(['F', 'R', 'T', 'X', 'Y', 'Z', 'A']);
     expect(cb.encode(cb.getCommand('flthy.led.solid'), { designator: 'X', color: '5' }, {})).toBe('X0055');
