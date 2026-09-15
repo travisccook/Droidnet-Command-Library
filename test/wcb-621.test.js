@@ -534,6 +534,30 @@ describe('wcb-native: 66 commands for WCB 6.2.1 (and missed 6.1.5 surface)', () 
     expect(cb.parseWCBValue('?ALIAS,clear')[0]).toMatchObject({ type: 'raw' });
   });
 
+  test('alias names exclude what the firmware trims or rewrites, and the step delimiters', () => {
+    // saveWCBAlias() trims, then rewrites ^ , ; ? CR LF to '_' (WCB_Storage.cpp:212-229), so no saved
+    // alias holds them or ends in whitespace. ?ALIAS trims before its LIST/CLEAR compare
+    // (WCB.ino:5372-5384) and ;W<alias>, trims the alias (WCB.ino:6525-6531). In the wire format ^
+    // splits steps and match() strips a trailing |<digits> as a duration (?ALIAS,Dome|25 can never
+    // decode to wcb.alias), so the library keeps ^ and | out of names; such steps stay raw.
+    const nameRe = (id) => new RegExp('^(?:' + cb.getCommand(id).params[0].pattern + ')$');
+    for (const id of ['wcb.alias', 'wcb.routeAlias']) {
+      const re = nameRe(id);
+      for (const ok of ['A', 'Dome', 'Dome Left', 'R2-D2_body.1', 'x'.repeat(24)]) expect(re.test(ok)).toBe(true);
+      for (const bad of ['Dome^Body', 'Dome|25', 'Dome|L', 'Do,me', 'Do;me', 'Do?me', 'Do\rme', 'Do\nme',
+        'Dome ', 'Dome\t', ' Dome', '1Dome', '', 'x'.repeat(25)]) expect(re.test(bad)).toBe(false);
+    }
+    // Trailing whitespace: the firmware runs LIST / CLEAR, or saves the trimmed name; either way raw.
+    expect(cb.match('?ALIAS,List ')).toBeNull();
+    expect(cb.match('?ALIAS,CLEAR\t')).toBeNull();
+    expect(cb.match('?ALIAS,Dome ')).toBeNull();
+    expect(cb.match(';Wdome ,;A,PLAY,1')).toBeNull();
+    for (const v of ['?ALIAS,List ', '?ALIAS,Dome|25', '?ALIAS,Dome^Body', ';Wdome ,;A,PLAY,1']) {
+      expect(cb.buildWCBValue(cb.parseWCBValue(v))).toBe(v);
+    }
+    expect(cb.parseWCBValue('?ALIAS,List ')).toEqual([{ type: 'raw', text: '?ALIAS,List ' }]);
+  });
+
   test(';W routes by alias (letter first) or by board number (digits)', () => {
     expect(cb.match(';Wdome,;A,PLAY,1')).toEqual({ commandId: 'wcb.routeAlias', params: { alias: 'dome', message: ';A,PLAY,1' } });
     expect(cb.match(';W2,;A,PLAY,1')).toEqual({ commandId: 'wcb.routeWcb', params: { wcb: '2', message: ';A,PLAY,1' } });

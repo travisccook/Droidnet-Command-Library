@@ -266,7 +266,7 @@ the catch-all after it.
 
 | Insert before | Commands (id: template) | Firmware |
 |---|---|---|
-| `wcb.mac2` | `wcb.meshChannel` `?WCBCH,{ch}` 1-11 (6.2+, applies on reboot) · → `wcb.aliasClear` `?ALIAS,CLEAR` · → `wcb.aliasList` `?ALIAS,LIST` · `wcb.alias` `?ALIAS,{name}` pattern `(?![Cc][Ll][Ee][Aa][Rr]$\|[Ll][Ii][Ss][Tt]$)[A-Za-z][^,;?]{0,23}` · `wcb.controllerOn` `?CONTROLLER,ON` · `wcb.controllerOnId` `?CONTROLLER,ON,{id}` 1-20 · `wcb.controllerOff` `?CONTROLLER,OFF` (controller 6.2+) · `wcb.ledPin` `?LED,PIN,{gpio}` 0-48 · `wcb.ledPinQuery` `?LED,PIN` · `wcb.identify` `?IDENTIFY` (cosmetic) | `WCB.ino:5323`, `:5372-5384`, `:5394-5420`, `:5678-5681`, `:5629`; `WCB_Storage.cpp:212-240` |
+| `wcb.mac2` | `wcb.meshChannel` `?WCBCH,{ch}` 1-11 (6.2+, applies on reboot) · → `wcb.aliasClear` `?ALIAS,CLEAR` · → `wcb.aliasList` `?ALIAS,LIST` · `wcb.alias` `?ALIAS,{name}` pattern `(?![Cc][Ll][Ee][Aa][Rr]$\|[Ll][Ii][Ss][Tt]$)[A-Za-z](?:[^,;?^\|\r\n]{0,22}[^,;?^\|\s])?` · `wcb.controllerOn` `?CONTROLLER,ON` · `wcb.controllerOnId` `?CONTROLLER,ON,{id}` 1-20 · `wcb.controllerOff` `?CONTROLLER,OFF` (controller 6.2+) · `wcb.ledPin` `?LED,PIN,{gpio}` 0-48 · `wcb.ledPinQuery` `?LED,PIN` · `wcb.identify` `?IDENTIFY` (cosmetic) | `WCB.ino:5323`, `:5372-5384`, `:5394-5420`, `:5678-5681`, `:5629`; `WCB_Storage.cpp:212-240` |
 | `wcb.bcastReset` | `wcb.bcastOutUsb` `?BCAST,OUT,S0,{state}` (6.2+) | `WCB.ino:5133` |
 | `wcb.mapPwmList` | `wcb.mapPwmClearOut` `?MAP,PWM,CLEAR,OUT,S{port}` — **safety `power`**, it reboots | `WCB.ino:5026-5033` |
 | near `wcb.kyber*` | `wcb.kyberLocalMaestros` `?KYBER,LOCAL,S{port},{spec}` (spec = the Maestro spec pattern above) | `WCB_Help.cpp:213` |
@@ -275,7 +275,7 @@ the catch-all after it.
 | `wcb.hcrPort` | `wcb.dfpCfg` `?DFP,S{port}:9600:V{vol}` (vol 0-30) · `wcb.dfpPort` `?DFP,S{port}` · `wcb.dfpList` · `wcb.dfpClear` · `wcb.dfpRemote` `?DFP,REMOTE,W{wcb}` · `wcb.dfpRemoteOff` · → `wcb.dfpOnErrClear` `?DFP,ONERR,CLEAR` · `wcb.dfpOnErr` `?DFP,ONERR,{key}` (all 6.2+) | `WCB_DFP.cpp:144-327` |
 | `wcb.hcrList` | `wcb.hcrPollOff` `?HCR,POLL,OFF` · `wcb.hcrRemote` `?HCR,REMOTE,W{wcb}` (6.2+) · `wcb.hcrRemoteOff` `?HCR,REMOTE,OFF` (6.2+) | `WCB_HCR.cpp:537-562`, `:568-575` |
 | `wcb.routeSerial` | `wcb.wledCfg` `?WLED,{id}:W{wcb}S{port}:{baud}` (id 1-9, wcb 1-20, port `wcb.portUsb`, baud `wcb.devBaud`; `?WLED,1:W3S2:115200`) · `wcb.wledList` · `wcb.wledStatus` · `wcb.wledClear` · `wcb.wledClearId` `?WLED,CLEAR,{id}` (all 6.2+) | `WCB_WLED.cpp:229-353` |
-| `wcb.timer` | `wcb.routeAlias` `;W{alias},{message}`, alias `[A-Za-z][^,;?]{0,23}` (6.2+) · `wcb.pwmPulse` `;P{port}{width}` port single-digit 1-5 (enum or pattern, see hazards), width 500-2500, Movement / movement | `WCB.ino:6525-6550`, `:6788-6834` |
+| `wcb.timer` | `wcb.routeAlias` `;W{alias},{message}`, alias `[A-Za-z](?:[^,;?^\|\r\n]{0,22}[^,;?^\|\s])?` (6.2+) · `wcb.pwmPulse` `;P{port}{width}` port single-digit 1-5 (enum or pattern, see hazards), width 500-2500, Movement / movement | `WCB.ino:6525-6550`, `:6788-6834` |
 | `wcb.seqList` | `wcb.seqNames` `?SEQ,NAMES` · `wcb.seqGet` `?SEQ,GET,{key}` (6.2+) | `WCB.ino:5497`, `:5513` |
 | after `wcb.runSeqLong` | `wcb.runSeqLocal` `;C{key},L` · `wcb.runSeqLongLocal` `;SEQ{key},L` (6.2+; on 6.1 the `,L` becomes part of the key) · `wcb.timerStop` `?STOP` | `WCB.ino:6654-6691`, `:7053`; `command_timer.cpp:66-78` |
 | `wcb.etmOn` | `wcb.varSet` `;{scope},{name},{value}` (name `[A-Za-z0-9_]{1,15}`, value int) · `wcb.varOp` `;{scope},{name},{op}` · `wcb.varStep` `;{scope},{name},{dir},{n}` · `wcb.if` `IF,{cond}` (gates the next step; cannot ride inside a `;W` or `;T` payload) · `wcb.varList` `?VAR,LIST` · `wcb.varSetNvs` `?VAR,SET,{name},{value}` · `wcb.varGet` `?VAR,GET,{name}` · → `wcb.varClearAll` `?VAR,CLEAR,ALL` · `wcb.varClear` `?VAR,CLEAR,{name}` | `WCB_Variables.cpp:63-73`, `:209-337`, `:372`, `:435`; `WCB.ino:6568-6581` |
@@ -462,6 +462,13 @@ tables above (each commit message gives the detail):
 - **`wcb-native`.**
   - `wcb.wledCfg` port uses `wcb.port` (S1-S5), not `wcb.portUsb`: a local WLED must be on
     S1-S5 (`WCB_WLED.cpp:311`).
+  - Alias names (`wcb.alias`, `wcb.routeAlias`) exclude `^ , ; ? CR LF`, `|` and trailing
+    whitespace. `saveWCBAlias` trims and rewrites the first six to `_` (`WCB_Storage.cpp:212-229`),
+    and `?ALIAS` and `;W<alias>,` trim before comparing (`WCB.ino:5372-5384`, `:6525-6531`), so
+    `?ALIAS,List ` runs LIST and stays a raw step. `^` splits steps, and a trailing `|<digits>` is
+    read as a duration, so `?ALIAS,Dome|25` cannot decode to `wcb.alias`. The firmware keeps `|`
+    in an alias; the patterns leave it out so both ids share one alias shape, and such a step
+    survives as raw text.
   - `wcb.dfpOnErr` and `wcb.varClear` get case-insensitive lookaheads like `wcb.alias`, because
     the firmware compares `CLEAR` and `ALL` case-insensitively (`WCB_DFP.cpp:189`,
     `WCB_Variables.cpp:326-328`). The ONERR key is capped at 23 characters

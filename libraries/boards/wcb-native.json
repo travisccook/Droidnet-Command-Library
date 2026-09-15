@@ -164,7 +164,7 @@
           "params": [
             {
               "name": "name",
-              "pattern": "(?![Cc][Ll][Ee][Aa][Rr]$|[Ll][Ii][Ss][Tt]$)[A-Za-z][^,;?]{0,23}",
+              "pattern": "(?![Cc][Ll][Ee][Aa][Rr]$|[Ll][Ii][Ss][Tt]$)[A-Za-z](?:[^,;?^|\\r\\n]{0,22}[^,;?^|\\s])?",
               "required": true
             }
           ],
@@ -1424,7 +1424,7 @@
           "params": [
             {
               "name": "alias",
-              "pattern": "[A-Za-z][^,;?]{0,23}",
+              "pattern": "[A-Za-z](?:[^,;?^|\\r\\n]{0,22}[^,;?^|\\s])?",
               "required": true
             },
             {
