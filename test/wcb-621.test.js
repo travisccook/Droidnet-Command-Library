@@ -347,4 +347,14 @@ describe('WCB 6.2.1: wcb-hcr / wcb-mp3 / wcb-wled', () => {
       }
     });
   });
+
+  describe('wcb-mp3', () => {
+    test('is labelled for 6.2.1 and documents host routing', () => {
+      const mp3 = component('wcb-mp3');
+      expect(mp3.firmware).toBe(FW_621);
+      expect(mp3.routing.notes).toMatch(/host/i);
+      expect(mp3.routing.notes).toMatch(/\?MP3,REMOTE,W<n>/);
+      expect(cb.match(';A,PLAY,1,ONFIN,wave')).toMatchObject({ commandId: 'mp3.playCb' });
+    });
+  });
 });
