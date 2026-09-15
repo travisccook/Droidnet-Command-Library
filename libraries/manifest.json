@@ -43,7 +43,7 @@
     {
       "id": "maestro",
       "file": "boards/maestro.json",
-      "name": "Maestro (sequence trigger)",
+      "name": "Maestro (WCB ;M verbs)",
       "confidence": "high"
     },
     {

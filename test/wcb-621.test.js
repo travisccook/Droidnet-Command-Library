@@ -99,3 +99,88 @@ describe('WCB 6.2.1 sweep guards', () => {
     expect(tooLong).toEqual([]);
   });
 });
+
+// ---------------------------------------------------------------------------------------------
+// maestro (A3): WCB 6.2 ;M comma verbs and get queries. Grammar: WCB 6.2.1 WCB.ino
+// processMaestroCommand, WCB_Maestro.cpp sendMaestroServoVerb / handleMaestroGet, WcbCmd
+// WcbMaestro::build. maestro-native is the bare NaviCore action grammar and shares no id.
+describe('maestro: WCB 6.2 comma verbs and get queries', () => {
+  let cb;
+  let manifest;
+  beforeEach(() => {
+    cb = loadEngine();
+    const cat = readCatalog();
+    manifest = cat.manifest;
+    cb.loadLibrary(cat.boards.map(b => JSON.parse(JSON.stringify(b))), { libraryVersion: manifest.libraryVersion });
+  });
+
+  const codes = (enumId) => cb.getEnum(enumId).values.map(v => v.code);
+
+  test('maestro.id is 0-9 (0 = all, 9 = this WCB); get queries take 1-8 only', () => {
+    expect(codes('maestro.id')).toEqual(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']);
+    expect(codes('maestro.queryId')).toEqual(['1', '2', '3', '4', '5', '6', '7', '8']);
+    for (const id of ['maestro.wcb.getPosition', 'maestro.wcb.getMovingState', 'maestro.wcb.getErrors']) {
+      expect(cb.getCommand(id).params.find(p => p.name === 'id').enum).toBe('maestro.queryId');
+    }
+  });
+
+  test('Run Sequence keeps ;M{id}{seq}, accepts id 9 and subroutines up to 127', () => {
+    expect(cb.match(';M11')).toMatchObject({ commandId: 'maestro.trigger', params: { id: '1', seq: '1' } });
+    expect(cb.match(';M91')).toMatchObject({ commandId: 'maestro.trigger', params: { id: '9', seq: '1' } });
+    expect(cb.match(';M0127')).toMatchObject({ commandId: 'maestro.trigger', params: { id: '0', seq: '127' } });
+    expect(cb.getCommand('maestro.trigger').params.find(p => p.name === 'seq').max).toBe(127);
+  });
+
+  test('comma subroutine forms decode to their own ids', () => {
+    expect(cb.match(';M1,5')).toMatchObject({ commandId: 'maestro.wcb.sub', params: { id: '1', sub: '5' } });
+    expect(cb.match(';M3,5,1000')).toMatchObject({ commandId: 'maestro.wcb.subParam', params: { id: '3', sub: '5', param: '1000' } });
+    expect(cb.match(';M2,sub,5')).toMatchObject({ commandId: 'maestro.wcb.subVerb', params: { id: '2', sub: '5' } });
+    expect(cb.match(';M2,sub,5,1000')).toMatchObject({ commandId: 'maestro.wcb.subVerbParam', params: { id: '2', sub: '5', param: '1000' } });
+  });
+
+  test(';M2,goHome is the WCB verb; bare goHome stays on maestro-native (no shared id)', () => {
+    const wcb = cb.match(';M2,goHome');
+    const native = cb.match('goHome');
+    expect(wcb).toMatchObject({ commandId: 'maestro.wcb.goHome', params: { id: '2' } });
+    expect(native).toMatchObject({ commandId: 'maestro.goHome' });
+    expect(cb.getCommand(wcb.commandId)._component.id).toBe('maestro');
+    expect(cb.getCommand(native.commandId)._component.id).toBe('maestro-native');
+    const wcbIds = new Set(cb.getCommands('maestro').map(c => c.id));
+    expect(cb.getCommands('maestro-native').filter(c => wcbIds.has(c.id))).toEqual([]);
+  });
+
+  test('servo verbs encode with their defaults', () => {
+    expect(cb.encode(cb.getCommand('maestro.wcb.setTarget'), { id: '1', channel: '0' })).toBe(';M1,setTarget,0,6000');
+    expect(cb.match(';M5,setSpeed,3,10')).toMatchObject({ commandId: 'maestro.wcb.setSpeed', params: { id: '5', channel: '3', speed: '10' } });
+    expect(cb.match(';M2,setAccel,0,5')).toMatchObject({ commandId: 'maestro.wcb.setAccel', params: { id: '2', channel: '0', accel: '5' } });
+  });
+
+  test('get queries reject the fan-out ids 0 and 9 (they stay raw)', () => {
+    expect(cb.match(';M8,getErrors')).toMatchObject({ commandId: 'maestro.wcb.getErrors', params: { id: '8' } });
+    expect(cb.match(';M2,getPosition,0')).toMatchObject({ commandId: 'maestro.wcb.getPosition', params: { id: '2', channel: '0' } });
+    expect(cb.match(';M0,getMovingState')).toBeNull();
+    expect(cb.match(';M9,getPosition,0')).toBeNull();
+  });
+
+  test('all 12 ;M{id}, commands are named "(WCB 6.2+)"; Run Sequence is not', () => {
+    const comma = cb.getCommands('maestro').filter(c => c.template.startsWith(';M{id},'));
+    expect(comma.map(c => c.id).sort()).toEqual([
+      'maestro.wcb.getErrors', 'maestro.wcb.getMovingState', 'maestro.wcb.getPosition', 'maestro.wcb.goHome',
+      'maestro.wcb.setAccel', 'maestro.wcb.setSpeed', 'maestro.wcb.setTarget', 'maestro.wcb.stopScript',
+      'maestro.wcb.sub', 'maestro.wcb.subParam', 'maestro.wcb.subVerb', 'maestro.wcb.subVerbParam',
+    ]);
+    for (const c of comma) expect(c.name).toMatch(/ \(WCB 6\.2\+\)$/);
+    expect(cb.getCommand('maestro.trigger').name).not.toMatch(/6\.2/);
+  });
+
+  test('component metadata: name matches the manifest, 6.2.1 firmware, notes cover the 6.1 hazard', () => {
+    const comp = cb.getComponents().find(c => c.id === 'maestro');
+    expect(comp.name).toBe('Maestro (WCB ;M verbs)');
+    expect(manifest.boards.find(b => b.id === 'maestro').name).toBe(comp.name);
+    expect(comp.firmware).toBe('WCB 6.2.1_021242RSEP2026');
+    expect(comp.categories).toEqual(['Sequences', 'Movement', 'System']);
+    expect(comp.routing.class).toBe('wcb-verb');
+    expect(comp.routing.notes).toMatch(/subroutine 0/);
+    expect(comp.routing.notes).toMatch(/1-8/);
+  });
+});
