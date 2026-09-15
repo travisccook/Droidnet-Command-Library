@@ -273,3 +273,78 @@ describe('wcb-dfp: DFPlayer Mini (;D, WCB 6.2+)', () => {
     expect(cb.match(';D,DEVICE,2')).toBeNull();
   });
 });
+
+// wcb-hcr, wcb-mp3, wcb-wled (A5-A7).
+describe('WCB 6.2.1: wcb-hcr / wcb-mp3 / wcb-wled', () => {
+  const FW_621 = 'WCB 6.2.1_021242RSEP2026';
+  let cb;
+  let manifest;
+  beforeEach(() => {
+    cb = loadEngine();
+    const cat = readCatalog();
+    manifest = cat.manifest;
+    cb.loadLibrary(cat.boards.map(b => JSON.parse(JSON.stringify(b))), { libraryVersion: manifest.libraryVersion });
+  });
+  const component = id => cb.getComponents().find(c => c.id === id);
+  const param = (cmdId, name) => cb.getCommand(cmdId).params.find(p => p.name === name);
+
+  describe('wcb-hcr', () => {
+    test('is labelled for 6.2.1 and documents host routing (DroidNet matches /host/)', () => {
+      const hcr = component('wcb-hcr');
+      expect(hcr.firmware).toBe(FW_621);
+      expect(hcr.routing.notes).toMatch(/host/i);
+      expect(hcr.routing.notes).toMatch(/\?HCR,REMOTE,W<n>/);
+    });
+
+    test('TRIGGER sits beside STIM and decodes to its own command (WCB_HCR.cpp:290-299)', () => {
+      expect(cb.encode(cb.getCommand('hcr.trigger'), { emotion: 'M', strength: 'MOD' }, {})).toBe(';H,TRIGGER,M,MOD');
+      expect(cb.match(';H,TRIGGER,C,STRONG')).toMatchObject({ commandId: 'hcr.trigger', params: { emotion: 'C', strength: 'STRONG' } });
+      expect(cb.match(';H,STIM,H,STRONG')).toMatchObject({ commandId: 'hcr.stim' });
+    });
+
+    test('VOL without a channel sets all channels (6.2+) and does not shadow the per-channel form', () => {
+      expect(cb.getCommand('hcr.volAll').name).toMatch(/\(WCB 6\.2\+\)$/);
+      expect(param('hcr.volAll', 'level')).toMatchObject({ min: 0, max: 100 });
+      expect(cb.match(';H,VOL,60')).toMatchObject({ commandId: 'hcr.volAll', params: { level: '60' } });
+      expect(cb.match(';H,VOL,A,80')).toMatchObject({ commandId: 'hcr.vol', params: { channel: 'A', level: '80' } });
+    });
+
+    test('VOLUP/VOLDN take an optional all-channel step (6.1.5 and 6.2.1, default 5)', () => {
+      for (const [verb, stepId, bareId, chanId] of [
+        ['VOLUP', 'hcr.volUpAllStep', 'hcr.volUpAll', 'hcr.volUp'],
+        ['VOLDN', 'hcr.volDownAllStep', 'hcr.volDownAll', 'hcr.volDown'],
+      ]) {
+        const cmd = cb.getCommand(stepId);
+        expect(cmd.name).not.toMatch(/6\.2/);
+        expect(param(stepId, 'step')).toMatchObject({ min: 1, max: 100, default: 5 });
+        expect(cb.encode(cmd, {}, {})).toBe(`;H,${verb},5`);
+        expect(cb.match(`;H,${verb},10`)).toMatchObject({ commandId: stepId, params: { step: '10' } });
+        expect(cb.match(`;H,${verb}`)).toMatchObject({ commandId: bareId });
+        expect(cb.match(`;H,${verb},B,10`)).toMatchObject({ commandId: chanId, params: { channel: 'B', step: '10' } });
+      }
+    });
+
+    test('FN takes only the firmware function codes (WcbHcr.cpp:7-36); template unchanged', () => {
+      expect(cb.getCommand('hcr.fn').template).toBe(';H,FN,{fn},{chan},{track}');
+      expect(param('hcr.fn', 'fn').enum).toBe('hcr.fnCode');
+      expect(cb.getEnum('hcr.fnCode').values.map(v => v.code))
+        .toEqual(['2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '13', '14', '16', '17', '18', '19']);
+      // Codes the 6.1.5 FN switch lacks are flagged 6.2+.
+      const newIn62 = cb.getEnum('hcr.fnCode').values.filter(v => /\(WCB 6\.2\+\)$/.test(v.label)).map(v => v.code);
+      expect(newIn62).toEqual(['7', '10', '13', '18', '19']);
+      expect(param('hcr.fn', 'chan')).toMatchObject({ min: 0, max: 99 });
+      expect(param('hcr.fn', 'track')).toMatchObject({ min: 0, max: 9999 });
+      expect(cb.match(';H,FN,14,1,5')).toMatchObject({ commandId: 'hcr.fn', params: { fn: '14', chan: '1', track: '5' } });
+      expect(cb.match(';H,FN,7,30,60')).toMatchObject({ commandId: 'hcr.fn', params: { fn: '7', chan: '30', track: '60' } });
+      expect(cb.match(';H,FN,19,0,10')).toMatchObject({ commandId: 'hcr.fn', params: { fn: '19' } });
+      // 0, 1, 12 and 15 are rejected by the firmware, so they stay raw text.
+      for (const code of ['0', '1', '12', '15']) expect(cb.match(`;H,FN,${code},0,0`)).toBeNull();
+    });
+
+    test('hcr.trigger, hcr.volAll, hcr.volUpAllStep, hcr.volDownAllStep are cosmetic', () => {
+      for (const id of ['hcr.trigger', 'hcr.volAll', 'hcr.volUpAllStep', 'hcr.volDownAllStep']) {
+        expect(cb.getCommand(id).safety).toBe('cosmetic');
+      }
+    });
+  });
+});
