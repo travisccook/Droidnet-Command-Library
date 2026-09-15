@@ -4,16 +4,30 @@
     "wcb.port": { "label": "Serial Port", "values": [
       { "code": "1", "label": "S1" }, { "code": "2", "label": "S2" }, { "code": "3", "label": "S3" },
       { "code": "4", "label": "S4" }, { "code": "5", "label": "S5" } ] },
+    "wcb.portUsb": { "label": "Serial Port", "values": [
+      { "code": "0", "label": "S0 (USB)" }, { "code": "1", "label": "S1" }, { "code": "2", "label": "S2" },
+      { "code": "3", "label": "S3" }, { "code": "4", "label": "S4" }, { "code": "5", "label": "S5" } ] },
     "wcb.baud": { "label": "Baud", "values": [
       { "code": "110", "label": "110" }, { "code": "300", "label": "300" }, { "code": "600", "label": "600" },
       { "code": "1200", "label": "1200" }, { "code": "2400", "label": "2400" }, { "code": "9600", "label": "9600" },
       { "code": "14400", "label": "14400" }, { "code": "19200", "label": "19200" }, { "code": "38400", "label": "38400" },
       { "code": "57600", "label": "57600" }, { "code": "115200", "label": "115200" },
       { "code": "128000", "label": "128000" }, { "code": "256000", "label": "256000" } ] },
+    "wcb.devBaud": { "label": "Baud", "values": [
+      { "code": "9600", "label": "9600" }, { "code": "19200", "label": "19200" }, { "code": "38400", "label": "38400" },
+      { "code": "57600", "label": "57600" }, { "code": "115200", "label": "115200" } ] },
     "wcb.hwVersion": { "label": "Hardware", "values": [
       { "code": "1", "label": "v1.0" }, { "code": "21", "label": "v2.1" }, { "code": "23", "label": "v2.3" },
       { "code": "24", "label": "v2.4" }, { "code": "31", "label": "v3.1" }, { "code": "32", "label": "v3.2" } ] },
-    "wcb.onOff": { "label": "State", "values": [ { "code": "ON", "label": "On" }, { "code": "OFF", "label": "Off" } ] }
+    "wcb.onOff": { "label": "State", "values": [ { "code": "ON", "label": "On" }, { "code": "OFF", "label": "Off" } ] },
+    "wcb.hcrField": { "label": "Field", "values": [
+      { "code": "EMOTION,H", "label": "Emotion: Happy" }, { "code": "EMOTION,S", "label": "Emotion: Sad" },
+      { "code": "EMOTION,M", "label": "Emotion: Mad" }, { "code": "EMOTION,C", "label": "Emotion: Scared" },
+      { "code": "DURATION", "label": "Duration" }, { "code": "OVERRIDE", "label": "Override" },
+      { "code": "MUSE", "label": "Muse" }, { "code": "WAVCOUNT", "label": "WAV count" },
+      { "code": "PLAYING,V", "label": "Playing: Vocalizer" }, { "code": "PLAYING,A", "label": "Playing: channel A" },
+      { "code": "PLAYING,B", "label": "Playing: channel B" }, { "code": "VOL,V", "label": "Volume: Vocalizer" },
+      { "code": "VOL,A", "label": "Volume: channel A" }, { "code": "VOL,B", "label": "Volume: channel B" } ] }
   },
   "components": [
     {
@@ -21,7 +35,10 @@
       "name": "WCB (native config)",
       "kind": "device-native",
       "confidence": "high",
-      "firmware": "WCB 6.1.5_290119RJUN2026",
+      "firmware": "WCB 6.2.1_021242RSEP2026",
+      "routing": {
+        "notes": "Typed at a WCB console or sent to its serial/ESP-NOW input (? = function character, ; = command character). Checked against WCB 6.2.1 source; commands without \"(WCB 6.2+)\" also exist in 6.1.5. Board numbers are 1-20 (MAX_WCB_COUNT). Firmware differences: ;S<port>,<msg> strips the comma on 6.2.1, while 6.1.x forwarded \",<msg>\"; ;C<key> / ;SEQ<key> run on every mesh board that stores the key on 6.2.1 (6.1.x ran them locally), and ,L (6.2+) keeps a run on this board; ;V is volatile (RAM only) on 6.2.1 but persistent on 6.1.5, and ;VP needs 6.2.1 (6.1.5 reads ;VP,x,1 as a variable named P); ?FUNCCHAR,? and ?CMDCHAR,? need 6.2.1 (6.1.x treats a trailing ? as a help request); ?CONTROLLER is ?SPECIAL on 6.1.x. IF gates the next ^-delimited step and cannot ride inside a ;W or ;T payload; set and test a variable in separate sequences. ?MAP,PWM,CLEAR,OUT reboots the board."
+      },
       "commands": [
         {
           "id": "wcb.hw",
@@ -53,7 +70,7 @@
               "name": "n",
               "type": "int",
               "min": 1,
-              "max": 9,
+              "max": 20,
               "required": true
             }
           ],
@@ -74,7 +91,7 @@
               "name": "n",
               "type": "int",
               "min": 1,
-              "max": 9,
+              "max": 20,
               "required": true
             }
           ],
@@ -296,7 +313,7 @@
             },
             {
               "name": "dest",
-              "pattern": "(?:S[1-5]|W[1-9]S[1-5])",
+              "pattern": "(?:S[0-5]|W(?:[1-9]|1[0-9]|20)S[0-5])R?(?:,(?:S[0-5]|W(?:[1-9]|1[0-9]|20)S[0-5])R?)*",
               "required": true
             }
           ],
@@ -320,7 +337,7 @@
             },
             {
               "name": "dest",
-              "pattern": "(?:S[1-5]|W[1-9]S[1-5])",
+              "pattern": "(?:S[0-5]|W(?:[1-9]|1[0-9]|20)S[0-5])R?(?:,(?:S[0-5]|W(?:[1-9]|1[0-9]|20)S[0-5])R?)*",
               "required": true
             }
           ],
@@ -389,7 +406,7 @@
             },
             {
               "name": "dest",
-              "pattern": "(?:S[1-5]|W[1-9]S[1-5])",
+              "pattern": "(?:S[1-5]|W(?:[1-9]|1[0-9]|20)S[1-5])(?:,(?:S[1-5]|W(?:[1-9]|1[0-9]|20)S[1-5]))*",
               "required": true
             }
           ],
@@ -552,7 +569,7 @@
               "name": "id",
               "type": "int",
               "min": 1,
-              "max": 9,
+              "max": 8,
               "required": true
             }
           ],
@@ -584,7 +601,7 @@
           "params": [
             {
               "name": "spec",
-              "pattern": ".+",
+              "pattern": "M[0-9]:W[0-9]{1,2}S[0-9]:[0-9]+(?:,M[0-9]:W[0-9]{1,2}S[0-9]:[0-9]+)*",
               "required": true
             }
           ],
@@ -685,7 +702,7 @@
             },
             {
               "name": "baud",
-              "enum": "wcb.baud",
+              "enum": "wcb.devBaud",
               "required": true
             }
           ],
@@ -705,7 +722,7 @@
             {
               "name": "sec",
               "type": "int",
-              "min": 0,
+              "min": 3,
               "max": 3600,
               "required": true
             }
@@ -777,7 +794,7 @@
           "params": [
             {
               "name": "field",
-              "pattern": ".+",
+              "enum": "wcb.hcrField",
               "required": true
             }
           ],
@@ -796,7 +813,7 @@
           "params": [
             {
               "name": "port",
-              "enum": "wcb.port",
+              "enum": "wcb.portUsb",
               "required": true
             },
             {
@@ -822,7 +839,7 @@
               "name": "wcb",
               "type": "int",
               "min": 1,
-              "max": 9,
+              "max": 20,
               "required": true
             },
             {
@@ -848,7 +865,7 @@
               "name": "ms",
               "type": "int",
               "min": 0,
-              "max": 600000,
+              "max": 1800000,
               "required": true
             },
             {
@@ -1049,7 +1066,7 @@
               "name": "count",
               "type": "int",
               "min": 1,
-              "max": 99,
+              "max": 100,
               "required": true
             }
           ],

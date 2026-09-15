@@ -373,3 +373,68 @@ describe('WCB 6.2.1: wcb-hcr / wcb-mp3 / wcb-wled', () => {
     });
   });
 });
+
+// ---- wcb-native (WCB (native config)) --------------------------------------------------------
+// Ranges and grammars re-read from WCB 6.2.1 @ 66845b9a; 4.2.0 templates and param names stay frozen.
+describe('wcb-native: WCB 6.2.1 ranges and grammar', () => {
+  let cb;
+  beforeEach(() => {
+    cb = loadEngine();
+    const { manifest, boards } = readCatalog();
+    cb.loadLibrary(boards.map(b => JSON.parse(JSON.stringify(b))), { libraryVersion: manifest.libraryVersion });
+  });
+  const param = (id, name) => cb.getCommand(id).params.find(p => p.name === name);
+  const codes = (enumId) => cb.getEnum(enumId).values.map(v => v.code);
+  const roundTrips = (wire) => expect(cb.buildWCBValue(cb.parseWCBValue(wire))).toBe(wire);
+
+  test('board is generated against 6.2.1', () => {
+    expect(cb.getComponents().find(c => c.id === 'wcb-native').firmware).toBe('WCB 6.2.1_021242RSEP2026');
+  });
+
+  test('numeric ranges follow the firmware', () => {
+    expect(param('wcb.num', 'n').max).toBe(20);            // WCB.ino:5298-5305, MAX_WCB_COUNT
+    expect(param('wcb.qty', 'n').max).toBe(20);            // WCB_Storage.cpp:447-451
+    expect(param('wcb.routeWcb', 'wcb').max).toBe(20);     // WCB.ino:6553-6566
+    expect(param('wcb.timer', 'ms').max).toBe(1800000);    // command_timer.cpp:166
+    expect(param('wcb.maestroClear', 'id').max).toBe(8);   // WCB_Maestro.cpp:817
+    expect(param('wcb.etmMiss', 'count').max).toBe(100);   // WCB.ino:5211-5217
+    expect(param('wcb.hcrPoll', 'sec').min).toBe(3);       // WCB_HCR.cpp:568-575
+  });
+
+  test(';S routes to S0 (USB) as well as S1-S5', () => {
+    expect(codes(param('wcb.routeSerial', 'port').enum)).toEqual(['0', '1', '2', '3', '4', '5']);
+    expect(cb.match(';S0,hello')).toEqual({ commandId: 'wcb.routeSerial', params: { port: '0', message: 'hello' } });
+  });
+
+  test('HCR port baud and GET fields are the firmware sets', () => {
+    expect(codes(param('wcb.hcrPort', 'baud').enum)).toEqual(['9600', '19200', '38400', '57600', '115200']);
+    expect(codes(param('wcb.hcrGet', 'field').enum)).toHaveLength(14);
+    expect(cb.match('?HCR,GET,EMOTION,H')).toEqual({ commandId: 'wcb.hcrGet', params: { field: 'EMOTION,H' } });
+    expect(cb.match('?HCR,GET,VOL,B')).toEqual({ commandId: 'wcb.hcrGet', params: { field: 'VOL,B' } });
+    expect(cb.match('?HCR,GET,BOGUS')).toBeNull();
+    expect(cb.match('?HCR,PORT,S1:256000')).toBeNull();
+  });
+
+  test('?MAESTRO spec is the M<id>:W<wcb>S<port>:<baud> list, not free text', () => {
+    expect(cb.match('?MAESTRO,M1:W2S1:57600')).toEqual({ commandId: 'wcb.maestro', params: { spec: 'M1:W2S1:57600' } });
+    expect(cb.match('?MAESTRO,M1:W1S2:115200,M2:W12S1:57600').commandId).toBe('wcb.maestro');
+    const remote = cb.match('?MAESTRO,REMOTE');
+    expect(remote && remote.commandId).not.toBe('wcb.maestro');
+  });
+
+  test('serial map destinations: comma list, S0-S5 / W1-20, per-destination R, and the ,R, raw source', () => {
+    expect(cb.match('?MAP,SERIAL,S1,S2R,W12S0')).toEqual({ commandId: 'wcb.mapSerial', params: { port: '1', dest: 'S2R,W12S0' } });
+    expect(cb.match('?MAP,SERIAL,S5,R,W3S2,W20S5R')).toEqual({ commandId: 'wcb.mapSerialRaw', params: { port: '5', dest: 'W3S2,W20S5R' } });
+    // The ,R, literal belongs to mapSerialRaw only: a destination cannot start with R.
+    const raw = cb.match('?MAP,SERIAL,S5,R,W3S2');
+    expect(raw.commandId).toBe('wcb.mapSerialRaw');
+    expect(cb.match('?MAP,SERIAL,S1,W21S1')).toBeNull();
+    for (const w of ['?MAP,SERIAL,S1,S2R,W12S0', '?MAP,SERIAL,S5,R,W3S2,W20S5R']) roundTrips(w);
+  });
+
+  test('PWM map destinations: comma list of S1-S5 / W1-20S1-5', () => {
+    expect(cb.match('?MAP,PWM,S1,S2,W20S5')).toEqual({ commandId: 'wcb.mapPwm', params: { port: '1', dest: 'S2,W20S5' } });
+    expect(cb.match('?MAP,PWM,S1,S0')).toBeNull();
+    roundTrips('?MAP,PWM,S1,S2,W20S5');
+  });
+});
