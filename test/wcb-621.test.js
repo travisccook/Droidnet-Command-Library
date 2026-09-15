@@ -24,7 +24,18 @@ function loadEngine() { jest.resetModules(); return require('../src/droidnet-com
 // both the frozen 4.2.0 template and the corrected one, plus the reason, so nothing else can
 // change under cover of an allowlisted id. Param names stay frozen regardless.
 //   'some.id': { from: '<4.2.0 template>', to: '<corrected template>', why: '<firmware ref>' },
-const TEMPLATE_FIXES = {};
+//
+// FlthyHPs LED sequence codes (spec "FlthyHPs sequence codes"). 2.3.0 (b38b5d2) took 005/006/007
+// from the FlthyHPs Manual v1.8 command table, which is the pre-v1.6 sketch order. Every sketch
+// from v1.6 through the author's v2.1 dispatches 5 = solid, 6 = rainbow, 7 = short circuit:
+// FlthyHPs_v1.8.ino (v1.81) :932-934, FlthyHPs_v2.1.ino :440-442. Stored wire text is untouched;
+// the three ids now encode and decode the codes the firmware actually runs.
+const FLTHY_V16_CODES = 'FlthyHPs v1.6+ firmware: 005 solid, 006 rainbow, 007 short circuit (v1.81 :932-934)';
+const TEMPLATE_FIXES = {
+  'flthy.led.solid': { from: '{designator}006{color}', to: '{designator}005{color}', why: FLTHY_V16_CODES },
+  'flthy.led.rainbow': { from: '{designator}007', to: '{designator}006', why: FLTHY_V16_CODES },
+  'flthy.led.shortcircuit': { from: '{designator}005{color}', to: '{designator}007{color}', why: FLTHY_V16_CODES },
+};
 
 const WCB_BOARDS = ['maestro', 'wcb-hcr', 'wcb-mp3', 'wcb-wled', 'wcb-native', 'wcb-dfp'];
 const ETM_MAX_CMD_WITH_CRC = 187;
@@ -64,6 +75,11 @@ describe('WCB 6.2.1 sweep guards', () => {
 
   test('(a) every template-fix allowlist entry names a frozen 4.2.0 id', () => {
     for (const id of Object.keys(TEMPLATE_FIXES)) expect(FROZEN_420).toHaveProperty([id]);
+  });
+
+  test('(a) the template-fix allowlist is exactly the three FlthyHPs LED codes, each with a reason', () => {
+    expect(Object.keys(TEMPLATE_FIXES).sort()).toEqual(['flthy.led.rainbow', 'flthy.led.shortcircuit', 'flthy.led.solid']);
+    for (const fix of Object.values(TEMPLATE_FIXES)) expect(fix.why).toEqual(expect.any(String));
   });
 
   test('(b) every example on the WCB boards decodes to its own command', () => {
@@ -598,5 +614,42 @@ describe('wcb-native: 66 commands for WCB 6.2.1 (and missed 6.1.5 surface)', () 
   test('every new example round-trips byte-identical', () => {
     const added = cb.getCommands('wcb-native').filter(c => !FROZEN_420[c.id]);
     for (const cmd of added) for (const ex of cmd.examples) expect(cb.buildWCBValue(cb.parseWCBValue(ex))).toBe(ex);
+  });
+});
+
+describe('FlthyHPs sequence codes follow the v1.6+ firmware', () => {
+  // FlthyHPs_v1.8.ino (v1.81): function = digits 3-4 (:802); dispatch case 5 ledColor, case 6 rainbow,
+  // case 7 ShortCircuit (:932-934); designators F R T X Y Z A (:791-797), X/Y/Z fan out at :813-818.
+  let cb;
+  beforeEach(() => {
+    cb = loadEngine();
+    const { manifest, boards } = readCatalog();
+    cb.loadLibrary(boards.map(b => JSON.parse(JSON.stringify(b))), { libraryVersion: manifest.libraryVersion });
+  });
+
+  test('005 is solid, 006 is rainbow, 007 is short circuit', () => {
+    expect(cb.match('A0055')).toEqual({ commandId: 'flthy.led.solid', params: { designator: 'A', color: '5' }, duration: undefined });
+    expect(cb.match('A006')).toEqual({ commandId: 'flthy.led.rainbow', params: { designator: 'A' }, duration: undefined });
+    expect(cb.match('A0077')).toEqual({ commandId: 'flthy.led.shortcircuit', params: { designator: 'A', color: '7' }, duration: undefined });
+  });
+
+  test('the author\'s manual examples decode as documented (R0053 solid green, T006 rainbow, A006|45)', () => {
+    expect(cb.match('R0053')).toMatchObject({ commandId: 'flthy.led.solid', params: { designator: 'R', color: '3' } });
+    expect(cb.match('T006')).toMatchObject({ commandId: 'flthy.led.rainbow', params: { designator: 'T' } });
+    expect(cb.match('A006|45')).toMatchObject({ commandId: 'flthy.led.rainbow', params: { designator: 'A' }, duration: 45 });
+  });
+
+  test('4.2.0 wire text for "solid" and "rainbow" is no longer claimed by those ids', () => {
+    // A0065 and A007 run rainbow and short circuit on v1.6+ firmware; they survive as raw steps.
+    expect(cb.match('A0065')).toBeNull();
+    expect(cb.match('A007')).toBeNull();
+    expect(cb.buildWCBValue(cb.parseWCBValue('A0065^A007|240'))).toBe('A0065^A007|240');
+  });
+
+  test('X, Y and Z designators encode and decode', () => {
+    expect(cb.getEnum('flthy.designator').values.map(v => v.code)).toEqual(['F', 'R', 'T', 'X', 'Y', 'Z', 'A']);
+    expect(cb.encode(cb.getCommand('flthy.led.solid'), { designator: 'X', color: '5' }, {})).toBe('X0055');
+    expect(cb.match('Y006|10')).toMatchObject({ commandId: 'flthy.led.rainbow', params: { designator: 'Y' }, duration: 10 });
+    expect(cb.match('Z1011')).toMatchObject({ commandId: 'flthy.servo.preset', params: { designator: 'Z', position: '1' } });
   });
 });

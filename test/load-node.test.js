@@ -18,5 +18,5 @@ test('loadCatalog() loads the engine and resolves commands', () => {
   const engine = loadCatalog();
   expect(engine.getLibraryVersion()).toBe('4.2.0');
   expect(engine.getCommand('flthy.led.solid')).not.toBeNull();
-  expect(engine.encode(engine.getCommand('flthy.led.solid'), { designator: 'A', color: '5' }, {})).toBe('A0065');
+  expect(engine.encode(engine.getCommand('flthy.led.solid'), { designator: 'A', color: '5' }, {})).toBe('A0055');
 });
