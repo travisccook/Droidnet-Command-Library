@@ -1,10 +1,12 @@
 // WCB firmware 6.2.1 sweep guards (spec 2026-09-15-wcb-firmware-6.2.1-sweep-design).
 //
 // (a) 4.2.0 freeze. test/fixtures/catalog-4.2.0-commands.json records every command id
-//     published in 4.2.0 (commit 82b6a04) with its template and ordered param names. Stored
-//     wire strings and host apps depend on both, so a minor/patch release may add ids and
-//     tighten ranges/enums/patterns, but must not remove an id or change its template or
-//     param names. Update this fixture only on a major release.
+//     published in 4.2.0 (commit 82b6a04) with its board, template, ordered param names,
+//     encoder and supportsDuration. Stored wire strings and host apps depend on all of them
+//     (match() keeps a trailing |n only for a command with supportsDuration), so a minor/patch
+//     release may add ids and tighten ranges/enums/patterns, but must not remove an id or move
+//     it to another board, or change its template, param names, encoder or duration support.
+//     Update this fixture only on a major release.
 // (b) Every example on the WCB boards decodes to its OWN command. Matching is first-match-wins
 //     in manifest order, so a greedy template (e.g. ?ALIAS,{name}) can silently claim a more
 //     specific sibling (?ALIAS,CLEAR). test/web.test.js only checks that an example parses to
@@ -50,13 +52,24 @@ describe('WCB 6.2.1 sweep guards', () => {
 
   test('the 4.2.0 fixture is complete (397 commands)', () => {
     expect(Object.keys(FROZEN_420)).toHaveLength(397);
+    for (const frozen of Object.values(FROZEN_420)) {
+      expect(Object.keys(frozen)).toEqual(['board', 'template', 'params', 'encoder', 'supportsDuration']);
+      expect(typeof frozen.supportsDuration).toBe('boolean');
+    }
   });
 
-  test('(a) every 4.2.0 id still resolves with the same template and ordered param names', () => {
+  test('(a) every 4.2.0 id still resolves on its board with the same template, param names, encoder and duration support', () => {
     const drift = [];
     for (const [id, frozen] of Object.entries(FROZEN_420)) {
       const cmd = cb.getCommand(id);
       if (!cmd) { drift.push(`${id}: removed (was on ${frozen.board})`); continue; }
+      if (cmd._component.id !== frozen.board) drift.push(`${id}: board ${frozen.board} -> ${cmd._component.id}`);
+      const encoder = cmd.encoder || 'template';
+      if (encoder !== frozen.encoder) drift.push(`${id}: encoder ${frozen.encoder} -> ${encoder}`);
+      const supportsDuration = cmd.supportsDuration === true;
+      if (supportsDuration !== frozen.supportsDuration) drift.push(`${id}: supportsDuration ${frozen.supportsDuration} -> ${supportsDuration}`);
+      // A stored |n only decodes if the composer can still write it: the board's durationSuffix must stay on.
+      if (frozen.supportsDuration && !cb.encode(cmd, {}, { duration: 7 }).endsWith('|7')) drift.push(`${id}: no longer encodes a |n duration`);
       const template = typeof cmd.template === 'string' ? cmd.template : null;
       const fix = TEMPLATE_FIXES[id];
       if (fix) {
