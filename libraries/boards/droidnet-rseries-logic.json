@@ -1,0 +1,52 @@
+{
+  "$schema": "droidnet-command-library/library/v1",
+  "enums": {
+    "rseries.unit": {
+      "label": "Display",
+      "values": [
+        { "code": "", "label": "Both" },
+        { "code": "F", "label": "Front" },
+        { "code": "R", "label": "Rear" }
+      ]
+    }
+  },
+  "components": [
+    {
+      "id": "droidnet-rseries-logic",
+      "name": "RSeriesLogic · DroidNet fork",
+      "kind": "device-native",
+      "confidence": "community",
+      "firmware": "travisccook/DroidNet-RSeriesLogics @ <source_commit>",
+      "routing": {
+        "class": "broadcast",
+        "nativeWrapper": "none",
+        "durationSuffix": { "supported": false }
+      },
+      "categories": ["Lighting"],
+      "commands": [
+        {
+          "id": "rseries.cfg.brightness",
+          "name": "Brightness",
+          "safety": "cosmetic",
+          "category": "Lighting",
+          "encoder": "template",
+          "template": "#LEBRI{unit}{level}",
+          "params": [
+            { "name": "unit", "enum": "rseries.unit", "default": "" },
+            {
+              "name": "level",
+              "label": "Brightness (1–255)",
+              "type": "int",
+              "min": 1,
+              "max": 255,
+              "required": true
+            }
+          ],
+          "supportsDuration": false,
+          "examples": ["#LEBRI128", "#LEBRIF255", "#LEBRIR1"],
+          "commentLabel": "Logics {unit} brightness {level}"
+        }
+      ]
+    }
+  ]
+}

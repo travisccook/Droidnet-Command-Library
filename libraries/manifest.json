@@ -11,6 +11,12 @@
       "confidence": "high"
     },
     {
+      "id": "droidnet-flthy-hps",
+      "file": "boards/droidnet-flthy-hps.json",
+      "name": "FlthyHPs · DroidNet fork",
+      "confidence": "community"
+    },
+    {
       "id": "ia-magic-panel",
       "file": "boards/ia-magic-panel.json",
       "name": "IA MagicPanel",
@@ -27,6 +33,12 @@
       "file": "boards/rseries-logic.json",
       "name": "RSeriesLogic (Logic Displays)",
       "confidence": "high"
+    },
+    {
+      "id": "droidnet-rseries-logic",
+      "file": "boards/droidnet-rseries-logic.json",
+      "name": "RSeriesLogic · DroidNet fork",
+      "confidence": "community"
     },
     {
       "id": "wcb-hcr",
