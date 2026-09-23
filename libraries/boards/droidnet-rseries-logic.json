@@ -16,7 +16,7 @@
       "name": "RSeriesLogic · DroidNet fork",
       "kind": "device-native",
       "confidence": "community",
-      "firmware": "travisccook/DroidNet-RSeriesLogics @ <source_commit>",
+      "firmware": "travisccook/DroidNet-RSeriesLogics @ aa45d79",
       "routing": {
         "class": "broadcast",
         "nativeWrapper": "none",

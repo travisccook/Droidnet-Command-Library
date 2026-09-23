@@ -130,3 +130,16 @@ describe('DroidNet fork boards', () => {
     expect(Math.max(...codes)).toBe(105);
   });
 });
+
+describe('DroidNet fork boards name their firmware commit', () => {
+  // Only the two fork components are checked. The stock boards' firmware strings are free text.
+  // A placeholder such as "<source_commit>" fails here, so it cannot be merged.
+  const FIRMWARE = /^travisccook\/DroidNet-(RSeriesLogics|FlthyHPs) @ [0-9a-f]{7,40}$/;
+  const REPO = { 'droidnet-rseries-logic': 'RSeriesLogics', 'droidnet-flthy-hps': 'FlthyHPs' };
+
+  test.each(Object.keys(REPO))('%s firmware is its fork repo @ a commit sha', (board) => {
+    const comp = readCatalog().boards.map(b => b.components[0]).find(c => c.id === board);
+    expect(comp.firmware).toMatch(FIRMWARE);
+    expect(comp.firmware.match(FIRMWARE)[1]).toBe(REPO[board]);
+  });
+});

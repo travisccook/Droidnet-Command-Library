@@ -20,7 +20,7 @@
       "name": "FlthyHPs · DroidNet fork",
       "kind": "device-native",
       "confidence": "community",
-      "firmware": "travisccook/DroidNet-FlthyHPs @ <source_commit>",
+      "firmware": "travisccook/DroidNet-FlthyHPs @ 75755de",
       "routing": {
         "class": "broadcast",
         "nativeWrapper": "none",
