@@ -1596,7 +1596,7 @@
         {
           "id": "wcb.runSeq",
           "name": "Run Sequence (short)",
-          "safety": "config",
+          "safety": "storedcommand",
           "encoder": "template",
           "template": ";C{key}",
           "params": [
@@ -1615,7 +1615,7 @@
         {
           "id": "wcb.runSeqLong",
           "name": "Run Sequence (long)",
-          "safety": "config",
+          "safety": "storedcommand",
           "encoder": "template",
           "template": ";SEQ{key}",
           "params": [
@@ -1634,7 +1634,7 @@
         {
           "id": "wcb.runSeqLocal",
           "name": "Run Sequence on This Board Only (WCB 6.2+)",
-          "safety": "config",
+          "safety": "storedcommand",
           "encoder": "template",
           "template": ";C{key},L",
           "params": [
@@ -1653,7 +1653,7 @@
         {
           "id": "wcb.runSeqLongLocal",
           "name": "Run Sequence on This Board Only, long (WCB 6.2+)",
-          "safety": "config",
+          "safety": "storedcommand",
           "encoder": "template",
           "template": ";SEQ{key},L",
           "params": [

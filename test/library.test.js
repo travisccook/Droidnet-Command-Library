@@ -22,7 +22,7 @@ describe.each(boardFiles)('board %s', (file) => {
     for (const cmd of lib.components[0].commands) {
       expect(cmd.id && cmd.name).toBeTruthy();
       if ((cmd.encoder || 'template') === 'template') expect(typeof cmd.template).toBe('string');
-      if (cmd.safety) expect(['cosmetic', 'movement', 'power', 'config']).toContain(cmd.safety);
+      if (cmd.safety) expect(['cosmetic', 'movement', 'power', 'config', 'storedcommand']).toContain(cmd.safety);
     }
   });
 

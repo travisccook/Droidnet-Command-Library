@@ -123,8 +123,8 @@
         },
         "safety": {
           "type": "string",
-          "enum": ["cosmetic", "movement", "power", "config"],
-          "description": "Risk class. Anything other than 'cosmetic' raises a confirm-before-firing warning in the UI."
+          "enum": ["cosmetic", "movement", "power", "config", "storedcommand"],
+          "description": "Risk class. Anything other than 'cosmetic' raises a confirm-before-firing warning in the UI. 'storedcommand' = runs a command the user stored on the board, whose effect the library cannot see."
         },
         "encoder": {
           "type": "string",

@@ -71,8 +71,13 @@ libraries/manifest.json             ──fetch+merge──▶  loadLibrary  ─
 param names must exactly match the placeholders (validator enforces both
 directions). `component.kind` is `device-native` (the board's own grammar) or
 `wcb-verb` (interpreted by an intermediary like a WCB). `command.safety`
-(`cosmetic`/`movement`/`power`/`config`) drives a confirm-before-firing warning in
-the UI — anything non-`cosmetic` is treated as potentially dangerous.
+(`cosmetic`/`movement`/`power`/`config`/`storedcommand`) drives a confirm-before-firing
+warning in the UI — anything non-`cosmetic` is treated as potentially dangerous.
+`storedcommand` is for commands that run a command the user stored on the board (a WCB
+stored command, `;C<key>`) that can be any command, so the library cannot know whether
+it moves hardware, switches power or changes settings; if the device itself limits what
+saved content can do (a Maestro script, a Roam-a-Dome sequence), use that limit's class
+instead.
 
 A command may declare a `category` (e.g. `"Lighting"`); the component declares an
 ordered `categories` array that lists every category it uses and fixes the

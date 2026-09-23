@@ -127,6 +127,19 @@ describe('WCB 6.2.1 sweep guards', () => {
     }
     expect(tooLong).toEqual([]);
   });
+
+  test('storedcommand: runs a command the user stored on the board (;C/;SEQ, and the ONFIN-callback plays)', () => {
+    const storedIds = ['wcb.runSeq', 'wcb.runSeqLong', 'wcb.runSeqLocal', 'wcb.runSeqLongLocal', 'mp3.playCb', 'mp3.playFsCb'];
+    for (const id of storedIds) expect(cb.getCommand(id).safety).toBe('storedcommand');
+  });
+
+  test('config: run-sequence queries/save/clear and the timer and ONERR setters stay config', () => {
+    const configIds = [
+      'wcb.seqSave', 'wcb.seqNames', 'wcb.seqGet', 'wcb.seqList', 'wcb.seqClear', 'wcb.seqClearAll',
+      'wcb.timerStop', 'wcb.timer', 'wcb.mp3OnErr', 'wcb.dfpOnErr',
+    ];
+    for (const id of configIds) expect(cb.getCommand(id).safety).toBe('config');
+  });
 });
 
 // ---------------------------------------------------------------------------------------------
@@ -301,9 +314,9 @@ describe('wcb-dfp: DFPlayer Mini (;D, WCB 6.2+)', () => {
     expect(cb.match(';D,VOLDN').commandId).toBe('dfp.volDown');
   });
 
-  test('only RESET is non-cosmetic', () => {
+  test('RESET is config; the ONFIN-callback plays are storedcommand', () => {
     const nonCosmetic = cb.getCommands('wcb-dfp').filter(c => c.safety !== 'cosmetic').map(c => `${c.id}:${c.safety}`);
-    expect(nonCosmetic).toEqual(['dfp.reset:config']);
+    expect(nonCosmetic).toEqual(['dfp.playCb:storedcommand', 'dfp.folderCb:storedcommand', 'dfp.mp3FolderCb:storedcommand', 'dfp.reset:config']);
   });
 
   // ;D,DEVICE,<n> is documented (WCB_Help.cpp:581) but WCB 6.2.1 rejects it: processDFPCommand

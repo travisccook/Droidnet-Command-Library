@@ -87,7 +87,11 @@ jobs:
             3. HIGH SEVERITY — flag any safety-class mislabeling. A command that moves
                the droid or affects power must NOT be marked safety:"cosmetic". Per
                the project's Code of Conduct, mislabeling can cause real hardware to
-               move unexpectedly. Call this out prominently.
+               move unexpectedly. Call this out prominently. A command that runs a
+               command the user stored on the board (a WCB `;C<key>`/`;SEQ<key>` run,
+               or an `ONFIN,<key>` callback) must be marked safety:"storedcommand",
+               not "cosmetic" or "config" — the library cannot see what the stored
+               content does, so it must not be labeled as if its effect were known.
 
             4. For changes to src/*.js: check correctness, keep the engine DOM-free
                and the UI going through buildWCBValue/parseWCBValue, and preserve the
