@@ -143,6 +143,10 @@ engine being loaded first.
 
 The composer handles add/edit/remove, drag-reorder, inline delays and notes, a
 length counter, and a safety warning when any non-`cosmetic` command is present.
+If you build your own UI instead of using the composer, show any `safety` value
+other than `cosmetic` verbatim as a warning — including a value your integration
+doesn't recognise (a future release can add a class you haven't seen yet). Don't
+special-case which strings count as a warning; anything non-`cosmetic` is one.
 
 The command dropdown in the add bar renders as ordered `<optgroup>` sections
 following the selected board's `component.categories` array (uncategorized

@@ -1,0 +1,56 @@
+{
+  "$schema": "droidnet-command-library/library/v1",
+  "enums": {
+    "flthy.designator": {
+      "label": "Holoprojector",
+      "values": [
+        { "code": "F", "label": "Front" },
+        { "code": "R", "label": "Rear" },
+        { "code": "T", "label": "Top" },
+        { "code": "X", "label": "Front & Rear" },
+        { "code": "Y", "label": "Front & Top" },
+        { "code": "Z", "label": "Rear & Top" },
+        { "code": "A", "label": "All" }
+      ]
+    }
+  },
+  "components": [
+    {
+      "id": "droidnet-flthy-hps",
+      "name": "FlthyHPs · DroidNet fork",
+      "kind": "device-native",
+      "confidence": "community",
+      "firmware": "travisccook/DroidNet-FlthyHPs @ 75755de",
+      "routing": {
+        "class": "broadcast",
+        "nativeWrapper": "none",
+        "durationSuffix": { "supported": false }
+      },
+      "categories": ["Lighting"],
+      "commands": [
+        {
+          "id": "flthy.led.brightness",
+          "name": "Brightness",
+          "safety": "cosmetic",
+          "category": "Lighting",
+          "encoder": "template",
+          "template": "H{unit}B{level}",
+          "params": [
+            { "name": "unit", "enum": "flthy.designator", "default": "A" },
+            {
+              "name": "level",
+              "label": "Brightness (1–255)",
+              "type": "int",
+              "min": 1,
+              "max": 255,
+              "required": true
+            }
+          ],
+          "supportsDuration": false,
+          "examples": ["HAB128", "HFB255", "HTB1"],
+          "commentLabel": "Holos {unit} brightness {level}"
+        }
+      ]
+    }
+  ]
+}

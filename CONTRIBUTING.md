@@ -67,6 +67,11 @@ for a worked example), with tests. Libraries reference it by `encoder` name.
 Be kind, assume good faith, and keep board data accurate. Misrepresenting a
 command's `safety` class (e.g. labelling a movement command `cosmetic`) can cause
 real hardware to move unexpectedly — when in doubt, choose the more cautious class.
+Use `storedcommand` for commands that run a command the user stored on the board (a
+WCB stored command, `;C<key>`) that can be any command, so the library cannot know
+whether it moves hardware, switches power or changes settings; if the device itself
+limits what saved content can do (a Maestro script, a Roam-a-Dome sequence), use that
+limit's class instead.
 
 ## License
 

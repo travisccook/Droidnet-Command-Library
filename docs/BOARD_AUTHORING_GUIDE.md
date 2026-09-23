@@ -88,7 +88,7 @@ Required: `id` (unique across the whole library) and `name`.
   "id": "myboard.solid",           // globally unique
   "name": "Solid Color",
   "category": "Lighting",           // dropdown section — must be in the component's `categories`
-  "safety": "cosmetic",             // cosmetic | movement | power | config
+  "safety": "cosmetic",             // cosmetic | movement | power | config | storedcommand
   "encoder": "template",            // default; can omit
   "template": "C{color}",
   "params": [ { "name": "color", "enum": "myboard.color", "default": "1" } ],
@@ -104,8 +104,12 @@ one.
 
 **`safety` matters.** Anything other than `cosmetic` triggers a
 confirm-before-firing warning in the UI. Use `movement` for anything that moves
-hardware, `power` for power switching, `config` for settings that change state.
-When unsure, pick the more cautious class.
+hardware, `power` for power switching, `config` for settings that change state, and
+`storedcommand` for commands that run a command the user stored on the board (a WCB
+stored command, `;C<key>`) that can be any command, so the library cannot know
+whether it moves hardware, switches power or changes settings; if the device itself
+limits what saved content can do (a Maestro script, a Roam-a-Dome sequence), use
+that limit's class instead. When unsure, pick the more cautious class.
 
 **Firmware requirements go in the name.** Neither the composer nor the hosted
 reference shows a component's `firmware` or `routing.notes`, so users never see

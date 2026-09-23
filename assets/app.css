@@ -36,7 +36,7 @@ body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--s
 .dn-badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: .72rem;
   background: var(--panel-2); color: var(--muted); border: 1px solid var(--edge); font-family: var(--mono); }
 .dn-ver { color: var(--accent); }
-.dn-safety-movement, .dn-safety-power { color: var(--warn); border-color: var(--warn); }
+.dn-safety-movement, .dn-safety-power, .dn-safety-storedcommand { color: var(--warn); border-color: var(--warn); }
 .dn-safety-config { color: var(--accent); border-color: var(--accent); }
 .dn-conf-community { color: var(--warn); border-color: var(--warn); }
 .dn-conf-low { color: var(--danger); border-color: var(--danger); }

@@ -1,14 +1,20 @@
 {
   "$schema": "droidnet-command-library/catalog/v1",
-  "libraryVersion": "4.3.0",
+  "libraryVersion": "4.4.0",
   "schemaVersion": "v1",
-  "generatedFrom": "C2B5 firmware + WIPDocs (2026-06); R2UppitySpinnerV3 ALT fw 3.5.3 (2026-07); Printed Droid Magic Panel 32 Wireless KB (2026-07); WCB 6.1.5_290119RJUN2026 (2026-07); WCB 6.2.1_021242RSEP2026 + WcbCmd 0.8.0 (2026-09)",
+  "generatedFrom": "C2B5 firmware + WIPDocs (2026-06); R2UppitySpinnerV3 ALT fw 3.5.3 (2026-07); Printed Droid Magic Panel 32 Wireless KB (2026-07); WCB 6.1.5_290119RJUN2026 (2026-07); WCB 6.2.1_021242RSEP2026 + WcbCmd 0.8.0 (2026-09); DroidNet forks (2026-09)",
   "boards": [
     {
       "id": "flthy-hps",
       "file": "boards/flthy-hps.json",
       "name": "FlthyHPs Holoprojectors",
       "confidence": "high"
+    },
+    {
+      "id": "droidnet-flthy-hps",
+      "file": "boards/droidnet-flthy-hps.json",
+      "name": "FlthyHPs · DroidNet fork",
+      "confidence": "community"
     },
     {
       "id": "ia-magic-panel",
@@ -27,6 +33,12 @@
       "file": "boards/rseries-logic.json",
       "name": "RSeriesLogic (Logic Displays)",
       "confidence": "high"
+    },
+    {
+      "id": "droidnet-rseries-logic",
+      "file": "boards/droidnet-rseries-logic.json",
+      "name": "RSeriesLogic · DroidNet fork",
+      "confidence": "community"
     },
     {
       "id": "wcb-hcr",
