@@ -58,6 +58,29 @@
     return humanize(p.name);
   }
 
+  // The input for one param, holding `val`. An omittable param (the firmware uses its own
+  // default when it is left off) gets a 'Board default' choice whose value is '' — the
+  // engine then leaves it off the wire.
+  function paramControlHtml(p, val, getEnum) {
+    const name = esc(p.name);
+    const cap = esc(captionFor(p, getEnum));
+    if (p.enum) {
+      const en = getEnum(p.enum);
+      const opt = (code, label) => `<option value="${esc(code)}"${String(code) === String(val) ? ' selected' : ''}>${esc(label)}</option>`;
+      const opts = (p.omittable ? opt('', 'Board default') : '')
+        + ((en && en.values) || []).map(v => opt(v.code, v.label)).join('');
+      return `<select class="form-control wcb-param" data-param="${name}" aria-label="${cap}">${opts}</select>`;
+    }
+    if (p.pattern) {
+      // free-text param (e.g. a display string or hex bitmask) → text input, not a number spinner
+      return `<input class="form-control wcb-param" data-param="${name}" aria-label="${cap}" type="text" value="${esc(val)}">`;
+    }
+    const min = p.min !== undefined ? ` min="${p.min}"` : '';
+    const max = p.max !== undefined ? ` max="${p.max}"` : '';
+    const ph = p.omittable ? ' placeholder="Board default"' : '';
+    return `<input class="form-control wcb-param" data-param="${name}" aria-label="${cap}" type="number"${min}${max}${ph} value="${esc(val)}">`;
+  }
+
   // Standard category display order (see spec 2026-07-07-command-categories-design).
   const STANDARD_CATEGORY_ORDER = ['Lighting', 'Movement', 'Sound', 'Sequences', 'Setup', 'Config', 'Power', 'System'];
 
@@ -261,23 +284,7 @@
 
     function paramControl(p, cur) {
       const val = cur[p.name] !== undefined ? cur[p.name] : (p.default !== undefined ? p.default : '');
-      const name = esc(p.name);
-      const cap = captionFor(p, E().getEnum);
-      let control;
-      if (p.enum) {
-        const en = E().getEnum(p.enum);
-        const opts = ((en && en.values) || [])
-          .map(v => `<option value="${esc(v.code)}"${String(v.code) === String(val) ? ' selected' : ''}>${esc(v.label)}</option>`).join('');
-        control = `<select class="form-control wcb-param" data-param="${name}" aria-label="${esc(cap)}">${opts}</select>`;
-      } else if (p.pattern) {
-        // free-text param (e.g. a display string or hex bitmask) → text input, not a number spinner
-        control = `<input class="form-control wcb-param" data-param="${name}" aria-label="${esc(cap)}" type="text" value="${esc(val)}">`;
-      } else {
-        const min = p.min !== undefined ? ` min="${p.min}"` : '';
-        const max = p.max !== undefined ? ` max="${p.max}"` : '';
-        control = `<input class="form-control wcb-param" data-param="${name}" aria-label="${esc(cap)}" type="number"${min}${max} value="${esc(val)}">`;
-      }
-      return fieldCell(cap, control);
+      return fieldCell(captionFor(p, E().getEnum), paramControlHtml(p, val, E().getEnum));
     }
 
     function loadStepIntoAddBar(i) {
@@ -378,5 +385,5 @@
     renderAddBar();
   }
 
-  return { renderComposer, stepLabel, humanize, captionFor, groupCommandsForDropdown };
+  return { renderComposer, stepLabel, humanize, captionFor, groupCommandsForDropdown, paramControlHtml };
 });

@@ -78,10 +78,10 @@
           "template": "{address}T{mode}",
           "params": [
             { "name": "address", "enum": "psi.address", "required": true },
-            { "name": "mode", "enum": "psi.mode", "required": true }
+            { "name": "mode", "enum": "psi.mode", "required": true, "leadingZeros": true }
           ],
           "supportsDuration": true,
-          "examples": ["0T18", "4T92", "5T3", "0T1", "0T11|47"],
+          "examples": ["0T18", "4T92", "5T3", "0T1", "0T11|47", "4T03"],
           "commentLabel": "PSI {address} — {mode}",
           "category": "Lighting"
         },

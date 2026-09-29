@@ -72,7 +72,8 @@
             {
               "name": "mode",
               "enum": "iamp.mode",
-              "required": true
+              "required": true,
+              "leadingZeros": true
             }
           ],
           "examples": [

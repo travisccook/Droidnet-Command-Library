@@ -88,6 +88,27 @@ function boardSemanticErrors(lib) {
         for (const name of paramNames) {
           if (!placeholders.includes(name)) warnings.push(`${where}: param '${name}' is never used in the template`);
         }
+        // omittable params are left off the END of the wire string (the firmware reads them
+        // by position), so from the first one on the template may hold only omittable
+        // placeholders — no literal text, no required param.
+        const byName = new Map((cmd.params || []).map(p => [p.name, p]));
+        const firstOmit = [...cmd.template.matchAll(/\{(\w+)\}/g)].find(m => (byName.get(m[1]) || {}).omittable);
+        if (firstOmit) {
+          const tail = cmd.template.slice(firstOmit.index);
+          const tailNames = [...tail.matchAll(/\{(\w+)\}/g)].map(m => m[1]);
+          if (tail.replace(/\{\w+\}/g, '') !== '' || tailNames.some(n => !(byName.get(n) || {}).omittable)) {
+            errors.push(`${where}: omittable param '${firstOmit[1]}' must be followed only by other omittable params (no literal text or required param after it)`);
+          }
+        }
+      }
+      for (const p of cmd.params || []) {
+        if (p.omittable && p.required) errors.push(`${where}: param '${p.name}' cannot be both omittable and required`);
+        if (p.leadingZeros) {
+          const codes = p.enum && enums[p.enum] ? (enums[p.enum].values || []).map(x => String(x.code)) : null;
+          if (!codes || !codes.every(c => /^\d+$/.test(c))) {
+            errors.push(`${where}: leadingZeros on param '${p.name}' needs an enum whose codes are all numeric`);
+          }
+        }
       }
       // commentLabel may interpolate {param} placeholders (→ selected value labels) and
       // [ ... ] optional segments; every placeholder must reference a real param.

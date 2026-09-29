@@ -151,6 +151,8 @@ Each param fills one `{placeholder}` in the template.
 | `default` | Value used when left blank. |
 | `required` | Marks the param as required (advisory). |
 | `pad` | Zero-pad a numeric value to a fixed width (e.g. `4` → `0025`). |
+| `omittable` | The firmware accepts the command with this param left off and uses its own default (e.g. a FlthyHPs colour). `match()` accepts the command without it (the param parses as `''`); `encode()` leaves it — and every param after it — off when its value is `''`. Only omittable params may follow it in the template, and it can't also be `required`. The composer adds a **Board default** choice. |
+| `leadingZeros` | The firmware reads the number with `atoi`/`toInt`, so `03` means `3`. `match()` accepts leading zeros and the step holds the canonical code, so a rebuild drops them. Needs an enum whose codes are all numeric. Set it only after reading the firmware's parser. |
 
 A param is either enum-backed **or** numeric (`type: "int"`), not both.
 

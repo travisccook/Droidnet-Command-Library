@@ -39,6 +39,14 @@ const TEMPLATE_FIXES = {
   'flthy.led.shortcircuit': { from: '{designator}005{color}', to: '{designator}007{color}', why: FLTHY_V16_CODES },
 };
 
+// 4.5.0: ids whose duration support may only WIDEN (false -> true). A stored value without
+// |n decodes exactly as before; one with |n now decodes instead of staying raw.
+const FLTHY_SERVO_HALT = 'FlthyHPs v1.81 applies |n to every servo command (HPHalt, main.cpp:1420); RC and wag run until it expires (:947-960)';
+const DURATION_WIDENED = {
+  'flthy.servo.rc-lr': FLTHY_SERVO_HALT, 'flthy.servo.rc-ud': FLTHY_SERVO_HALT,
+  'flthy.servo.wag-lr': FLTHY_SERVO_HALT, 'flthy.servo.wag-ud': FLTHY_SERVO_HALT,
+};
+
 const WCB_BOARDS = ['maestro', 'wcb-hcr', 'wcb-mp3', 'wcb-wled', 'wcb-native', 'wcb-dfp'];
 const ETM_MAX_CMD_WITH_CRC = 187;
 
@@ -67,7 +75,8 @@ describe('WCB 6.2.1 sweep guards', () => {
       const encoder = cmd.encoder || 'template';
       if (encoder !== frozen.encoder) drift.push(`${id}: encoder ${frozen.encoder} -> ${encoder}`);
       const supportsDuration = cmd.supportsDuration === true;
-      if (supportsDuration !== frozen.supportsDuration) drift.push(`${id}: supportsDuration ${frozen.supportsDuration} -> ${supportsDuration}`);
+      const widened = DURATION_WIDENED[id] && !frozen.supportsDuration && supportsDuration;
+      if (supportsDuration !== frozen.supportsDuration && !widened) drift.push(`${id}: supportsDuration ${frozen.supportsDuration} -> ${supportsDuration}`);
       // A stored |n only decodes if the composer can still write it: the board's durationSuffix must stay on.
       if (frozen.supportsDuration && !cb.encode(cmd, {}, { duration: 7 }).endsWith('|7')) drift.push(`${id}: no longer encodes a |n duration`);
       const template = typeof cmd.template === 'string' ? cmd.template : null;
@@ -690,9 +699,11 @@ describe('FlthyHPs sequence codes follow the v1.6+ firmware', () => {
   });
 
   test('4.2.0 wire text for "solid" and "rainbow" is no longer claimed by those ids', () => {
-    // A0065 and A007 run rainbow and short circuit on v1.6+ firmware; they survive as raw steps.
+    // A0065 runs rainbow on v1.6+ firmware (the 5 is ignored), so it survives as a raw step.
+    // A007 runs short circuit in the board's own colour: since 4.5.0 (omittable colour) it
+    // decodes as Short Circuit, never as Rainbow.
     expect(cb.match('A0065')).toBeNull();
-    expect(cb.match('A007')).toBeNull();
+    expect(cb.match('A007')).toMatchObject({ commandId: 'flthy.led.shortcircuit', params: { designator: 'A', color: '' } });
     expect(cb.buildWCBValue(cb.parseWCBValue('A0065^A007|240'))).toBe('A0065^A007|240');
   });
 
@@ -701,7 +712,9 @@ describe('FlthyHPs sequence codes follow the v1.6+ firmware', () => {
       { type: 'command', commandId: 'flthy.led.solid', params: { designator: 'A', color: '7' }, label: ' Flthy short circuit' },
       { type: 'command', commandId: 'flthy.led.solid', params: { designator: 'F', color: '5' }, duration: 10 },
     ]);
-    for (const v of ['A0065', 'R0063', 'A0065|60', 'T007', 'A007|45']) expect(cb.parseWCBValue(v)).toEqual([{ type: 'raw', text: v }]);
+    for (const v of ['A0065', 'R0063', 'A0065|60']) expect(cb.parseWCBValue(v)).toEqual([{ type: 'raw', text: v }]);
+    // 4.2.0 Rainbow (007) decodes by what the firmware runs: short circuit in the board colour (4.5.0).
+    for (const v of ['T007', 'A007|45']) expect(cb.parseWCBValue(v)).toEqual([expect.objectContaining({ commandId: 'flthy.led.shortcircuit' })]);
   });
 
   test('X, Y and Z designators encode and decode', () => {

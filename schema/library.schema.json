@@ -170,6 +170,8 @@
         "default": { "type": ["string", "number"], "description": "Default code/value used when the param is left blank. Strings for enum codes; numbers are accepted for int params." },
         "required": { "type": "boolean" },
         "pad": { "type": "integer", "minimum": 1, "description": "Zero-pad a numeric value to this fixed width (e.g. 4 → '0025')." },
+        "omittable": { "type": "boolean", "description": "The firmware accepts the command with this trailing param left off and uses its own default (e.g. a FlthyHPs colour). match() accepts the command without it (the param parses as ''); encode() leaves it, and every param after it, off the wire when its value is ''. Only omittable params may follow it in the template. The composer offers a 'Board default' choice." },
+        "leadingZeros": { "type": "boolean", "description": "The firmware reads this number with atoi/toInt, so leading zeros do not change it ('03' is '3'). match() accepts them and the step holds the canonical code, so a rebuild drops them (firmware-equivalent, not byte-identical). Needs an enum whose codes are all numeric." },
         "pattern": { "type": "string", "description": "Regex fragment this free-text param matches so its wire value round-trips (e.g. '[0-9A-Fa-f]+' for a hex bitmask, '.+' for arbitrary text). Use ONLY non-capturing groups '(?:...)' — a capturing group would break param↔capture-group indexing. Renders as a text input." }
       },
       "additionalProperties": true
