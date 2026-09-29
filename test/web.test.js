@@ -63,6 +63,20 @@ describe('hosted site — reference data contract', () => {
       }
     expect(bad).toEqual([]);
   });
+
+  test('every example is written in the canonical form (parse → build is byte-identical)', () => {
+    // An example seeds the composer and documents the wire form, so it must be what the
+    // composer writes — not a lenient spelling the parser merely accepts (e.g. '4T03').
+    // DroidNet's vendored-catalog test enforces the same rule.
+    const bad = [];
+    for (const comp of cb.getComponents())
+      for (const cmd of cb.getCommands(comp.id))
+        for (const ex of (cmd.examples || [])) {
+          const out = cb.buildWCBValue(cb.parseWCBValue(ex));
+          if (out !== ex) bad.push(`${cmd.id}: ${ex} -> ${out}`);
+        }
+    expect(bad).toEqual([]);
+  });
 });
 
 describe('engine — negative-range int params round-trip (regression)', () => {
