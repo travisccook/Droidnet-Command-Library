@@ -89,6 +89,8 @@ DroidNetCommandLibrary.match('A0055');  // { commandId: 'flthy.led.solid', param
 - `;t<ms>` is a **delay** step.
 - Anything `match()` doesn't recognize is preserved verbatim as a **raw** step,
   so unknown tokens round-trip without loss.
+- An empty fragment (a stray, doubled or trailing `^`) becomes no step. The WCB
+  skips empty segments too, so rebuilding drops them.
 
 ```text
 A006^*** Flthy rainbow^;t500^T52
@@ -96,8 +98,9 @@ A006^*** Flthy rainbow^;t500^T52
 ```
 
 Round-trips are byte-identical except where a board's firmware is itself lossy
-(e.g. RSeriesLogic drops leading zeros — the engine normalizes to the
-firmware-equivalent canonical form).
+(e.g. RSeriesLogic drops leading zeros, and PSIPro reads `4T03` as `4T3` — the
+engine normalizes to the firmware-equivalent canonical form) and for empty
+fragments, which are dropped.
 
 ## The visual composer (UI)
 

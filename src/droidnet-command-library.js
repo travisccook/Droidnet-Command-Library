@@ -231,12 +231,17 @@
     },
     template: {
       encode(cmd, params, opts) {
+        let omitted = false;
         let s = cmd.template.replace(/\{(\w+)\}/g, (_, name) => {
           const v = params[name];
+          const p = (cmd.params || []).find((x) => x.name === name);
+          // An omittable param set to '' is left off the wire, and so is every param after
+          // it: the firmware reads trailing params by position and uses its own default for
+          // any it does not get. (The validator keeps omittable params at the template's end.)
+          if (p && p.omittable && (omitted || v === '')) { omitted = true; return ''; }
           // treat an explicit '' the same as absent → use the param default
           let out = (v !== undefined && v !== '') ? String(v) : String(_paramDefault(cmd, name));
           // zero-pad numeric params that declare a fixed width (e.g. HCR WAV file 0000-9999)
-          const p = (cmd.params || []).find((x) => x.name === name);
           if (p && p.pad && /^\d+$/.test(out)) out = out.padStart(p.pad, '0');
           return out;
         });
@@ -271,26 +276,32 @@
 
   function _buildTemplateMatcher(cmd) {
     const groups = [];
+    let omittable = 0;
     const pattern = cmd.template.replace(/\{(\w+)\}|([^{]+)/g, (m, name, lit) => {
       if (lit !== undefined) return _escapeRe(lit);
       const p = (cmd.params || []).find(x => x.name === name);
       groups.push(name);
+      // An omittable param opens an optional group that closes at the end of the
+      // template, so a later param can only be present when this one is.
+      const open = p && p.omittable ? (omittable++, '(?:') : '';
       if (p && p.enum) {
         const codes = (getEnum(p.enum).values || []).map(v => _escapeRe(v.code))
           .sort((a, b) => b.length - a.length); // longest-first so multi-char codes win
-        return '(' + codes.join('|') + ')';
+        // leadingZeros: the firmware reads the number with atoi/toInt, so '03' is '3'. The
+        // zeros sit outside the capture group, so the step holds the canonical code.
+        return open + (p.leadingZeros ? '0*' : '') + '(' + codes.join('|') + ')';
       }
       if (p && p.pattern) {
         // Board-supplied regex fragment (e.g. a hex bitmask '[0-9A-Fa-f]+') so
         // non-numeric free-text values still round-trip. MUST use only non-capturing
         // groups '(?:...)' — a capturing group would shift param↔capture-group indexing.
-        return '(' + p.pattern + ')';
+        return open + '(' + p.pattern + ')';
       }
       // Allow an optional leading '-' so int params with a negative range
       // (e.g. a rotary speed of -80) re-parse to a structured step, not a raw one.
-      return '(-?\\d+)';
+      return open + '(-?\\d+)';
     });
-    return { re: new RegExp('^' + pattern + '$'), groups };
+    return { re: new RegExp('^' + pattern + ')?'.repeat(omittable) + '$'), groups };
   }
 
   // template.match added to the registry:
@@ -302,7 +313,7 @@
         const m = cmd._matcher.re.exec(token);
         if (!m) continue;
         const params = {};
-        cmd._matcher.groups.forEach((g, i) => { params[g] = m[i + 1]; });
+        cmd._matcher.groups.forEach((g, i) => { params[g] = m[i + 1] === undefined ? '' : m[i + 1]; }); // '' = omitted
         return { commandId: cmd.id, params };
       }
     }
@@ -352,6 +363,9 @@
     const steps = [];
     const frags = String(value).split('^');
     for (const frag of frags) {
+      // An empty segment (a stray, doubled or trailing '^') carries no command; the WCB
+      // skips it too, so it becomes no step. Rebuilding drops it (firmware-equivalent).
+      if (frag === '') continue;
       if (frag.startsWith('***')) {
         const text = frag.slice(3);
         const prev = steps[steps.length - 1];

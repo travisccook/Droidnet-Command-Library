@@ -2,17 +2,17 @@
   "$schema": "droidnet-command-library/releases/v1",
   "_comment": "Update pointer for the 'Update Library' flow. A device fetches this file, compares latest.libraryVersion to its installed catalog, and (if newer) downloads latest.url (the catalog manifest), then fetches each board listed in manifest.boards in order, validates them, and loads them via loadLibrary(boards, { libraryVersion }).",
   "latest": {
-    "libraryVersion": "4.4.0",
+    "libraryVersion": "4.5.0",
     "schemaVersion": "v1",
-    "releasedAt": "2026-09-23",
+    "releasedAt": "2026-09-29",
     "url": "https://raw.githubusercontent.com/travisccook/droidnet-command-library/main/libraries/manifest.json",
-    "notes": "Minor: DroidNet fork boards. Adds two device-native boards, each listed right after its stock board. RSeriesLogic · DroidNet fork (droidnet-rseries-logic) has Brightness (rseries.cfg.brightness): #LEBRI{unit}{level}, where the unit is none (both displays), F (front) or R (rear) and the level is 1-255. FlthyHPs · DroidNet fork (droidnet-flthy-hps) has Brightness (flthy.led.brightness): H{unit}B{level}, where the unit is F, R, T, X, Y, Z or A (all) and the level is 1-255. Both need the DroidNet fork firmware named in the board's firmware field; stock RSeriesLogic and FlthyHPs firmware ignore them. The level is RAM-only: nothing is saved on the board, and a power cycle restores the power-on brightness. The stock RSeriesLogic and FlthyHPs boards are unchanged. Board catalog 22 -> 24, commands 500 -> 502. Safety: new class `storedcommand` for commands that run a command the user saved on the WCB (;C/;SEQ run-sequence, and the DFPlayer/MP3 play+ONFIN callbacks, which were cosmetic). Queries, save and clear stay config."
+    "notes": "Minor: parse what the firmware accepts. The composer now recognizes stored commands it showed as unrecognized raw steps. Engine: an empty fragment (a stray, doubled or trailing ^) becomes no step, since the WCB skips empty segments too. Two new param flags: omittable (the firmware accepts the command with the param left off and uses its own default; the composer offers a Board default choice) and leadingZeros (the firmware reads the number with atoi/toInt, so 03 is 3). FlthyHPs Holoprojectors (flthy-hps): the colour is omittable on Color Projector, Dim Pulse, Cycle, Solid Color and Short Circuit, and the speed on Dim Pulse, so A007 decodes as Short Circuit in the board's own colour and A0031 as Dim Pulse at the board's speed. RC Control L/R and U/D and Wag L/R and U/D accept a |n duration (FlthyHPs v1.81 stops them after n seconds). PSIPro (psi-pro) Run Effect and IA MagicPanel (ia-magic-panel) Run Mode accept leading zeros (4T03, T00). Saved values still decode losslessly; rebuilding a value writes the canonical form (4T3, no empty segments), which the firmware runs identically. No ids, templates or params change; board and command counts are unchanged."
   },
   "libraries": [
     {
       "id": "droidnet-astromech",
       "name": "DroidNet Astromech Boards",
-      "libraryVersion": "4.4.0",
+      "libraryVersion": "4.5.0",
       "schemaVersion": "v1",
       "url": "https://raw.githubusercontent.com/travisccook/droidnet-command-library/main/libraries/manifest.json"
     }
