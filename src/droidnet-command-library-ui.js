@@ -381,8 +381,26 @@
       fillCommands(true); // honor the edit pre-fill on first paint
     }
 
+    // For a host that also edits the value as text: take its new value without
+    // calling onChange. Equal to what the steps compile to: nothing happens. Otherwise
+    // the steps are re-parsed, a step being edited in the add bar is cancelled (as a
+    // reorder does), and the step list, length and safety note re-render; a half-filled
+    // add bar is kept.
+    function setValue(next) {
+      const value = next == null ? '' : String(next);
+      if (value === compiled()) return;
+      steps = value ? E().parseWCBValue(value) : [];
+      dragFrom = null;
+      if (editIndex !== null) {
+        editIndex = null; editLabel = undefined; editWasAuto = false; seed = null;
+        renderAddBar();
+      }
+      renderSteps();
+    }
+
     renderSteps();
     renderAddBar();
+    return { setValue };
   }
 
   return { renderComposer, stepLabel, humanize, captionFor, groupCommandsForDropdown, paramControlHtml };
