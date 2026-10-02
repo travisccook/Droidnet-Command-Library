@@ -96,6 +96,33 @@ describe('renderComposer handle', () => {
     expect(changes).toEqual([]);
   });
 
+  // A host (DroidNet's stored-command field) hands setValue board-read text the builder
+  // spells differently: '4T3^^4T92' rebuilds as '4T3^4T92'. Such a value is never equal
+  // to compiled(), so every call takes the re-render path. The host relies on that, and
+  // on onChange staying silent, so both are pinned here.
+  test('a value the steps rebuild differently re-renders on every call, without onChange', () => {
+    const handle = render('4T3');
+    handle.setValue('4T3^^4T92');
+    expect(tokens()).toEqual(['4T3', '4T92']);
+    expect(host.querySelector('.wcb-len').textContent).toBe('8 / 200'); // the rebuilt 4T3^4T92, not the typed 9
+    const step = host.querySelector('.wcb-step');
+    handle.setValue('4T3^^4T92');
+    expect(host.querySelector('.wcb-step')).not.toBe(step);
+    expect(tokens()).toEqual(['4T3', '4T92']);
+    expect(changes).toEqual([]);
+  });
+
+  test('a value the steps rebuild differently cancels a step being edited', () => {
+    const handle = render('4T3^4T92');
+    host.querySelector('.wcb-step-edit').click();
+    expect(host.querySelector('.add-lbl').textContent).toBe('Edit:');
+    handle.setValue('4T3^^4T92');
+    expect(host.querySelector('.add-lbl').textContent).toBe('Add:');
+    expect(host.querySelector('.wcb-cancel')).toBeNull();
+    expect(host.querySelector('.wcb-step.editing')).toBeNull();
+    expect(changes).toEqual([]);
+  });
+
   test('builder actions after setValue work on the new steps', () => {
     const handle = render('4T3');
     handle.setValue('4T3^4T92');
