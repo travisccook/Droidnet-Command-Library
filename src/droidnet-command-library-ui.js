@@ -161,12 +161,15 @@
 
     function compiled() { return E().buildWCBValue(steps); }
     function recompile() { const v = compiled(); if (callbacks.onChange) callbacks.onChange(v); return v; }
+    // Leave edit mode: forget the step loaded into the add bar and everything kept for its
+    // label. The caller re-renders the add bar (and the step list, for the .editing highlight).
+    function cancelEdit() { editIndex = null; editLabel = undefined; editWasAuto = false; seed = null; }
 
     function moveStep(from, to) {
       if (from === null || to === null || from === to || from < 0 || to < 0 || from >= steps.length || to >= steps.length) return;
       const moved = steps.splice(from, 1)[0];
       steps.splice(to, 0, moved);
-      if (editIndex !== null) { editIndex = null; seed = null; renderAddBar(); } // edit target moved → cancel edit
+      if (editIndex !== null) { cancelEdit(); renderAddBar(); } // edit target moved → cancel edit
       recompile(); renderSteps();
     }
 
@@ -247,7 +250,7 @@
       stepsEl.querySelectorAll('.wcb-step-remove').forEach(btn => btn.addEventListener('click', () => {
         const i = parseInt(btn.dataset.i, 10);
         steps.splice(i, 1);
-        if (editIndex === i) { editIndex = null; seed = null; renderAddBar(); }
+        if (editIndex === i) { cancelEdit(); renderAddBar(); }
         else if (editIndex !== null && editIndex > i) editIndex -= 1;
         recompile(); renderSteps();
       }));
@@ -322,7 +325,7 @@
           step.label = editLabel;
         }
         steps[editIndex] = step;
-        editIndex = null; editLabel = undefined; editWasAuto = false; seed = null;
+        cancelEdit();
       } else {
         // a fresh insert gets the command's default comment label, rendered from the selection
         const auto = E().renderCommentLabel(cmd, params);
@@ -376,13 +379,28 @@
       addbarEl.querySelector('.wcb-insert').addEventListener('click', insertOrUpdate);
       const cancelBtn = addbarEl.querySelector('.wcb-cancel');
       if (cancelBtn) cancelBtn.addEventListener('click', () => {
-        editIndex = null; editLabel = undefined; editWasAuto = false; seed = null; renderAddBar(); renderSteps();
+        cancelEdit(); renderAddBar(); renderSteps();
       });
       fillCommands(true); // honor the edit pre-fill on first paint
     }
 
+    // For a host that also edits the value as text: take its new value without
+    // calling onChange. Equal to what the steps compile to: nothing happens. Otherwise
+    // the steps are re-parsed, a step being edited in the add bar is cancelled (as a
+    // reorder does), and the step list, length and safety note re-render; a half-filled
+    // add bar is kept.
+    function setValue(next) {
+      const value = next == null ? '' : String(next);
+      if (value === compiled()) return;
+      steps = value ? E().parseWCBValue(value) : [];
+      dragFrom = null;
+      if (editIndex !== null) { cancelEdit(); renderAddBar(); }
+      renderSteps();
+    }
+
     renderSteps();
     renderAddBar();
+    return { setValue };
   }
 
   return { renderComposer, stepLabel, humanize, captionFor, groupCommandsForDropdown, paramControlHtml };
