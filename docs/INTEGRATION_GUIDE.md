@@ -84,13 +84,19 @@ DroidNetCommandLibrary.match('A0055');  // { commandId: 'flthy.led.solid', param
 `buildWCBValue` / `parseWCBValue` use a compact, line-free format:
 
 - Steps are joined by `^`.
-- A `***text` fragment is a **comment**. Immediately after a command/raw step it
-  becomes that step's inline **label**; otherwise it's a standalone note.
+- A `***text` fragment is a **comment**. Directly after a command/raw step
+  (`^***`) it becomes that step's inline **label**. After an empty segment
+  (`^^***`) it is a standalone **note** on its own line. After a delay, a
+  labelled step or another note (a single `^`) it is a standalone note marked
+  `inline: true`, written back with a single `^`. First in the value it is a
+  plain note. `buildWCBValue` writes any other note that follows a step as
+  `^^***text`.
 - `;t<ms>` is a **delay** step.
 - Anything `match()` doesn't recognize is preserved verbatim as a **raw** step,
   so unknown tokens round-trip without loss.
 - An empty fragment (a stray, doubled or trailing `^`) becomes no step. The WCB
-  skips empty segments too, so rebuilding drops them.
+  skips empty segments too, so rebuilding drops them, except the one in `^^***`,
+  which keeps a note on its own line.
 
 ```text
 A006^*** Flthy rainbow^;t500^T52
@@ -100,7 +106,7 @@ A006^*** Flthy rainbow^;t500^T52
 Round-trips are byte-identical except where a board's firmware is itself lossy
 (e.g. RSeriesLogic drops leading zeros, and PSIPro reads `4T03` as `4T3` — the
 engine normalizes to the firmware-equivalent canonical form) and for empty
-fragments, which are dropped.
+fragments, which are dropped (except the one before a note on its own line).
 
 ## The visual composer (UI)
 
@@ -143,6 +149,12 @@ engine being loaded first.
 - **callbacks.onChange(wireValue)** — called after any edit with the recompiled
   wire string. This is your source of truth; store it.
 - **callbacks.onTest()** — optional; called if you add a test affordance.
+
+`renderComposer` returns a handle, `{ setValue(value) }`, for a host that also
+lets the user edit the wire value as text. `setValue` does nothing when `value`
+equals the composer's compiled value; otherwise it re-parses the steps, cancels a
+step being edited in the add bar, and re-renders the step list, length and
+safety note, keeping a half-filled add bar. It never calls `onChange`.
 
 The composer handles add/edit/remove, drag-reorder, inline delays and notes, a
 length counter, and a safety warning when any non-`cosmetic` command is present.

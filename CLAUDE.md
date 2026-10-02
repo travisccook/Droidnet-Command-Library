@@ -109,13 +109,17 @@ or `parse`.
 
 ### The wire format
 
-Steps join with `^`. A `***`-prefixed fragment is an inline comment: it becomes
-the **label** of the preceding command/raw step, or a standalone comment step if
-there's nothing to attach to. `;t<ms>` is a delay. Anything `match` doesn't
-recognize survives as a `raw` step (lossless). The core invariant, exercised by
-tests against `test/fixtures/commands.sample.json`:
-`buildWCBValue(parseWCBValue(v)) === v` (byte-identical, except the documented
-rseries leading-zero canonicalization).
+Steps join with `^`. A `***`-prefixed fragment is a comment. Directly after a
+command/raw step (`^***`) it is that step's **label**. After an empty segment
+(`^^***`) it is a note on its own line. After a delay, a labelled step or a note
+it is a note marked `inline: true`, written back with a single `^`. First in the
+value it is a plain note. `;t<ms>` is a delay. Anything `match` doesn't
+recognize survives as a `raw` step (lossless). Any other empty segment (a stray,
+doubled or trailing `^`) becomes no step; the WCB skips it too. The core
+invariant, exercised by tests against `test/fixtures/commands.sample.json`:
+`buildWCBValue(parseWCBValue(v)) === v` (byte-identical, except that the engine
+writes a firmware-lossy spelling in its canonical form, such as RSeries and
+`leadingZeros` params dropping leading zeros, and drops those empty segments).
 
 ## Working in this repo
 
