@@ -351,6 +351,9 @@
   function buildWCBValue(steps) {
     const out = [];
     for (const step of steps) {
+      // A note after another step sits on its own line ('^^***'), unless it was parsed
+      // from a single '^' (step.inline). A note first in the value stays '***text'.
+      if (step.type === 'comment' && !step.inline && out.length > 0) out.push('');
       out.push(_stepToken(step));
       if ((step.type === 'command' || step.type === 'raw') && step.label !== undefined) {
         out.push('***' + step.label);
@@ -362,15 +365,22 @@
   function parseWCBValue(value) {
     const steps = [];
     const frags = String(value).split('^');
+    let afterEmpty = false;
     for (const frag of frags) {
       // An empty segment (a stray, doubled or trailing '^') carries no command; the WCB
-      // skips it too, so it becomes no step. Rebuilding drops it (firmware-equivalent).
-      if (frag === '') continue;
+      // skips it too, so it becomes no step. Rebuilding drops it (firmware-equivalent),
+      // except the one in '^^***', which keeps the comment after it on its own line.
+      if (frag === '') { afterEmpty = true; continue; }
+      const ownLine = afterEmpty;
+      afterEmpty = false;
       if (frag.startsWith('***')) {
         const text = frag.slice(3);
         const prev = steps[steps.length - 1];
-        if (prev && (prev.type === 'command' || prev.type === 'raw') && prev.label === undefined) {
+        if (!ownLine && prev && (prev.type === 'command' || prev.type === 'raw') && prev.label === undefined) {
           prev.label = text;
+        } else if (!ownLine && prev) {
+          // After a delay, a labelled step or another note: written back with one '^'.
+          steps.push({ type: 'comment', text, inline: true });
         } else {
           steps.push({ type: 'comment', text });
         }
