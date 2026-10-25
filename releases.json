@@ -2,17 +2,17 @@
   "$schema": "droidnet-command-library/releases/v1",
   "_comment": "Update pointer for the 'Update Library' flow. A device fetches this file, compares latest.libraryVersion to its installed catalog, and (if newer) downloads latest.url (the catalog manifest), then fetches each board listed in manifest.boards in order, validates them, and loads them via loadLibrary(boards, { libraryVersion }).",
   "latest": {
-    "libraryVersion": "4.6.0",
+    "libraryVersion": "4.7.0",
     "schemaVersion": "v1",
-    "releasedAt": "2026-10-02",
+    "releasedAt": "2026-10-24",
     "url": "https://raw.githubusercontent.com/travisccook/droidnet-command-library/main/libraries/manifest.json",
-    "notes": "Minor: comments keep their place, and the composer can follow a host's text field. Engine: a *** comment after an empty segment (^^***) is a standalone note step on its own line instead of the previous step's label, and buildWCBValue writes a note step that follows another step as ^^***text (a note first in the value stays ***text). A comment parsed from a single ^ after a delay, a labelled step or another note carries inline: true and is written back with one ^, so those values rebuild byte for byte. A comment directly after a command or raw step (^***) is still that step's label. The WCB skips empty segments and comments alike, so the firmware runs the same commands. + Note after a step now writes ^^*** (its own line) instead of ^*** (which read back as the step's label). UI: renderComposer returns { setValue(value) }: equal to the compiled steps it does nothing; otherwise it re-parses the steps, cancels a step being edited in the add bar and re-renders the step list, length and safety note, keeping a half-filled add bar. It never calls onChange; callers that ignore the return value are unaffected. No ids, templates or params change; board and command counts are unchanged."
+    "notes": "Minor: R2 Uppity Spinner ALT updated for firmware 4.0.0-beta.1 (the v4 rewrite; it keeps every v3 :P/#P command). Added: #PRESUME (release a latched E-STOP), #PSTATE, #PCLEARFAULT, #PROTARYTEST<turns>, #PRANDOMLIGHT<mode> (new enum uppity.randomLight) and #PMESHHB<seconds>. :PX and :PH keep their ids and templates with names that say what they do on v4 (:PX latches; :PH lowers safely, homing the head first). The six new commands are marked (v4); #PRC (RC/PPM mode) is kept and marked v3 only: v4 has no RC input and ignores it. The board's routing note describes v4. No ids removed or renamed; other boards unchanged."
   },
   "libraries": [
     {
       "id": "droidnet-astromech",
       "name": "DroidNet Astromech Boards",
-      "libraryVersion": "4.6.0",
+      "libraryVersion": "4.7.0",
       "schemaVersion": "v1",
       "url": "https://raw.githubusercontent.com/travisccook/droidnet-command-library/main/libraries/manifest.json"
     }
