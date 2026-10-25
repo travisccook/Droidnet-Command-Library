@@ -1,6 +1,6 @@
 {
   "$schema": "droidnet-command-library/library/v1",
-  "generatedFrom": "R2UppitySpinnerV3 ALT fw 3.5.3 (highfalutintodd fork of Mimir Reynisson's original)",
+  "generatedFrom": "Uppity Spinner ALT v4.0.0-beta.1 (the clean-sheet rewrite, highfalutintodd/R2UppitySpinner_ALT); based on the community v3.5.3 entry",
   "enums": {
     "uppity.lightMode": {
       "label": "Light Kit Mode",
@@ -128,6 +128,47 @@
           "label": "Normally Open"
         }
       ]
+    },
+    "uppity.randomLight": {
+      "label": "Light Kit in Random Mode",
+      "values": [
+        {
+          "code": "0",
+          "label": "Leave alone"
+        },
+        {
+          "code": "1",
+          "label": "Off"
+        },
+        {
+          "code": "2",
+          "label": "Obi-Wan (blue)"
+        },
+        {
+          "code": "3",
+          "label": "Yoda (green fade)"
+        },
+        {
+          "code": "4",
+          "label": "Sith (red flash)"
+        },
+        {
+          "code": "5",
+          "label": "Search Light (white)"
+        },
+        {
+          "code": "6",
+          "label": "Dagobah (screen-accurate)"
+        },
+        {
+          "code": "7",
+          "label": "Sparkle"
+        },
+        {
+          "code": "8",
+          "label": "A new mode each action"
+        }
+      ]
     }
   },
   "components": [
@@ -136,13 +177,14 @@
       "name": "R2 Uppity Spinner ALT (Periscope)",
       "kind": "device-native",
       "confidence": "community",
-      "firmware": "v3.5.3",
+      "firmware": "v4.0.0-beta.1",
       "routing": {
         "class": "broadcast",
         "nativeWrapper": "none",
         "durationSuffix": {
           "supported": false
-        }
+        },
+        "notes": "Every v3 :P/#P command keeps its syntax, so this entry also drives boards on v3.5.3 and later; the commands marked (v4) are new in 4.0, and RC mode is v3 only. v4: the same :P/#P grammar on the command serial (Marcduino bus), the USB console and, when the builder turns it on, the WCB mesh as its own client device (off by default). :PX, ?STOP and &ESTOP latch an E-STOP that only #PRESUME, the board's web page or &ESTOP,RESET releases. With the mesh on it sends &PERI,HB/POS/STATE/FAULT telemetry. Settings, unlocking and rescue commands are refused from the mesh; the bus refuses the rescue override."
       },
       "commands": [
         {
@@ -238,7 +280,7 @@
         },
         {
           "id": "uppity.lifter.home",
-          "name": "Return Home",
+          "name": "Lower Safely (home the head first if needed)",
           "safety": "movement",
           "encoder": "template",
           "template": ":PH",
@@ -274,7 +316,7 @@
         },
         {
           "id": "uppity.estop",
-          "name": "Emergency Stop",
+          "name": "Emergency Stop (on v4 it latches until released)",
           "safety": "power",
           "encoder": "template",
           "template": ":PX",
@@ -865,7 +907,7 @@
         },
         {
           "id": "uppity.cfg.rc",
-          "name": "RC (PPM) Mode",
+          "name": "RC (PPM) Mode (v3 only)",
           "safety": "config",
           "encoder": "template",
           "template": "#PRC{state}",
@@ -881,7 +923,7 @@
             "#PRC0",
             "#PRC1"
           ],
-          "commentLabel": "Uppity RC mode",
+          "commentLabel": "Uppity RC mode (v3 only; v4 has no RC input and ignores it)",
           "category": "Setup"
         },
         {
@@ -961,6 +1003,111 @@
           ],
           "commentLabel": "Uppity rotary limit",
           "category": "Setup"
+        },
+        {
+          "id": "uppity.cfg.resume",
+          "name": "Release E-STOP (v4)",
+          "category": "Power",
+          "safety": "power",
+          "encoder": "template",
+          "template": "#PRESUME",
+          "params": [],
+          "examples": [
+            "#PRESUME"
+          ],
+          "commentLabel": "Uppity release E-STOP"
+        },
+        {
+          "id": "uppity.cfg.state",
+          "name": "Report State (v4)",
+          "category": "Config",
+          "safety": "cosmetic",
+          "encoder": "template",
+          "template": "#PSTATE",
+          "params": [],
+          "examples": [
+            "#PSTATE"
+          ],
+          "commentLabel": "Uppity state"
+        },
+        {
+          "id": "uppity.cfg.clearFault",
+          "name": "Clear Fault (v4)",
+          "category": "Power",
+          "safety": "config",
+          "encoder": "template",
+          "template": "#PCLEARFAULT",
+          "params": [],
+          "examples": [
+            "#PCLEARFAULT"
+          ],
+          "commentLabel": "Uppity clear fault"
+        },
+        {
+          "id": "uppity.cfg.rotaryTest",
+          "name": "Rotary Test (v4: measure ticks per turn, then home)",
+          "category": "Setup",
+          "safety": "movement",
+          "encoder": "template",
+          "template": "#PROTARYTEST{turns}",
+          "params": [
+            {
+              "name": "turns",
+              "type": "int",
+              "min": 1,
+              "max": 10,
+              "required": true,
+              "default": 3
+            }
+          ],
+          "examples": [
+            "#PROTARYTEST3"
+          ],
+          "commentLabel": "Uppity rotary test"
+        },
+        {
+          "id": "uppity.cfg.randomLight",
+          "name": "Light Kit During Random Mode (v4)",
+          "category": "Setup",
+          "safety": "config",
+          "encoder": "template",
+          "template": "#PRANDOMLIGHT{mode}",
+          "params": [
+            {
+              "name": "mode",
+              "enum": "uppity.randomLight",
+              "required": true,
+              "default": "0"
+            }
+          ],
+          "examples": [
+            "#PRANDOMLIGHT0",
+            "#PRANDOMLIGHT7"
+          ],
+          "commentLabel": "Uppity random light"
+        },
+        {
+          "id": "uppity.cfg.meshHeartbeat",
+          "name": "Mesh Heartbeat Period (v4)",
+          "category": "Setup",
+          "safety": "config",
+          "encoder": "template",
+          "template": "#PMESHHB{seconds}",
+          "params": [
+            {
+              "name": "seconds",
+              "type": "int",
+              "min": 5,
+              "max": 300,
+              "required": true,
+              "default": 10
+            }
+          ],
+          "examples": [
+            "#PMESHHB10",
+            "#PMESHHB30"
+          ],
+          "commentLabel": "Uppity mesh heartbeat"
         }
       ],
       "categories": [
